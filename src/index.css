@@ -1,0 +1,174 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: "SatoshiBlack";
+  src: local("SatoshiBlack"),
+    url("./fonts/Satoshi-Black.otf") format("opentype");
+  font-weight: black;
+}
+
+@font-face {
+  font-family: "SatoshiBold";
+  src: local("SatoshiBold"), url("./fonts/Satoshi-Bold.otf") format("opentype");
+  font-weight: bold;
+}
+
+@font-face {
+  font-family: "SatoshiLight";
+  src: local("SatoshiLight"),
+    url("./fonts/Satoshi-Light.otf") format("opentype");
+  font-weight: light;
+}
+
+@font-face {
+  font-family: "SatoshiMedium";
+  src: local("SatoshiMedium"),
+    url("./fonts/Satoshi-Medium.otf") format("opentype");
+  font-weight: medium;
+}
+
+@font-face {
+  font-family: "SatoshiRegular";
+  src: local("SatoshiRegular"),
+    url("./fonts/Satoshi-Regular.otf") format("opentype");
+  font-weight: regular;
+}
+
+.satoshiBold {
+  font-family: "SatoshiBold";
+}
+
+/* Default styles (applies to all screens) */
+.hero-large-screen {
+  display: none;
+}
+
+.hero-small-screen {
+  display: block;
+}
+
+.heading {
+  font-family: "Vidaloka", serif;
+}
+
+.body {
+  font-family: "Catamaran", sans-serif;
+}
+
+.head {
+  font-family: "Arsenal", sans-serif;
+}
+
+h1 {
+  font-size: 48px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
+}
+
+h2 {
+  font-size: 36px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
+}
+/* Media query for screens 1024px and above (laptop and larger) */
+@media (min-width: 1024px) {
+  .hero-large-screen {
+    display: block;
+  }
+
+  .hero-small-screen {
+    display: none;
+  }
+}
+
+p {
+  font-size: 16px;
+}
+
+ul,
+ol {
+  margin-left: 20px;
+  margin-bottom: 15px;
+}
+
+/* Blockquotes */
+blockquote {
+  margin: 20px 0;
+  padding: 10px 20px;
+  background-color: #f9f9f9;
+  border-left: 5px solid #ccc;
+  font-style: italic;
+}
+
+/* Images */
+img {
+  max-width: 100%;
+  height: auto;
+  margin: 20px 0;
+}
+
+/* Links */
+a {
+  color: #ffa500;
+}
+
+a:hover {
+  text-decoration: none;
+}
+
+/* Code blocks */
+pre {
+  background-color: #f5f5f5;
+  padding: 15px;
+  border-radius: 5px;
+  overflow-x: auto;
+  font-family: "Courier New", Courier, monospace;
+}
+
+code {
+  background-color: #f5f5f5;
+  padding: 2px 4px;
+  border-radius: 3px;
+  font-family: "Courier New", Courier, monospace;
+}
+
+/* Quill-specific styling */
+strong {
+  font-weight: bold;
+}
+
+em {
+  font-style: italic;
+}
+
+u {
+  text-decoration: underline;
+}
+
+ul,
+ol {
+  padding-left: 20px;
+}
+
+img {
+  display: block;
+  margin: 20px auto;
+  max-width: 100%;
+  height: auto;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  h1,
+  h2 {
+    font-size: 1.5em;
+  }
+
+  p {
+    font-size: 1em;
+  }
+}
