@@ -3,22 +3,24 @@ import { Link } from "react-router-dom";
 import Header from "../../layout/header";
 import Navbar from "../../layout/navbar";
 import Footer from "../../layout/footer";
-import {
-  collection,
-  getDocs,
-  deleteDoc,
-  doc,
-  query,
-  orderBy,
-  limit,
-} from "firebase/firestore";
-import { db } from "../../../firebase";
+import { collection, getDocs, query, orderBy, limit } from "firebase/firestore";
+import { db } from "../../../firebase.ts";
+
+interface Blog {
+  id: string;
+  title: string;
+  createdAt: {
+    seconds: number;
+  };
+  readDuration: string;
+  description: string;
+}
 
 const ClientBlog: React.FC = () => {
-  const [blogs, setBlogs] = useState<any[]>([]);
+  const [blogs, setBlogs] = useState<Blog[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const blogsPerPage = 5;
-  const [latestBlogs, setLatestBlogs] = useState<any[]>([]);
+  const [latestBlogs, setLatestBlogs] = useState<Blog[]>([]);
 
   useEffect(() => {
     const fetchBlogs = async () => {
@@ -27,7 +29,7 @@ const ClientBlog: React.FC = () => {
       const blogsData = querySnapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
-      }));
+      })) as Blog[];
       setBlogs(blogsData);
 
       // Fetch the five latest blogs for the "Writing" section
@@ -40,16 +42,11 @@ const ClientBlog: React.FC = () => {
       const latestBlogsData = latestSnapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
-      }));
+      })) as Blog[];
       setLatestBlogs(latestBlogsData);
     };
     fetchBlogs();
   }, []);
-
-  const handleDelete = async (id: string) => {
-    await deleteDoc(doc(db, "blogs", id));
-    setBlogs(blogs.filter((blog) => blog.id !== id));
-  };
 
   const indexOfLastBlog = currentPage * blogsPerPage;
   const indexOfFirstBlog = indexOfLastBlog - blogsPerPage;
@@ -74,12 +71,12 @@ const ClientBlog: React.FC = () => {
                       </h5>
                     </div>
                     <div className="flex justify-between mb-2 body">
-                      <p className=" text-[#ffa500]">
+                      <p className="text-[#ffa500]">
                         {new Date(
                           blog.createdAt.seconds * 1000
                         ).toLocaleDateString()}
                       </p>
-                      <p className=" text-[#ffa500]">{blog.readDuration}</p>
+                      <p className="text-[#ffa500]">{blog.readDuration}</p>
                     </div>
                     <div className="body text-black">{blog.description}</div>
                   </Link>
@@ -146,12 +143,12 @@ const ClientBlog: React.FC = () => {
                   </h5>
                 </div>
                 <div className="flex justify-between mb-2 body">
-                  <p className=" text-[#ffa500]">
+                  <p className="text-[#ffa500]">
                     {new Date(
                       blog.createdAt.seconds * 1000
                     ).toLocaleDateString()}
                   </p>
-                  <p className=" text-[#ffa500]">{blog.readDuration}</p>
+                  <p className="text-[#ffa500]">{blog.readDuration}</p>
                 </div>
                 <div className="body text-black">{blog.description}</div>
               </Link>

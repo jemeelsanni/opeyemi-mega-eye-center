@@ -12,8 +12,18 @@ import {
 } from "firebase/firestore";
 import { db } from "../../../firebase";
 
+interface Blog {
+  id: string;
+  title: string;
+  createdAt: {
+    seconds: number;
+  };
+  readDuration: string;
+  description: string;
+}
+
 const BlogList: React.FC = () => {
-  const [blogs, setBlogs] = useState<any[]>([]);
+  const [blogs, setBlogs] = useState<Blog[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const blogsPerPage = 5;
 
@@ -24,7 +34,7 @@ const BlogList: React.FC = () => {
       const blogsData = querySnapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
-      }));
+      })) as Blog[];
       setBlogs(blogsData);
     };
     fetchBlogs();
@@ -42,26 +52,26 @@ const BlogList: React.FC = () => {
   const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
 
   return (
-    <div className="">
+    <div>
       <BlogHead />
       <div className="hero-large-screen px-24">
         <h2>Blog List</h2>
         <ul>
           {currentBlogs.map((blog) => (
             <li key={blog.id}>
-              <div className="bg-slate-100 my-4 p-6 ">
+              <div className="bg-slate-100 my-4 p-6">
                 <div>
                   <h5 className="text-4xl text-black mb-2 head capitalize">
                     {blog.title}
                   </h5>
                 </div>
                 <div className="flex justify-between mb-2 body">
-                  <p className=" text-[#ffa500]">
+                  <p className="text-[#ffa500]">
                     {new Date(
                       blog.createdAt.seconds * 1000
                     ).toLocaleDateString()}
                   </p>
-                  <p className=" text-[#ffa500]">{blog.readDuration}</p>
+                  <p className="text-[#ffa500]">{blog.readDuration}</p>
                 </div>
                 <div className="body text-black">{blog.description}</div>
                 <div className="flex justify-between">
@@ -96,19 +106,19 @@ const BlogList: React.FC = () => {
         <ul>
           {currentBlogs.map((blog) => (
             <li key={blog.id}>
-              <div className="bg-slate-100 my-2 p-2 ">
+              <div className="bg-slate-100 my-2 p-2">
                 <div>
                   <h5 className="text-4xl text-black mb-2 head capitalize">
                     {blog.title}
                   </h5>
                 </div>
                 <div className="flex justify-between mb-2 body">
-                  <p className=" text-[#ffa500]">
+                  <p className="text-[#ffa500]">
                     {new Date(
                       blog.createdAt.seconds * 1000
                     ).toLocaleDateString()}
                   </p>
-                  <p className=" text-[#ffa500]">{blog.readDuration}</p>
+                  <p className="text-[#ffa500]">{blog.readDuration}</p>
                 </div>
                 <div className="body text-black">{blog.description}</div>
                 <div className="flex justify-between">
