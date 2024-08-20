@@ -5,6 +5,7 @@ import Hero3 from "../../assets/hero3.jpg";
 import Hero4 from "../../assets/hero4.jpg";
 import Hero5 from "../../assets/hero5.jpg";
 import Hero6 from "../../assets/hero6.jpg";
+import Appointment from "../appointment/appointment";
 
 const Hero: React.FC = () => {
   const [openModal, setOpenModal] = useState(false);
