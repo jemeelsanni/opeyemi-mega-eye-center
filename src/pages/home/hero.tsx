@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import Appointment from "../appointment/Appointment";
 import Hero1 from "../../assets/hero1.jpg";
 import Hero2 from "../../assets/hero2.jpg";
 import Hero3 from "../../assets/hero3.jpg";

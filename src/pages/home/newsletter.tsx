@@ -1,21 +1,21 @@
 import React from "react";
 
-const newsletter = () => {
+const Newsletter: React.FC = () => {
   return (
     <div>
       <div className="hero-large-screen">
         <div className="my-12">
-          <section className=" flex justify-center">
+          <section className="flex justify-center">
             <div>
               <div className="flex flex-row items-center gap-24">
                 <div className="flex flex-col gap-0.5">
-                  <p className=" text-base font-medium">Join our</p>
-                  <p className=" text-2xl font-semibold">Newsletter</p>
+                  <p className="text-base font-medium">Join our</p>
+                  <p className="text-2xl font-semibold">Newsletter</p>
                 </div>
                 <div>
-                  <form action="" className="flex flex-row gap-4">
+                  <form className="flex flex-row gap-4">
                     <input
-                      className=" outline-none border-black border-[1px] rounded-full py-1 px-3 w-96"
+                      className="outline-none border-black border-[1px] rounded-full py-1 px-3 w-96"
                       type="text"
                       placeholder="Email"
                     />
@@ -27,8 +27,7 @@ const newsletter = () => {
               </div>
               <div className="mt-4">
                 <p className="text-center">
-                  {" "}
-                  We promise to send eye related stuffs and not spam you.
+                  We promise to send eye-related stuff and not spam you.
                 </p>
               </div>
             </div>
@@ -37,19 +36,19 @@ const newsletter = () => {
       </div>
       <div className="hero-small-screen">
         <div className="my-12 mx-6">
-          <section className=" flex justify-center">
+          <section className="flex justify-center">
             <div>
-              <div className=" items-center gap-24">
+              <div className="items-center gap-24">
                 <div className="flex flex-col gap-0.5">
-                  <p className=" text-base font-medium">
+                  <p className="text-base font-medium">
                     Join our{" "}
-                    <span className=" text-xl font-semibold">Newsletter</span>
+                    <span className="text-xl font-semibold">Newsletter</span>
                   </p>
                 </div>
                 <div>
-                  <form action="" className="">
+                  <form className="">
                     <input
-                      className=" outline-none w-full border-black border-[1px] mt-2 rounded-full py-1 px-3 "
+                      className="outline-none w-full border-black border-[1px] mt-2 rounded-full py-1 px-3"
                       type="text"
                       placeholder="Email"
                     />
@@ -61,8 +60,7 @@ const newsletter = () => {
               </div>
               <div className="mt-4">
                 <p className="text-center">
-                  {" "}
-                  We promise to send eye related stuffs and not spam you.
+                  We promise to send eye-related stuff and not spam you.
                 </p>
               </div>
             </div>
@@ -73,4 +71,4 @@ const newsletter = () => {
   );
 };
 
-export default newsletter;
+export default Newsletter;
