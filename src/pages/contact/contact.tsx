@@ -3,7 +3,7 @@ import Navbar from "../../layout/navbar";
 import Footer from "../../layout/footer";
 import Header from "../../layout/header";
 
-const contact = () => {
+const Contact: React.FC = () => {
   return (
     <div>
       <Header />
@@ -23,10 +23,11 @@ const contact = () => {
           </div>
         </div>
       </div>
+
       {/* Form */}
       <div className="hero-large-screen">
         <div className="mx-[408px] my-16">
-          <div className="text-center ">
+          <div className="text-center">
             <h1 className="text-3xl py-2 font-medium text-center mt-0 mb-2">
               Get in touch
             </h1>
@@ -35,44 +36,48 @@ const contact = () => {
               Hi? Just contact us. We are here to assist you.
             </p>
           </div>
-          <form className="flex flex-col text-lg gap-8 " action="">
-            <div className=" flex flex-col">
-              <label htmlFor="">Email</label>
+          <form className="flex flex-col text-lg gap-8" action="">
+            <div className="flex flex-col">
+              <label htmlFor="email">Email</label>
               <input
-                className=" outline-none border-[#FFA500] border-[1px] bg-gray p-2"
+                id="email"
+                className="outline-none border-[#FFA500] border-[1px] bg-gray p-2"
+                type="email"
+              />
+            </div>
+            <div className="flex flex-col">
+              <label htmlFor="fullName">Full Name</label>
+              <input
+                id="fullName"
+                className="outline-none border-[#FFA500] border-[1px] bg-gray p-2"
                 type="text"
               />
             </div>
-            <div className=" flex flex-col">
-              <label htmlFor="">Full Name</label>
+            <div className="flex flex-col">
+              <label htmlFor="phoneNumber">Phone Number</label>
               <input
-                className=" outline-none border-[#FFA500] border-[1px] bg-gray p-2"
-                type="text"
+                id="phoneNumber"
+                className="outline-none border-[#FFA500] border-[1px] bg-gray p-2"
+                type="tel"
               />
             </div>
-            <div className=" flex flex-col">
-              <label htmlFor="">Phone Number</label>
-              <input
-                className=" outline-none border-[#FFA500] border-[1px] bg-gray p-2"
-                type="n"
-              />
-            </div>
-            <div className=" flex flex-col">
-              <label htmlFor="">How can we help you?</label>
+            <div className="flex flex-col">
+              <label htmlFor="message">How can we help you?</label>
               <textarea
-                className=" outline-none border-[#FFA500] h-48 border-[1px] bg-gray p-2"
-                type="text"
+                id="message"
+                className="outline-none border-[#FFA500] h-48 border-[1px] bg-gray p-2"
               />
             </div>
-            <button className=" bg-[#FFA500] p-4 text-lg">
+            <button type="submit" className="bg-[#FFA500] p-4 text-lg">
               Submit Enquiry
             </button>
           </form>
         </div>
       </div>
+
       <div className="hero-small-screen">
         <div className="mx-6 my-6">
-          <div className="text-center ">
+          <div className="text-center">
             <h1 className="text-3xl py-2 font-medium text-center mt-0 mb-2">
               Get in touch
             </h1>
@@ -81,44 +86,48 @@ const contact = () => {
               Hi? Just contact us. We are here to assist you.
             </p>
           </div>
-          <form className="flex flex-col text-lg gap-8 " action="">
-            <div className=" flex flex-col">
-              <label htmlFor="">Email</label>
+          <form className="flex flex-col text-lg gap-8" action="">
+            <div className="flex flex-col">
+              <label htmlFor="emailSmall">Email</label>
               <input
-                className=" outline-none border-[#FFA500] border-[1px] bg-gray p-2"
+                id="emailSmall"
+                className="outline-none border-[#FFA500] border-[1px] bg-gray p-2"
+                type="email"
+              />
+            </div>
+            <div className="flex flex-col">
+              <label htmlFor="fullNameSmall">Full Name</label>
+              <input
+                id="fullNameSmall"
+                className="outline-none border-[#FFA500] border-[1px] bg-gray p-2"
                 type="text"
               />
             </div>
-            <div className=" flex flex-col">
-              <label htmlFor="">Full Name</label>
+            <div className="flex flex-col">
+              <label htmlFor="phoneNumberSmall">Phone Number</label>
               <input
-                className=" outline-none border-[#FFA500] border-[1px] bg-gray p-2"
-                type="text"
+                id="phoneNumberSmall"
+                className="outline-none border-[#FFA500] border-[1px] bg-gray p-2"
+                type="tel"
               />
             </div>
-            <div className=" flex flex-col">
-              <label htmlFor="">Phone Number</label>
-              <input
-                className=" outline-none border-[#FFA500] border-[1px] bg-gray p-2"
-                type="n"
-              />
-            </div>
-            <div className=" flex flex-col">
-              <label htmlFor="">How can we help you?</label>
+            <div className="flex flex-col">
+              <label htmlFor="messageSmall">How can we help you?</label>
               <textarea
-                className=" outline-none border-[#FFA500] h-48 border-[1px] bg-gray p-2"
-                type="text"
+                id="messageSmall"
+                className="outline-none border-[#FFA500] h-48 border-[1px] bg-gray p-2"
               />
             </div>
-            <button className=" bg-[#FFA500] p-4 text-lg">
+            <button type="submit" className="bg-[#FFA500] p-4 text-lg">
               Submit Enquiry
             </button>
           </form>
         </div>
       </div>
+
       <Footer />
     </div>
   );
 };
 
-export default contact;
+export default Contact;
