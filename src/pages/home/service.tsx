@@ -1,4 +1,3 @@
-import React from "react";
 import surgical from "../../assets/surgical.jpg";
 import clinical from "../../assets/clinical.jpg";
 import opticals from "../../assets/opticals.jpg";
