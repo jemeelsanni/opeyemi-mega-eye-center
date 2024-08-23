@@ -38,7 +38,7 @@ const Header: React.FC = () => {
       </div>
       <div className="hero-small-screen">
         <div className="bg-[#ffa500] opacity-[50%] px-6 py-2  items-center justify-between">
-          <div className="flex flex-cols items-center gap-4 text-base">
+          {/* <div className="flex flex-cols items-center gap-4 text-base">
             <div>
               <p className=" font-medium">Working Hours:</p>
             </div>
@@ -56,9 +56,9 @@ const Header: React.FC = () => {
             <div>
               <p>+234-81-641-6676</p>
             </div>
-          </div>
+          </div> */}
 
-          <div className="flex flex-cols items-center mt-[-18px] gap-2 text-base">
+          <div className="flex flex-cols items-center gap-2 text-base">
             <div className="flex flex-cols gap-1 items-center">
               <img src={Location} className=" w-4 h-4" alt="" />
               <p className="font-medium">Location:</p>

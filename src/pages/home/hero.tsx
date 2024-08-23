@@ -22,7 +22,7 @@ const Hero: React.FC = () => {
               </div>
               <div className="w-1/2 px-[62px] text-center">
                 <h1 className="text-6xl font-medium">
-                  We Provide a Full Scope of Eye Care Services.
+                  We Provide a Wide Scope of Eye Care Services.
                 </h1>
                 <br />
                 <p className="text-3xl font-normal">
@@ -73,7 +73,7 @@ const Hero: React.FC = () => {
             <div className=" py-6">
               <div className="w-full px-[62px] text-center">
                 <h1 className="text-3xl font-medium">
-                  We Provide a Full Scope of Eye Care Services.
+                  We Provide a Wide Scope of Eye Care Services.
                 </h1>
                 <br />
                 <p className="text-xl font-normal">

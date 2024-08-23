@@ -96,7 +96,7 @@ const Services: React.FC = () => {
               <div className="space-y-1 leading-tight">
                 <li>20 bedded space</li>
                 <li>A standard operation theatre</li>
-                <li>Two (2) operating microscopes and tables</li>
+                <li>Three (3) operating microscopes and tables</li>
                 <li>Standard sterilizing facilities</li>
                 <li>A pharmaceutical dispensary unit</li>
                 <li>Two standard investigation rooms</li>
@@ -182,7 +182,7 @@ const Services: React.FC = () => {
               <div className="space-y-1 leading-tight">
                 <li>20 bedded space</li>
                 <li>A standard operation theatre</li>
-                <li>Two (2) operating microscopes and tables</li>
+                <li>Three (3) operating microscopes and tables</li>
                 <li>Standard sterilizing facilities</li>
                 <li>A pharmaceutical dispensary unit</li>
                 <li>Two standard investigation rooms</li>

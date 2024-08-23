@@ -14,11 +14,8 @@ const About: React.FC = () => {
               Welcome to{" "}
               <span className="text-3xl font-bold text-[#FFA500]">OMEC</span>
             </h1>
+
             <p className="text-xl">
-              We're the best eye care center available and we're ready to help
-              you!
-            </p>
-            <p>
               Opeyemi Mega Eye Centre is a world-class health facility dedicated
               to providing all your eye health needs, not only curative but also
               preventive. We boast of cutting-edge equipment which aids in the
@@ -51,10 +48,7 @@ const About: React.FC = () => {
               Welcome to{" "}
               <span className="text-2xl font-bold text-[#FFA500]">OMEC</span>
             </h1>
-            <p className="text-base">
-              We're the best eye care center available and we're ready to help
-              you!
-            </p>
+
             <p>
               Opeyemi Mega Eye Centre is a world-class health facility dedicated
               to providing all your eye health needs, not only curative but also
