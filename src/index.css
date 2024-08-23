@@ -105,11 +105,11 @@ blockquote {
 }
 
 /* Images */
-img {
+/* img {
   max-width: 100%;
   height: auto;
   margin: 20px 0;
-}
+} */
 
 /* Links */
 a {
@@ -154,12 +154,12 @@ ol {
   padding-left: 20px;
 }
 
-img {
+/* img {
   display: block;
   margin: 20px auto;
   max-width: 100%;
   height: auto;
-}
+} */
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
