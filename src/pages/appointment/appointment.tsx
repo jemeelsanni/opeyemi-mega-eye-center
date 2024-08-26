@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import emailjs from "emailjs-com"; // Import EmailJS
 import x from "../../assets/x.png";
 
 interface AppointmentProps {
@@ -23,15 +24,63 @@ const Appointment: React.FC<AppointmentProps> = ({ open, onClose }) => {
     date: "",
   });
 
+  const [message, setMessage] = useState<string>("");
+
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+
+    // If the field is the date input, check if the selected date is a Sunday
+    if (name === "date") {
+      const selectedDate = new Date(value);
+      const dayOfWeek = selectedDate.getDay();
+
+      // If the selected day is Sunday (0 in JavaScript), prevent the update
+      if (dayOfWeek === 0) {
+        setMessage("Appointments cannot be booked on Sundays.");
+        return;
+      } else {
+        setMessage(""); // Clear any error message
+      }
+    }
+
+    setFormData({ ...formData, [name]: value });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log(formData); // Handle form submission logic
+
+    // Check if a Sunday was selected as a final safeguard
+    const selectedDate = new Date(formData.date);
+    if (selectedDate.getDay() === 0) {
+      setMessage("Appointments cannot be booked on Sundays.");
+      return;
+    }
+
+    // EmailJS configuration
+    const serviceId = "YOUR_SERVICE_ID";
+    const templateId = "YOUR_TEMPLATE_ID";
+    const userId = "YOUR_USER_ID";
+
+    emailjs.send(serviceId, templateId, formData, userId).then(
+      (response) => {
+        console.log("SUCCESS!", response.status, response.text);
+        setMessage("Appointment request sent successfully!");
+        setFormData({
+          treatmentType: "",
+          doctorName: "",
+          name: "",
+          email: "",
+          date: "",
+        });
+      },
+      (error) => {
+        console.error("FAILED...", error);
+        setMessage("Failed to send appointment request. Please try again.");
+      }
+    );
+
     onClose();
   };
 
@@ -42,7 +91,7 @@ const Appointment: React.FC<AppointmentProps> = ({ open, onClose }) => {
       }`}
     >
       <div className="bg-white rounded p-4 shadow-md w-full max-w-md relative">
-        <div className=" text-lg font-semibold">Book Appointment</div>
+        <div className="text-lg font-semibold">Book Appointment</div>
         <button
           type="button"
           onClick={onClose}
@@ -51,31 +100,6 @@ const Appointment: React.FC<AppointmentProps> = ({ open, onClose }) => {
           <img className="h-8 w-8" src={x} alt="Close" />
         </button>
         <form onSubmit={handleSubmit} className="space-y-4 mt-4">
-          <div>
-            <label
-              htmlFor="treatmentType"
-              className="block text-base text-left font-medium text-gray-700"
-            >
-              Eye Treatment Type
-            </label>
-            <select
-              id="treatmentType"
-              name="treatmentType"
-              value={formData.treatmentType}
-              onChange={handleChange}
-              className="outline-none border-[#FFA500] border-[1px] bg-gray p-2 w-full"
-              required
-            >
-              <option value="" disabled>
-                Select treatment type
-              </option>
-              <option value="Cataract Surgery">Cataract Surgery</option>
-              <option value="LASIK">LASIK</option>
-              <option value="Glaucoma Treatment">Glaucoma Treatment</option>
-              {/* Add more options as needed */}
-            </select>
-          </div>
-
           <div>
             <label
               htmlFor="doctorName"
@@ -157,6 +181,11 @@ const Appointment: React.FC<AppointmentProps> = ({ open, onClose }) => {
             Submit
           </button>
         </form>
+        {message && (
+          <div className="mt-4 text-center">
+            <p>{message}</p>
+          </div>
+        )}
       </div>
     </div>
   );

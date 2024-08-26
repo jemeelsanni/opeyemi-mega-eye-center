@@ -1,6 +1,42 @@
-import React from "react";
+import React, { useState } from "react";
+import emailjs from "emailjs-com";
 
 const Newsletter: React.FC = () => {
+  const [email, setEmail] = useState("");
+  const [message, setMessage] = useState("");
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!email) {
+      setMessage("Please enter a valid email address.");
+      return;
+    }
+
+    // EmailJS configuration
+    const serviceId = "YOUR_SERVICE_ID";
+    const templateId = "YOUR_TEMPLATE_ID";
+    const userId = "YOUR_USER_ID";
+
+    const templateParams = {
+      email,
+    };
+
+    emailjs.send(serviceId, templateId, templateParams, userId).then(
+      (response) => {
+        console.log("SUCCESS!", response.status, response.text);
+        setMessage("Thank you for subscribing to our newsletter!");
+        setEmail("");
+      },
+      (error) => {
+        console.error("FAILED...", error);
+        setMessage(
+          "There was an error sending your request. Please try again."
+        );
+      }
+    );
+  };
+
   return (
     <div>
       <div className="hero-large-screen">
@@ -13,23 +49,28 @@ const Newsletter: React.FC = () => {
                   <p className="text-2xl font-semibold">Newsletter</p>
                 </div>
                 <div>
-                  <form className="flex flex-row gap-4">
+                  <form className="flex flex-row gap-4" onSubmit={handleSubmit}>
                     <input
                       className="outline-none border-black border-[1px] rounded-full py-1 px-3 w-96"
-                      type="text"
+                      type="email"
                       placeholder="Email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
                     />
-                    <button className="bg-[#FFA500] rounded-full py-1 px-12 font-semibold text-white">
+                    <button
+                      type="submit"
+                      className="bg-[#FFA500] rounded-full py-1 px-12 font-semibold text-white"
+                    >
                       Send
                     </button>
                   </form>
                 </div>
               </div>
-              <div className="mt-4">
-                <p className="text-center">
-                  We promise to send eye-related stuff and not spam you.
-                </p>
-              </div>
+              {message && (
+                <div className="mt-4 text-center">
+                  <p>{message}</p>
+                </div>
+              )}
             </div>
           </section>
         </div>
@@ -46,23 +87,28 @@ const Newsletter: React.FC = () => {
                   </p>
                 </div>
                 <div>
-                  <form className="">
+                  <form className="" onSubmit={handleSubmit}>
                     <input
                       className="outline-none w-full border-black border-[1px] mt-2 rounded-full py-1 px-3"
-                      type="text"
+                      type="email"
                       placeholder="Email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
                     />
-                    <button className="bg-[#FFA500] w-full rounded-full mt-3 py-3 px-12 font-semibold text-white">
+                    <button
+                      type="submit"
+                      className="bg-[#FFA500] w-full rounded-full mt-3 py-3 px-12 font-semibold text-white"
+                    >
                       Send
                     </button>
                   </form>
                 </div>
               </div>
-              <div className="mt-4">
-                <p className="text-center">
-                  We promise to send eye-related stuff and not spam you.
-                </p>
-              </div>
+              {message && (
+                <div className="mt-4 text-center">
+                  <p>{message}</p>
+                </div>
+              )}
             </div>
           </section>
         </div>

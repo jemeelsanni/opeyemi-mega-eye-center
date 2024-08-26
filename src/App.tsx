@@ -14,12 +14,12 @@ const App: React.FC = () => {
       <Router>
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="services" element={<Services />} />
-          <Route path="contact" element={<Contact />} />
-          <Route path="createBlog" element={<CreateBlog />} />
-          <Route path="blogList" element={<BlogList />} />
-          <Route path="clientBlog" element={<ClientBlog />} />
-          <Route path="blogDetail/:blogId" element={<BlogDetail />} />
+          <Route path="/services" element={<Services />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/createBlog" element={<CreateBlog />} />
+          <Route path="/blogList" element={<BlogList />} />
+          <Route path="/clientBlog" element={<ClientBlog />} />
+          <Route path="/blogDetail/:blogId" element={<BlogDetail />} />
           <Route path="/edit-blog/:id" element={<CreateBlog />} />
         </Routes>
       </Router>
