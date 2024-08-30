@@ -11,9 +11,9 @@ export default defineConfig({
     },
   },
   // Rollup options might not need to specify external for `react-quill` in most cases
-  build: {
-    rollupOptions: {
-      external: ['react-quill'], // Keep only if necessary
-    },
-  },
+  // build: {
+  //   rollupOptions: {
+  //     external: ['react-quill'], // Keep only if necessary
+  //   },
+  // },
 });
