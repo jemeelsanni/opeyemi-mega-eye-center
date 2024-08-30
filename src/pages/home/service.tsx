@@ -1,6 +1,7 @@
 import surgical from "../../assets/surgical.jpg";
 import clinical from "../../assets/clinical.jpg";
 import opticals from "../../assets/opticals.jpg";
+import { Link } from "react-router-dom";
 
 const Service: React.FC = () => {
   const services = [
@@ -76,9 +77,12 @@ const Service: React.FC = () => {
             ))}
           </div>
           <div className="flex justify-center mt-8">
-            <div className="px-4 py-3 bg-[#FFA500] rounded-full text-white text-xl font-semibold">
+            <Link
+              to="/services"
+              className="px-4 py-3 bg-[#FFA500] rounded-full text-white text-xl font-semibold"
+            >
               Browse all services
-            </div>
+            </Link>
           </div>
         </div>
       </div>

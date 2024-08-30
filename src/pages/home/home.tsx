@@ -4,7 +4,7 @@ import Header from "../../layout/header";
 import Navbar from "../../layout/navbar";
 import About from "./about";
 import Service from "./service";
-import Doctors from "./doctors";
+// import Doctors from "./doctors";
 import Testimonials from "./testimonials";
 import Newsletter from "./newsletter";
 import Footer from "../../layout/footer";
@@ -17,7 +17,7 @@ const Home: React.FC = () => {
       <Hero />
       <About />
       <Service />
-      <Doctors />
+      {/* <Doctors /> */}
       <Testimonials />
       <Newsletter />
       <Footer />

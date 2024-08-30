@@ -1,5 +1,5 @@
 import React from "react";
-import Welcome from "../../assets/welcome.png";
+import Welcome from "../../assets/welcome.jpg";
 
 const About: React.FC = () => {
   return (
@@ -15,7 +15,7 @@ const About: React.FC = () => {
               <span className="text-3xl font-bold text-[#FFA500]">OMEC</span>
             </h1>
 
-            <p className="text-xl">
+            <p className="text-lg">
               Opeyemi Mega Eye Centre is a world-class health facility dedicated
               to providing all your eye health needs, not only curative but also
               preventive. We boast of cutting-edge equipment which aids in the

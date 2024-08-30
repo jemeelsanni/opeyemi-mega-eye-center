@@ -31,7 +31,10 @@ const Header: React.FC = () => {
               <p className="font-semibold">Location:</p>
             </div>
             <div>
-              <p>09, Ayelodun Rd, Amilegbe, Ilorin, Kwara State</p>
+              <p>
+                4B, Saboline Isale, Amilegbe Rd, opposite Temitope Hospital,
+                Ilorin.
+              </p>
             </div>
           </div>
         </div>
@@ -61,10 +64,13 @@ const Header: React.FC = () => {
           <div className="flex flex-cols items-center gap-2 text-base">
             <div className="flex flex-cols gap-1 items-center">
               <img src={Location} className=" w-4 h-4" alt="" />
-              <p className="font-medium">Location:</p>
+              <p className="font-medium mr-3">Location:</p>
             </div>
             <div>
-              <p>09, Ayelodun Rd, Amilegbe, Ilorin.</p>
+              <p>
+                4B, Saboline Isale, Amilegbe Rd, opposite Temitope Hospital,
+                Ilorin.
+              </p>
             </div>
           </div>
         </div>

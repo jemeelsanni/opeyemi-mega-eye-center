@@ -10,17 +10,17 @@ const footer = () => {
               Opeyemi Mega Eye Center.
             </p>
           </div>
-          <div className="flex flex-row gap-6 justify-center mt-6">
+          {/* <div className="flex flex-row gap-6 justify-center mt-6">
             <FaWhatsapp className=" h-6 w-6 fill-white" />
             <FaInstagram className=" h-6 w-6 fill-white" />
             <FaTwitter className=" h-6 w-6 fill-white" />
-          </div>
+          </div> */}
           <div className="mt-6">
             <p className=" text-center text-white">
               {" "}
               &copy; 2024. Powered by{" "}
-              <span className=" font-semibold">Bluesprint Inc</span>. All Rights
-              Reserved
+              <span className=" font-semibold">Bluesprint Technology</span>. All
+              Rights Reserved
             </p>
           </div>
         </div>
