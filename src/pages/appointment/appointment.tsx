@@ -58,12 +58,21 @@ const Appointment: React.FC<AppointmentProps> = ({ open, onClose }) => {
       return;
     }
 
+    // Convert FormData to a compatible object
+    const emailData = {
+      treatmentType: formData.treatmentType,
+      doctorName: formData.doctorName,
+      name: formData.name,
+      email: formData.email,
+      date: formData.date,
+    };
+
     // EmailJS configuration
     const serviceId = "YOUR_SERVICE_ID";
     const templateId = "YOUR_TEMPLATE_ID";
     const userId = "YOUR_USER_ID";
 
-    emailjs.send(serviceId, templateId, formData, userId).then(
+    emailjs.send(serviceId, templateId, emailData, userId).then(
       (response) => {
         console.log("SUCCESS!", response.status, response.text);
         setMessage("Appointment request sent successfully!");
