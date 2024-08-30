@@ -1,12 +1,13 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
+// vite.config.js
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
 
-// https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
   build: {
     rollupOptions: {
-      external: ['react-quill'], // Exclude react-quill from the bundle
+      // Add both the module and the CSS file as externals
+      external: ['react-quill', 'react-quill/dist/quill.snow.css'],
     },
   },
-})
+});
