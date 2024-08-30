@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import ReactQuill from "react-quill";
-// import "react-quill/dist/quill.snow.css";
+import "react-quill/dist/quill.snow.css";
 import { db } from "../../../firebase.ts";
 import { addDoc, collection, doc, updateDoc, getDoc } from "firebase/firestore";
 import { useNavigate, useParams } from "react-router-dom";
