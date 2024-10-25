@@ -31,17 +31,15 @@ const Appointment: React.FC<AppointmentProps> = ({ open, onClose }) => {
   ) => {
     const { name, value } = e.target;
 
-    // If the field is the date input, check if the selected date is a Sunday
     if (name === "date") {
       const selectedDate = new Date(value);
       const dayOfWeek = selectedDate.getDay();
 
-      // If the selected day is Sunday (0 in JavaScript), prevent the update
       if (dayOfWeek === 0) {
         setMessage("Appointments cannot be booked on Sundays.");
         return;
       } else {
-        setMessage(""); // Clear any error message
+        setMessage("");
       }
     }
 
@@ -51,14 +49,12 @@ const Appointment: React.FC<AppointmentProps> = ({ open, onClose }) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Check if a Sunday was selected as a final safeguard
     const selectedDate = new Date(formData.date);
     if (selectedDate.getDay() === 0) {
       setMessage("Appointments cannot be booked on Sundays.");
       return;
     }
 
-    // Convert FormData to a compatible object
     const emailData = {
       treatmentType: formData.treatmentType,
       doctorName: formData.doctorName,
@@ -68,9 +64,9 @@ const Appointment: React.FC<AppointmentProps> = ({ open, onClose }) => {
     };
 
     // EmailJS configuration
-    const serviceId = "YOUR_SERVICE_ID";
-    const templateId = "YOUR_TEMPLATE_ID";
-    const userId = "YOUR_USER_ID";
+    const serviceId = "service_3manlb8"; // Replace with your actual EmailJS Service ID
+    const templateId = "template_r1hdb9n"; // Replace with your actual EmailJS Template ID
+    const userId = "97ruIVm8heto_ih_y"; // Replace with your actual EmailJS User ID or Public Key
 
     emailjs.send(serviceId, templateId, emailData, userId).then(
       (response) => {
@@ -127,8 +123,9 @@ const Appointment: React.FC<AppointmentProps> = ({ open, onClose }) => {
               <option value="" disabled>
                 Select doctor
               </option>
-              <option value="Dr. Smith">Dr. Smith</option>
-              <option value="Dr. Johnson">Dr. Johnson</option>
+              <option value="Dr. Abdullahi">Dr. Taoheed</option>
+              <option value="Dr. Johnson">Dr. Abdulkadr</option>
+              <option value="Dr. Franklin">Dr. Franklin</option>
             </select>
           </div>
 
