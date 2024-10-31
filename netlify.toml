@@ -1,9 +1,9 @@
 [build]
-  base    = ""
-  publish = "fixtures/dom/build"
-  command = "yarn build --type=UMD_DEV && cd fixtures/dom/ && yarn && yarn build"
+  command = "npm run build"
+  publish = "build"
+  base = "."
 
-[[redirects]]
+  [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
