@@ -64,9 +64,9 @@ const Appointment: React.FC<AppointmentProps> = ({ open, onClose }) => {
     };
 
     // EmailJS configuration
-    const serviceId = "service_3manlb8"; // Replace with your actual EmailJS Service ID
-    const templateId = "template_r1hdb9n"; // Replace with your actual EmailJS Template ID
-    const userId = "97ruIVm8heto_ih_y"; // Replace with your actual EmailJS User ID or Public Key
+    const serviceId = "govBXkLy6kYw-vShr"; // Replace with your actual EmailJS Service ID
+    const templateId = "template_fys8ihp"; // Replace with your actual EmailJS Template ID
+    const userId = "govBXkLy6kYw-vShr"; // Replace with your actual EmailJS User ID or Public Key
 
     emailjs.send(serviceId, templateId, emailData, userId).then(
       (response) => {
@@ -91,9 +91,8 @@ const Appointment: React.FC<AppointmentProps> = ({ open, onClose }) => {
 
   return (
     <div
-      className={`fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 ${
-        open ? "block" : "hidden"
-      }`}
+      className={`fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 ${open ? "block" : "hidden"
+        }`}
     >
       <div className="bg-white rounded p-4 shadow-md w-full max-w-md relative">
         <div className="text-lg font-semibold">Book Appointment</div>

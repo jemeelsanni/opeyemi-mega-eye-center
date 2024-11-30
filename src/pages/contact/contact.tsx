@@ -21,25 +21,46 @@ const Contact: React.FC = () => {
     setFormData((prevData) => ({ ...prevData, [id]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Set up your EmailJS configuration
-    const serviceId = "service_3manlb8";
-    const templateId = "template_aexwzmw";
-    const userId = "97ruIVm8heto_ih_y";
+    // Ensure all fields are filled
+    if (
+      !formData.email ||
+      !formData.fullName ||
+      !formData.phoneNumber ||
+      !formData.message
+    ) {
+      setFeedback("Please fill in all the fields.");
+      return;
+    }
 
-    emailjs
-      .send(serviceId, templateId, formData, userId)
-      .then((response) => {
-        console.log("SUCCESS!", response.status, response.text);
-        setFeedback("Enquiry sent successfully!");
-        setFormData({ email: "", fullName: "", phoneNumber: "", message: "" });
-      })
-      .catch((error) => {
-        console.error("FAILED...", error);
-        setFeedback("Failed to send enquiry. Please try again.");
-      });
+    const serviceId = "service_6h8ln3l"; // Replace with your EmailJS service ID
+    const templateId = "template_3c1jkds"; // Replace with your EmailJS template ID
+    const userId = "govBXkLy6kYw-vShr"; // Replace with your EmailJS user ID
+
+    try {
+      const response = await emailjs.send(
+        serviceId,
+        templateId,
+        formData,
+        userId
+      );
+
+      console.log("SUCCESS!", response.status, response.text);
+      setFeedback("Enquiry sent successfully!");
+      setFormData({ email: "", fullName: "", phoneNumber: "", message: "" });
+    } catch (error) {
+      console.error("FAILED...", error);
+
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "An unknown error occurred. Please try again.";
+
+      setFeedback(`Failed to send enquiry: ${errorMessage}`);
+    }
+
   };
 
   return (
@@ -55,7 +76,7 @@ const Contact: React.FC = () => {
       >
         <div className="flex items-center justify-center w-full h-full bg-gray-900 bg-opacity-50">
           <div className="text-center">
-            <h1 className="text-5xl font-semibold text-[#FFA500] ">
+            <h1 className="text-5xl font-semibold text-[#FFA500]">
               Contact Us
             </h1>
           </div>
