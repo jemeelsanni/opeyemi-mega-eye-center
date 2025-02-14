@@ -64,9 +64,9 @@ const Appointment: React.FC<AppointmentProps> = ({ open, onClose }) => {
     };
 
     // EmailJS configuration
-    const serviceId = "govBXkLy6kYw-vShr"; // Replace with your actual EmailJS Service ID
-    const templateId = "template_fys8ihp"; // Replace with your actual EmailJS Template ID
-    const userId = "govBXkLy6kYw-vShr"; // Replace with your actual EmailJS User ID or Public Key
+    const serviceId = "service_dzdtozf"; // Replace with your actual EmailJS Service ID
+    const templateId = "template_wds5rdb"; // Replace with your actual EmailJS Template ID
+    const userId = "K1Hvv02kAzhxgjbWl"; // Replace with your actual EmailJS User ID or Public Key
 
     emailjs.send(serviceId, templateId, emailData, userId).then(
       (response) => {

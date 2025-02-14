@@ -68,15 +68,15 @@ const Hero: React.FC = () => {
 
       {/* Content visible only on screens smaller than laptop */}
       <div className="hero-small-screen">
-        <div className="h-100 bg-[#F5F5F5] ">
+        <div className="h-100 bg-[#F5F5F5]   ">
           <div className="h-full">
             <div className=" py-6">
-              <div className="w-full px-[62px] text-center">
+              <div className="w-full flex flex-col items-center px-[62px] text-center">
                 <h1 className="text-3xl font-medium">
                   We Provide a Wide Scope of Eye Care Services.
                 </h1>
                 <br />
-                <p className="text-xl font-normal">
+                <p className="text-lg font-normal">
                   Opeyemi Mega Eye Centre is a world class health facility
                   dedicated to curing and preventing eye defects. If you're
                   looking for an eye clinic near you, you might have just
