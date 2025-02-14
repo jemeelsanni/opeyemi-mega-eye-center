@@ -18,7 +18,7 @@ const Hero: React.FC = () => {
           <div className="h-full">
             <div className="flex gap-2 w-full ">
               <div className="w-1/4 h-[360px] mt-28">
-                <img src={Hero1} className="w-full h-full" alt="Hero 1" />
+                <img src={Hero1} className="w-full h-full" alt="Hero1" />
               </div>
               <div className="w-1/2 px-[62px] text-center">
                 <h1 className="text-6xl font-medium">
@@ -76,7 +76,7 @@ const Hero: React.FC = () => {
                   We Provide a Wide Scope of Eye Care Services.
                 </h1>
                 <br />
-                <p className="text-lg font-normal">
+                <p className="text-lg  font-normal">
                   Opeyemi Mega Eye Centre is a world class health facility
                   dedicated to curing and preventing eye defects. If you're
                   looking for an eye clinic near you, you might have just
