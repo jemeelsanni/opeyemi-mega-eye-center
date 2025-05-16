@@ -172,3 +172,29 @@ ol {
     font-size: 1em;
   }
 }
+
+*
+  Phone
+  Input
+  Error
+  Styling
+  */
+  .phone-input-error
+  .react-tel-input
+  .form-control {
+  border-color: #ef4444 !important;
+  background-color: #fef2f2 !important;
+}
+
+.phone-input-error .react-tel-input .flag-dropdown {
+  border-color: #ef4444 !important;
+}
+
+/* Custom styling for the Phone Input component */
+.react-tel-input .form-control {
+  width: 100% !important;
+  height: 48px !important;
+  padding-top: 0.75rem !important;
+  padding-bottom: 0.75rem !important;
+  font-size: 16px !;
+}

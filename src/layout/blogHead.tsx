@@ -1,43 +1,62 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
+import { FaPen, FaList, FaHome } from "react-icons/fa";
 
 const BlogHead = () => {
+  const location = useLocation();
+
+  const isActive = (path: string) => {
+    return location.pathname === path;
+  };
+
   return (
-    <div>
-      <div className="hero-large-screen">
-        <div className="bg-white flex flex-cols px-24 py-6  items-center justify-between">
-          <Link to="/" className=" text-3xl font-bold">
-            OMEC
-          </Link>
-          <div className="flex flex-cols gap-16 text-xl font-medium">
-            <div>
-              <Link to="/createBlog">Create</Link>
-            </div>
-            <div>
-              <Link to="/blogList">Blog List</Link>
-            </div>
+    <header className="bg-white shadow-md">
+      <div className="container mx-auto px-4 py-4">
+        <div className="flex flex-col md:flex-row justify-between items-center">
+          {/* Logo and title */}
+          <div className="flex items-center mb-4 md:mb-0">
+            <Link to="/" className="flex items-center">
+              <span className="text-2xl font-bold text-[#FFA500]">OMEC</span>
+            </Link>
+            <span className="ml-4 pl-4 border-l border-gray-300 text-xl font-medium text-gray-700">
+              Blog Management
+            </span>
           </div>
+
+          {/* Navigation */}
+          <nav className="flex items-center space-x-1">
+            <Link
+              to="/"
+              className="px-4 py-2 rounded-md text-gray-700 hover:bg-gray-100 flex items-center transition-colors"
+            >
+              <FaHome className="mr-2" />
+              <span>Back to Site</span>
+            </Link>
+
+            <Link
+              to="/create-blog"
+              className={`px-4 py-2 rounded-md flex items-center transition-colors ${isActive('/create-blog')
+                ? "bg-[#FFA500]/10 text-[#FFA500]"
+                : "text-gray-700 hover:bg-gray-100"
+                }`}
+            >
+              <FaPen className="mr-2" />
+              <span>Create</span>
+            </Link>
+
+            <Link
+              to="/"
+              className={`px-4 py-2 rounded-md flex items-center transition-colors ${isActive('/')
+                ? "bg-[#FFA500]/10 text-[#FFA500]"
+                : "text-gray-700 hover:bg-gray-100"
+                }`}
+            >
+              <FaList className="mr-2" />
+              <span>Blog List</span>
+            </Link>
+          </nav>
         </div>
       </div>
-      <div className="hero-small-screen">
-        <div className="bg-white flex flex-cols px-6 py-4  items-center justify-between">
-          <div className=" text-3xl font-bold">OMEC</div>
-          {/* <div className="flex flex-cols gap-16 text-xl font-medium">
-            <div>
-              <Link to="/">Home</Link>
-            </div>
-            <div>
-              <Link to="services">Services & Facilities</Link>
-            </div>
-            <div>
-              <Link to="/">Blog</Link>
-            </div>
-          </div>
-          <div className="bg-[#FFA500] text-lg rounded-full px-5 py-3 text-white font-medium ">
-            <Link to="/contact">Contact Us</Link>
-          </div> */}
-        </div>
-      </div>
-    </div>
+    </header>
   );
 };
 

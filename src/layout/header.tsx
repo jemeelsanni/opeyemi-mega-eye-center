@@ -1,77 +1,75 @@
 import React from "react";
-import Call from "../assets/call.png";
-import Location from "../assets/location.png";
+import { FaClock, FaPhone, FaMapMarkerAlt } from "react-icons/fa";
 
 const Header: React.FC = () => {
   return (
-    <div>
-      <div className="hero-large-screen">
-        <div className="bg-[#ffa500] opacity-[50%] px-24 py-4 flex flex-cols items-center justify-between">
-          <div className="flex flex-cols items-center gap-4 text-lg">
-            <div>
-              <p className="font-semibold">Working Hours:</p>
+    <div className="bg-gray-900 text-white">
+      {/* Desktop Header */}
+      <div className="hidden md:block">
+        <div className="container mx-auto py-2 px-4 md:px-6">
+          <div className="flex justify-between items-center">
+            {/* Working Hours */}
+            <div className="flex items-center text-sm">
+              <FaClock className="text-[#FFA500] mr-2" />
+              <div>
+                <p className="font-medium">Working Hours:</p>
+                <p className="text-gray-300">
+                  Mon-Sat: 8am - 6pm • Sundays: Surgery & Emergencies
+                </p>
+              </div>
             </div>
-            <div>
-              <p>Mon-Sat: 8am - 6pm</p>
-              <p>Sundays: Surgery & Emergencies</p>
-            </div>
-          </div>
-          <div className="flex flex-cols items-center gap-2 text-lg">
-            <div className="flex flex-cols gap-1 items-center">
-              <img src={Call} className=" w-5 h-5" alt="" />
-              <p className="font-semibold">Phone:</p>
-            </div>
-            <div>
-              <p>+234-81-641-6676</p>
-            </div>
-          </div>
-          <div className="flex flex-cols items-center gap-2 text-lg">
-            <div className="flex flex-cols gap-1 items-center">
-              <img src={Location} className=" w-5 h-5" alt="" />
-              <p className="font-semibold">Location:</p>
-            </div>
-            <div>
-              <p>
-                4B, Saboline Isale, Amilegbe Rd, opposite Temitope Hospital,
-                Ilorin.
-              </p>
+
+            {/* Contact Info */}
+            <div className="flex items-center space-x-6">
+              {/* Phone */}
+              <div className="flex items-center text-sm">
+                <FaPhone className="text-[#FFA500] mr-2 rotate-12" />
+                <div>
+                  <p className="font-medium">Phone:</p>
+                  <a
+                    href="tel:+2348164166676"
+                    className="text-gray-300 hover:text-white transition-colors"
+                  >
+                    +234-81-641-6676
+                  </a>
+                </div>
+              </div>
+
+              {/* Location */}
+              <div className="flex items-center text-sm">
+                <FaMapMarkerAlt className="text-[#FFA500] mr-2" />
+                <div>
+                  <p className="font-medium">Location:</p>
+                  <p className="text-gray-300">
+                    4B, Saboline Isale, Amilegbe Rd, opposite Temitope Hospital, Ilorin
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
-      <div className="hero-small-screen">
-        <div className="bg-[#ffa500] opacity-[50%] px-6 py-2  items-center justify-between">
-          {/* <div className="flex flex-cols items-center gap-4 text-base">
-            <div>
-              <p className=" font-medium">Working Hours:</p>
-            </div>
-            <div>
-              <p>Mon-Sat: 8am - 6pm</p>
-              <p>Sundays: Surgery & Emergencies</p>
-            </div>
-          </div>
 
-          <div className="flex flex-cols items-center gap-2 text-base">
-            <div className="flex flex-cols gap-1 items-center">
-              <img src={Call} className=" w-4 h-4" alt="" />
-              <p className="font-medium">Phone:</p>
-            </div>
-            <div>
-              <p>+234-81-641-6676</p>
-            </div>
-          </div> */}
-
-          <div className="flex flex-cols items-center gap-2 text-base">
-            <div className="flex flex-cols gap-1 items-center">
-              <img src={Location} className=" w-4 h-4" alt="" />
-              <p className="font-medium mr-3">Location:</p>
-            </div>
-            <div>
-              <p>
-                4B, Saboline Isale, Amilegbe Rd, opposite Temitope Hospital,
-                Ilorin.
+      {/* Mobile Header - Simplified version */}
+      <div className="md:hidden">
+        <div className="container mx-auto py-2 px-4">
+          <div className="flex items-center justify-between">
+            {/* Location only for mobile */}
+            <div className="flex items-center text-xs">
+              <FaMapMarkerAlt className="text-[#FFA500] mr-1 flex-shrink-0" />
+              <p className="text-gray-300 line-clamp-2">
+                4B, Saboline Isale, Amilegbe Rd, opposite Temitope Hospital, Ilorin
               </p>
             </div>
+
+            {/* Phone for mobile - compact */}
+            <a
+              href="tel:+2348164166676"
+              className="flex items-center bg-[#FFA500] rounded-full px-3 py-1 ml-2 text-white"
+            >
+              <FaPhone className="mr-1 rotate-12 text-xs" />
+              <span className="text-xs font-medium">Call</span>
+            </a>
           </div>
         </div>
       </div>

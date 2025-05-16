@@ -1,124 +1,116 @@
-import surgical from "../../assets/surgical.jpg";
-import clinical from "../../assets/clinical.jpg";
-import opticals from "../../assets/opticals.jpg";
+import React from "react";
 import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
+import { FaArrowRight } from "react-icons/fa";
 
-const Service: React.FC = () => {
-  const services = [
-    {
-      image: surgical,
-      title: "Surgical Services",
-      description: `Entrust your vision to the expertise of our highly skilled Ophthalmologists, 
-      ensuring that you are in the safest hands throughout your eye care journey. 
-      Our Ophthalmologists are specialists who bring unparalleled proficiency 
-      to perfecting your vision through state-of-the-art corrective measures. 
-      With a commitment to precision and excellence, they employ advanced diagnostic 
-      tools and cutting-edge technologies to assess and address a wide range of eye conditions. 
-      Whether you require laser eye surgery, cataract removal, or other specialized interventions, 
-      our Ophthalmologists tailor their approach to meet your individual needs, 
-      prioritizing both the safety and efficacy of the procedures. Rest assured that 
-      your vision is our primary concern, and our Ophthalmologists are dedicated to providing 
-      you with the highest level of care, ensuring optimal visual outcomes and enhancing your overall eye health.`,
+interface ServiceProps {
+  services: {
+    image: string;
+    title: string;
+    description: string;
+  }[];
+}
+
+const Service: React.FC<ServiceProps> = ({ services }) => {
+  // Animation variants
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.2,
+      },
     },
-    {
-      image: clinical,
-      title: "Clinical Services",
-      description: `At OMEC, we take pride in our commitment to providing the highest standard 
-      of clinical service, and we achieve this by investing in the best-in-class equipment. 
-      Our state-of-the-art facilities are equipped with cutting-edge technologies and advanced 
-      medical instrumentation, ensuring that you receive top-tier diagnostic and treatment services. 
-      From precision imaging to specialized diagnostic tools, our comprehensive range of equipment 
-      allows our skilled healthcare professionals to deliver accurate assessments and tailored care for your individual needs. 
-      We believe that access to superior technology enhances the quality of healthcare, and at OMEC, 
-      we strive to ensure that you receive the clinical service you truly deserve, backed by the most advanced 
-      and reliable equipment available in the field. Your well-being is our priority, and our commitment 
-      to excellence is reflected in the sophisticated tools we employ to provide you with the best possible medical care.`,
+  };
+
+  const itemVariants = {
+    hidden: { y: 30, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: {
+        type: "spring",
+        stiffness: 100,
+      },
     },
-    {
-      image: opticals,
-      title: "Opticals",
-      description: `Our dedicated team of Optometrists stands ready to serve you with unwavering commitment, 
-      setting the highest standards in eye care excellence. Trained to provide comprehensive and personalized services, 
-      our Optometrists prioritize your visual health with meticulous attention to detail. From routine eye examinations 
-      to specialized assessments, we ensure that each interaction adheres to the pinnacle of professional standards. 
-      Moreover, we are dedicated to offering you only the finest quality products, including precision-crafted eyeglasses, 
-      contact lenses, and vision correction solutions. Your vision is our priority, and our Optometrists strive to 
-      not only meet but exceed your expectations by delivering care that is both thorough and compassionate. 
-      With a focus on your well-being, our commitment to excellence extends to every aspect of our service, 
-      providing you with the assurance that your eye care needs are met with the utmost expertise and the highest quality products available.`,
-    },
-  ];
+  };
 
   return (
-    <div>
-      <div className="hero-large-screen">
-        <div className="mt-48 mx-[100px]">
-          <div className="text-center">
-            <h1 className="text-3xl font-semibold">Our Services</h1>
-            <h2 className="text-xl mt-4">
-              We provide full scope of eye care service
-            </h2>
-          </div>
-          <div className="mt-4 flex flex-cols w-full gap-6">
-            {services.map((service, index) => (
-              <div key={index} className="w-1/3">
-                <div>
-                  <img
-                    src={service.image}
-                    className="w-full"
-                    alt={service.title}
-                  />
-                </div>
-                <div className="mt-4">
-                  <h1 className="text-xl font-semibold">{service.title}</h1>
-                  <p className="mt-3 font-normal">{service.description}</p>
-                </div>
+    <section className="py-16 bg-white">
+      <div className="container mx-auto px-4">
+        {/* Section Header */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7 }}
+          className="text-center mb-12"
+        >
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
+            Our Services
+          </h2>
+          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+            We provide a full scope of eye care services to help you maintain and improve your vision health
+          </p>
+        </motion.div>
+
+        {/* Services Grid */}
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12"
+        >
+          {services.map((service, index) => (
+            <motion.div
+              key={index}
+              variants={itemVariants}
+              className="bg-white rounded-lg shadow-md overflow-hidden transform transition-all duration-300 hover:-translate-y-2 hover:shadow-lg"
+            >
+              <div className="overflow-hidden">
+                <img
+                  src={service.image}
+                  alt={service.title}
+                  className="w-full h-56 object-cover transition-transform duration-500 hover:scale-105"
+                />
               </div>
-            ))}
-          </div>
-          <div className="flex justify-center mt-8">
+
+              <div className="p-6">
+                <h3 className="text-2xl font-bold text-gray-800 mb-3">
+                  {service.title}
+                </h3>
+
+                <p className="text-gray-600 mb-4 line-clamp-3">
+                  {service.description}
+                </p>
+
+                <Link
+                  to="/services"
+                  className="inline-flex items-center text-[#FFA500] font-medium hover:text-[#FF9000] transition-colors"
+                >
+                  Learn More <FaArrowRight className="ml-2" />
+                </Link>
+              </div>
+            </motion.div>
+          ))}
+        </motion.div>
+
+        {/* CTA Button */}
+        <div className="text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.6 }}
+          >
             <Link
               to="/services"
-              className="px-4 py-3 bg-[#FFA500] rounded-full text-white text-xl font-semibold"
+              className="inline-flex items-center justify-center bg-[#FFA500] hover:bg-[#FF9000] text-white font-medium py-3 px-8 rounded-full shadow-md hover:shadow-lg transition-all duration-300"
             >
-              Browse all services
+              Browse All Services
             </Link>
-          </div>
+          </motion.div>
         </div>
       </div>
-      <div className="hero-small-screen">
-        <div className="mt-6 mx-6">
-          <div className="text-center">
-            <h1 className="text-2xl font-semibold">Our Services</h1>
-            <p className="text-lg mt-2">
-              We provide full scope of eye care service
-            </p>
-          </div>
-          <div className="mt-4 grid grid-cols-1 w-full gap-6">
-            {services.map((service, index) => (
-              <div key={index} className="w-full">
-                <div>
-                  <img
-                    src={service.image}
-                    className="w-full"
-                    alt={service.title}
-                  />
-                </div>
-                <div className="mt-2">
-                  <h1 className="text-xl font-semibold">{service.title}</h1>
-                  <p className="mt-1 font-normal">{service.description}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-          <div className="flex justify-center mt-8">
-            <div className="px-4 py-3 bg-[#FFA500] rounded-full text-white text-lg font-semibold">
-              Browse all services
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+    </section>
   );
 };
 

@@ -1,24 +1,102 @@
 import React from "react";
-import Hero from "./hero";
 import Header from "../../layout/header";
 import Navbar from "../../layout/navbar";
+import Hero from "./hero";
 import About from "./about";
 import Service from "./service";
-// import Doctors from "./doctors";
+import VisitGuide from "./visitGuide"; // Import the new VisitGuide component
 import Testimonials from "./testimonials";
 import Newsletter from "./newsletter";
 import Footer from "../../layout/footer";
 
+// Import images
+import Hero1 from "../../assets/hero1.jpg";
+import Hero2 from "../../assets/hero2.jpg";
+import Hero3 from "../../assets/hero3.jpg";
+import Hero4 from "../../assets/hero4.jpg";
+import Hero5 from "../../assets/hero5.jpg";
+import Hero6 from "../../assets/hero6.jpg";
+import Welcome from "../../assets/welcome.jpg";
+import SurgicalImg from "../../assets/surgical.jpg";
+import ClinicalImg from "../../assets/clinical.jpg";
+import OpticalsImg from "../../assets/opticals.jpg";
+import placeholder from "../../assets/imagep.png";
+
 const Home: React.FC = () => {
+  // Sample data for Hero component
+  const heroImages = [
+    { image: Hero1, alt: "Eye examination" },
+    { image: Hero2, alt: "Eye care treatment" },
+    { image: Hero3, alt: "Modern eye equipment" },
+    { image: Hero4, alt: "Eye doctor consultation" },
+    { image: Hero5, alt: "Eye surgery" },
+    { image: Hero6, alt: "Eyeglasses fitting" },
+  ];
+
+  // Sample data for Service component
+  const services = [
+    {
+      image: SurgicalImg,
+      title: "Surgical Services",
+      description: `Entrust your vision to the expertise of our highly skilled Ophthalmologists, 
+      ensuring that you are in the safest hands throughout your eye care journey. 
+      Our Ophthalmologists are specialists who bring unparalleled proficiency 
+      to perfecting your vision through state-of-the-art corrective measures.`,
+    },
+    {
+      image: ClinicalImg,
+      title: "Clinical Services",
+      description: `At OMEC, we take pride in our commitment to providing the highest standard 
+      of clinical service, and we achieve this by investing in the best-in-class equipment. 
+      Our state-of-the-art facilities are equipped with cutting-edge technologies and advanced 
+      medical instrumentation.`,
+    },
+    {
+      image: OpticalsImg,
+      title: "Opticals",
+      description: `Our dedicated team of Optometrists stands ready to serve you with unwavering commitment, 
+      setting the highest standards in eye care excellence. Trained to provide comprehensive and personalized services, 
+      our Optometrists prioritize your visual health with meticulous attention to detail.`,
+    },
+  ];
+
+  // Sample data for Testimonials component
+  const testimonialsData = [
+    {
+      rating: 5,
+      review:
+        "The leading eye care service in Kwara State right now, offering top-notch care and quality. The staff are professional and caring, and the facilities are state-of-the-art.",
+      name: "Fatimat Temim",
+      position: "Lecturer in Kwara State University",
+      image: placeholder,
+    },
+    {
+      rating: 4,
+      review:
+        "Exceptional eye care services, combining professionalism with compassionate care to provide outstanding patient experiences. I highly recommend their services to anyone with eye problems.",
+      name: "Rotimi Shefiu",
+      position: "Software Engineer",
+      image: placeholder,
+    },
+    {
+      rating: 5,
+      review:
+        "Unmatched eye care in Kwara State, known for its expert staff and high-quality treatments that prioritize patient well-being. The service is second to none and the atmosphere is calming.",
+      name: "Sanni Jemeel",
+      position: "Software Engineer",
+      image: placeholder,
+    },
+  ];
+
   return (
-    <div>
+    <div className="min-h-screen bg-gray-50 flex flex-col">
       <Header />
       <Navbar />
-      <Hero />
-      <About />
-      <Service />
-      {/* <Doctors /> */}
-      <Testimonials />
+      <Hero heroImages={heroImages} />
+      <About welcomeImage={Welcome} />
+      <Service services={services} />
+      <VisitGuide /> {/* Added the VisitGuide component here */}
+      <Testimonials testimonialsData={testimonialsData} />
       <Newsletter />
       <Footer />
     </div>

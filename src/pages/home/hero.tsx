@@ -1,125 +1,134 @@
 import React, { useState } from "react";
-import Hero1 from "../../assets/hero1.jpg";
-import Hero2 from "../../assets/hero2.jpg";
-import Hero3 from "../../assets/hero3.jpg";
-import Hero4 from "../../assets/hero4.jpg";
-import Hero5 from "../../assets/hero5.jpg";
-import Hero6 from "../../assets/hero6.jpg";
+import { motion } from "framer-motion";
 import Appointment from "../appointment/appointment";
 
-const Hero: React.FC = () => {
+interface HeroProps {
+  heroImages: {
+    image: string;
+    alt: string;
+  }[];
+}
+
+const Hero: React.FC<HeroProps> = ({ heroImages }) => {
   const [openModal, setOpenModal] = useState(false);
 
   return (
-    <div>
-      {/* Content visible only on laptop screens and above */}
-      <div className="hero-large-screen">
-        <div className="h-100 pt-32 bg-[#F5F5F5] ">
-          <div className="h-full">
-            <div className="flex gap-2 w-full ">
-              <div className="w-1/4 h-[360px] mt-28">
-                <img src={Hero1} className="w-full h-full" alt="Hero1" />
-              </div>
-              <div className="w-1/2 px-[62px] text-center">
-                <h1 className="text-6xl font-medium">
-                  We Provide a Wide Scope of Eye Care Services.
-                </h1>
-                <br />
-                <p className="text-3xl font-normal">
-                  Opeyemi Mega Eye Centre is a world class health facility
-                  dedicated to curing and preventing eye defects. If you're
-                  looking for an eye clinic near you, you might have just
-                  stumbled upon one!
-                </p>
-                <div className="flex flex-col justify-center items-center">
-                  <button
-                    onClick={() => setOpenModal(true)}
-                    className="bg-[#FFA500] w-[321px] mx-auto rounded-full p-3 text-white text-lg font-medium mt-10 cursor-pointer"
+    <section className="bg-gray-50 py-16 md:py-0">
+      {/* Desktop Hero */}
+      <div className="hidden md:block relative overflow-hidden">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-col lg:flex-row items-center justify-between py-20">
+            {/* Hero Text */}
+            <motion.div
+              initial={{ opacity: 0, x: -50 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8 }}
+              className="lg:w-1/2 text-center lg:text-left mb-12 lg:mb-0 lg:pr-12"
+            >
+              <h1 className="text-4xl lg:text-5xl xl:text-6xl font-bold text-gray-800 mb-6 leading-tight">
+                We Provide a Wide Scope of Eye Care Services
+              </h1>
+
+              <p className="text-xl text-gray-600 mb-10 max-w-xl mx-auto lg:mx-0">
+                Opeyemi Mega Eye Centre is a world-class health facility dedicated to curing and preventing eye defects. If you're looking for an eye clinic near you, you might have just stumbled upon one!
+              </p>
+
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setOpenModal(true)}
+                className="bg-[#FFA500] hover:bg-[#FF9000] text-white font-medium py-3 px-8 rounded-full shadow-md hover:shadow-lg transition-all duration-300 text-lg"
+              >
+                Book Appointment Today
+              </motion.button>
+            </motion.div>
+
+            {/* Hero Image Grid */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+              className="lg:w-1/2"
+            >
+              <div className="grid grid-cols-2 grid-rows-3 gap-4">
+                {heroImages.slice(0, 6).map((img, index) => (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.6, delay: 0.3 + (index * 0.1) }}
+                    className={`overflow-hidden rounded-lg shadow-md ${index === 0 || index === 1 ? "col-span-1 row-span-2" : "col-span-1 row-span-1"
+                      }`}
                   >
-                    Book Appointment Today
-                  </button>
-                  <Appointment
-                    open={openModal}
-                    onClose={() => setOpenModal(false)}
-                  />
-                </div>
+                    <img
+                      src={img.image}
+                      alt={img.alt}
+                      className="w-full h-full object-cover transform hover:scale-105 transition-transform duration-500"
+                    />
+                  </motion.div>
+                ))}
               </div>
-              <div className="w-1/4 h-[360px] mt-28">
-                <img src={Hero2} className="w-full h-full" alt="Hero 2" />
-              </div>
-            </div>
-            <div className="flex gap-2 mt-2 w-full">
-              <div className="w-1/4 h-[360px]">
-                <img src={Hero3} className="w-full h-full" alt="Hero 3" />
-              </div>
-              <div className="w-1/4 h-[360px]">
-                <img src={Hero4} className="w-full h-full" alt="Hero 4" />
-              </div>
-              <div className="w-1/4 h-[360px]">
-                <img src={Hero5} className="w-full h-full" alt="Hero 5" />
-              </div>
-              <div className="w-1/4 h-[360px]">
-                <img src={Hero6} className="w-full h-full" alt="Hero 6" />
-              </div>
-            </div>
+            </motion.div>
           </div>
         </div>
       </div>
 
-      {/* Content visible only on screens smaller than laptop */}
-      <div className="hero-small-screen">
-        <div className="h-100 bg-[#F5F5F5]   ">
-          <div className="h-full">
-            <div className=" py-6">
-              <div className="w-full flex flex-col items-center px-[62px] text-center">
-                <h1 className="text-3xl font-medium">
-                  We Provide a Wide Scope of Eye Care Services.
-                </h1>
-                <br />
-                <p className="text-lg  font-normal">
-                  Opeyemi Mega Eye Centre is a world class health facility
-                  dedicated to curing and preventing eye defects. If you're
-                  looking for an eye clinic near you, you might have just
-                  stumbled upon one!
-                </p>
-                <div className="flex flex-col justify-center items-center">
-                  <button
-                    onClick={() => setOpenModal(true)}
-                    className="bg-[#FFA500] w-[321px] mx-auto rounded-full p-3 text-white text-sm font-medium mt-5 cursor-pointer"
-                  >
-                    Book Appointment Today
-                  </button>
-                  <Appointment
-                    open={openModal}
-                    onClose={() => setOpenModal(false)}
+      {/* Mobile Hero */}
+      <div className="md:hidden">
+        <div className="container mx-auto px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="text-center mb-8"
+          >
+            <h1 className="text-3xl font-bold text-gray-800 mb-4">
+              We Provide a Wide Scope of Eye Care Services
+            </h1>
+
+            <p className="text-lg text-gray-600 mb-6">
+              Opeyemi Mega Eye Centre is a world-class health facility dedicated to curing and preventing eye defects.
+            </p>
+
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setOpenModal(true)}
+              className="bg-[#FFA500] hover:bg-[#FF9000] text-white font-medium py-3 px-6 rounded-full shadow-md hover:shadow-lg transition-all duration-300 text-base w-full"
+            >
+              Book Appointment Today
+            </motion.button>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+          >
+            <div className="grid grid-cols-3 gap-2">
+              {heroImages.slice(0, 6).map((img, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.6, delay: 0.3 + (index * 0.1) }}
+                  className="overflow-hidden rounded-md shadow-sm"
+                >
+                  <img
+                    src={img.image}
+                    alt={img.alt}
+                    className="w-full h-full object-cover aspect-square"
                   />
-                </div>
-              </div>
+                </motion.div>
+              ))}
             </div>
-            <div className="grid grid-cols-3 gap-2 w-full ">
-              <div>
-                <img className="" src={Hero1} alt="Hero 1" />
-              </div>
-              <div>
-                <img className="" src={Hero2} alt="Hero 2" />
-              </div>
-              <div>
-                <img className="" src={Hero3} alt="Hero 3" />
-              </div>
-              <div>
-                <img className="" src={Hero4} alt="Hero 4" />
-              </div>
-              <div>
-                <img className="" src={Hero5} alt="Hero 5" />
-              </div>
-              <div>
-                <img className="" src={Hero6} alt="Hero 6" />
-              </div>
-            </div>
-          </div>
+          </motion.div>
         </div>
       </div>
-    </div>
+
+      {/* Appointment Modal */}
+      <Appointment open={openModal} onClose={() => setOpenModal(false)} />
+    </section>
   );
 };
 
