@@ -196,7 +196,7 @@ const Navbar = () => {
                 </ul>
               </div>
 
-              <div className="p-4 border-t">
+              {/* <div className="p-4 border-t">
                 <Link
                   to="/contact"
                   className="block w-full bg-[#FFA500] hover:bg-[#FF9000] text-white py-3 px-4 rounded-md text-center font-medium"
@@ -204,7 +204,7 @@ const Navbar = () => {
                 >
                   Contact Us
                 </Link>
-              </div>
+              </div> */}
             </div>
           </motion.div>
         )}

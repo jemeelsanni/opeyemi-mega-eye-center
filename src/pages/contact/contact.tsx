@@ -45,19 +45,19 @@ const Contact: React.FC = () => {
     {
       icon: <FaPhone className="text-[#FFA500] text-2xl" />,
       title: "Call Us",
-      details: "+234-81-641-6676",
-      link: "tel:+2348164166676",
+      details: "+234-814-641-6676",
+      link: "tel:+23481464166676",
     },
     {
       icon: <FaEnvelope className="text-[#FFA500] text-2xl" />,
       title: "Email Us",
-      details: "contact@opeyemieyecenter.com",
-      link: "mailto:contact@opeyemieyecenter.com",
+      details: "omec.reach@gmail.com",
+      link: "mailto:omec.reach@gmail.com",
     },
   ];
 
   const socialLinks = [
-    { icon: <FaWhatsapp size={20} />, url: "https://wa.me/2348164166676", color: "bg-green-500" },
+    { icon: <FaWhatsapp size={20} />, url: "https://wa.me/23481464166676", color: "bg-green-500" },
     { icon: <FaFacebook size={20} />, url: "https://facebook.com/OpeyemiEyeCenter", color: "bg-blue-600" },
     { icon: <FaInstagram size={20} />, url: "https://instagram.com/opeyemi_eye_center", color: "bg-pink-600" },
     { icon: <FaTwitter size={20} />, url: "https://twitter.com/OpeyemiEye", color: "bg-sky-500" },

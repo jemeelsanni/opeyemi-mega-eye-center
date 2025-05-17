@@ -27,10 +27,10 @@ const Header: React.FC = () => {
                 <div>
                   <p className="font-medium">Phone:</p>
                   <a
-                    href="tel:+2348164166676"
+                    href="tel:+23481464166676"
                     className="text-gray-300 hover:text-white transition-colors"
                   >
-                    +234-81-641-6676
+                    +234-814-641-6676
                   </a>
                 </div>
               </div>
@@ -64,7 +64,7 @@ const Header: React.FC = () => {
 
             {/* Phone for mobile - compact */}
             <a
-              href="tel:+2348164166676"
+              href="tel:+2348146416676"
               className="flex items-center bg-[#FFA500] rounded-full px-3 py-1 ml-2 text-white"
             >
               <FaPhone className="mr-1 rotate-12 text-xs" />
