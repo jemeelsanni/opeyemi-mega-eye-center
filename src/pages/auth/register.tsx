@@ -111,7 +111,7 @@ const Register: React.FC = () => {
                                     value={formData.fullName}
                                     onChange={handleChange}
                                     required
-                                    className="appearance-none block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-[#FFA500] focus:border-[#FFA500] transition-colors"
+                                    className="appearance-none block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-[#FFB915] focus:border-[#FFB915] transition-colors"
                                     placeholder="John Doe"
                                 />
                             </div>
@@ -136,7 +136,7 @@ const Register: React.FC = () => {
                                     value={formData.email}
                                     onChange={handleChange}
                                     required
-                                    className="appearance-none block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-[#FFA500] focus:border-[#FFA500] transition-colors"
+                                    className="appearance-none block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-[#FFB915] focus:border-[#FFB915] transition-colors"
                                     placeholder="your.email@example.com"
                                 />
                             </div>
@@ -160,7 +160,7 @@ const Register: React.FC = () => {
                                     value={formData.password}
                                     onChange={handleChange}
                                     required
-                                    className="appearance-none block w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-[#FFA500] focus:border-[#FFA500] transition-colors"
+                                    className="appearance-none block w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-[#FFB915] focus:border-[#FFB915] transition-colors"
                                     placeholder="••••••••"
                                 />
                                 <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
@@ -193,7 +193,7 @@ const Register: React.FC = () => {
                                     value={formData.confirmPassword}
                                     onChange={handleChange}
                                     required
-                                    className="appearance-none block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-[#FFA500] focus:border-[#FFA500] transition-colors"
+                                    className="appearance-none block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-[#FFB915] focus:border-[#FFB915] transition-colors"
                                     placeholder="••••••••"
                                 />
                             </div>
@@ -204,7 +204,7 @@ const Register: React.FC = () => {
                             disabled={isLoading}
                             className={`w-full py-3 px-4 border border-transparent rounded-lg text-white font-medium ${isLoading
                                 ? "bg-[#FFC266] cursor-not-allowed"
-                                : "bg-[#FFA500] hover:bg-[#FF9000] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FFA500]"
+                                : "bg-[#FFB915] hover:bg-[#2C4A6B] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FFB915]"
                                 } transition-colors duration-300`}
                         >
                             {isLoading ? (
@@ -242,7 +242,7 @@ const Register: React.FC = () => {
                             Already have an account?{" "}
                             <Link
                                 to="/login"
-                                className="font-medium text-[#FFA500] hover:text-[#FF9000]"
+                                className="font-medium text-[#FFB915] hover:text-[#008787]"
                             >
                                 Log in
                             </Link>

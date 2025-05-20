@@ -15,7 +15,7 @@ const BlogHead = () => {
           {/* Logo and title */}
           <div className="flex items-center mb-4 md:mb-0">
             <Link to="/" className="flex items-center">
-              <span className="text-2xl font-bold text-[#FFA500]">OMEC</span>
+              <span className="text-2xl font-bold text-[#FFB915]">OMEC</span>
             </Link>
             <span className="ml-4 pl-4 border-l border-gray-300 text-xl font-medium text-gray-700">
               Blog Management
@@ -35,7 +35,7 @@ const BlogHead = () => {
             <Link
               to="/create-blog"
               className={`px-4 py-2 rounded-md flex items-center transition-colors ${isActive('/create-blog')
-                ? "bg-[#FFA500]/10 text-[#FFA500]"
+                ? "bg-[#FFB915]/10 text-[#FFB915]"
                 : "text-gray-700 hover:bg-gray-100"
                 }`}
             >
@@ -46,7 +46,7 @@ const BlogHead = () => {
             <Link
               to="/"
               className={`px-4 py-2 rounded-md flex items-center transition-colors ${isActive('/')
-                ? "bg-[#FFA500]/10 text-[#FFA500]"
+                ? "bg-[#FFB915]/10 text-[#FFB915]"
                 : "text-gray-700 hover:bg-gray-100"
                 }`}
             >

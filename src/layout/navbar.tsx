@@ -1,7 +1,9 @@
+
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { FaBars, FaTimes } from "react-icons/fa";
+import Logo from "../assets/omeclogo.png";
 
 const Navbar = () => {
   const [open, setOpen] = useState(false);
@@ -72,9 +74,12 @@ const Navbar = () => {
 
   const navLinks = [
     { name: "Home", path: "/" },
+    { name: "About Us", path: "/about" },
     { name: "Services & Facilities", path: "/services" },
     { name: "Blog", path: "/blog" },
     { name: "Contact Us", path: "/contact" },
+    { name: "Testimonials", path: "/testimonials" },
+    { name: "Events", path: "/events" },
   ];
 
   const isActive = (path: string) => {
@@ -90,7 +95,7 @@ const Navbar = () => {
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center justify-between">
           <Link to="/" className="flex items-center">
-            <span className="text-2xl font-bold text-[#FFA500]">OMEC</span>
+            <img src={Logo} alt="" className="h-12 w-12" />
           </Link>
 
           <div className="flex items-center space-x-8">
@@ -99,15 +104,15 @@ const Navbar = () => {
                 key={link.name}
                 to={link.path}
                 className={`relative font-medium transition-colors ${isActive(link.path)
-                  ? "text-[#FFA500]"
-                  : "text-gray-700 hover:text-[#FFA500]"
+                  ? "text-[#FFB915]"
+                  : "text-gray-700 hover:text-[#FFB915]"
                   }`}
               >
                 {link.name}
                 {isActive(link.path) && (
                   <motion.div
                     layoutId="navbar-indicator"
-                    className="absolute bottom-[-6px] left-0 right-0 h-1 bg-[#FFA500] rounded-full"
+                    className="absolute bottom-[-6px] left-0 right-0 h-1 bg-[#FFB915] rounded-full"
                     initial={false}
                     transition={{ type: "spring", stiffness: 300, damping: 30 }}
                   />
@@ -119,7 +124,7 @@ const Navbar = () => {
           <div>
             {/* <Link
             to="/contact"
-            className="bg-[#FFA500] hover:bg-[#FF9000] text-white py-2 px-6 rounded-full transition-colors font-medium shadow-sm hover:shadow-md"
+            className="bg-[#FFB915] hover:bg-[#2C4A6B] text-white py-2 px-6 rounded-full transition-colors font-medium shadow-sm hover:shadow-md"
           >
             Contact Us
           </Link> */}
@@ -129,12 +134,12 @@ const Navbar = () => {
         {/* Mobile Navigation */}
         <div className="flex md:hidden items-center justify-between">
           <Link to="/" className="flex items-center">
-            <span className="text-2xl font-bold text-[#FFA500]">OMEC</span>
+            <img src={Logo} alt="" className="h-12 w-12" />
           </Link>
 
           <button
             onClick={() => setOpen(!open)}
-            className="menu-toggle p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-[#FFA500]"
+            className="menu-toggle p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-[#FFB915]"
             aria-label="Toggle menu"
           >
             <FaBars className={`h-6 w-6 text-gray-700 ${open ? 'hidden' : 'block'}`} />
@@ -168,10 +173,12 @@ const Navbar = () => {
           >
             <div className="flex flex-col h-full">
               <div className="flex items-center justify-between p-4 border-b">
-                <span className="text-2xl font-bold text-[#FFA500]">OMEC</span>
+                <span className="text-2xl font-bold text-[#FFB915]">
+                  <img src={Logo} alt="" className="h-12 w-12" />
+                </span>
                 <button
                   onClick={() => setOpen(false)}
-                  className="p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-[#FFA500]"
+                  className="p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-[#FFB915]"
                   aria-label="Close menu"
                 >
                   <FaTimes className="h-6 w-6 text-gray-700" />
@@ -185,7 +192,7 @@ const Navbar = () => {
                       <Link
                         to={link.path}
                         className={`block py-3 px-4 rounded-md font-medium ${isActive(link.path)
-                          ? "bg-[#FFA500]/10 text-[#FFA500]"
+                          ? "bg-[#FFB915]/10 text-[#FFB915]"
                           : "text-gray-700 hover:bg-gray-100"
                           }`}
                       >
@@ -196,15 +203,9 @@ const Navbar = () => {
                 </ul>
               </div>
 
-              {/* <div className="p-4 border-t">
-                <Link
-                  to="/contact"
-                  className="block w-full bg-[#FFA500] hover:bg-[#FF9000] text-white py-3 px-4 rounded-md text-center font-medium"
-                  onClick={() => setOpen(false)}
-                >
-                  Contact Us
-                </Link>
-              </div> */}
+              <div className="p-4 border-t">
+                <Link to="/testimonials">Testimonials</Link>
+              </div>
             </div>
           </motion.div>
         )}

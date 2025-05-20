@@ -86,7 +86,7 @@ const Login: React.FC = () => {
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                     required
-                                    className="appearance-none block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-[#FFA500] focus:border-[#FFA500] transition-colors"
+                                    className="appearance-none block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-[#FFB915] focus:border-[#FFB915] transition-colors"
                                     placeholder="your.email@example.com"
                                 />
                             </div>
@@ -111,7 +111,7 @@ const Login: React.FC = () => {
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
                                     required
-                                    className="appearance-none block w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-[#FFA500] focus:border-[#FFA500] transition-colors"
+                                    className="appearance-none block w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-[#FFB915] focus:border-[#FFB915] transition-colors"
                                     placeholder="••••••••"
                                 />
                                 <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
@@ -132,7 +132,7 @@ const Login: React.FC = () => {
                                     id="remember-me"
                                     name="remember-me"
                                     type="checkbox"
-                                    className="h-4 w-4 text-[#FFA500] focus:ring-[#FFA500] border-gray-300 rounded"
+                                    className="h-4 w-4 text-[#FFB915] focus:ring-[#FFB915] border-gray-300 rounded"
                                 />
                                 <label
                                     htmlFor="remember-me"
@@ -145,7 +145,7 @@ const Login: React.FC = () => {
                             <div className="text-sm">
                                 <a
                                     href="#"
-                                    className="font-medium text-[#FFA500] hover:text-[#FF9000]"
+                                    className="font-medium text-[#FFB915] hover:text-[#008787]"
                                 >
                                     Forgot your password?
                                 </a>
@@ -156,8 +156,8 @@ const Login: React.FC = () => {
                             type="submit"
                             disabled={isLoading}
                             className={`w-full py-3 px-4 border border-transparent rounded-lg text-white font-medium ${isLoading
-                                    ? "bg-[#FFC266] cursor-not-allowed"
-                                    : "bg-[#FFA500] hover:bg-[#FF9000] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FFA500]"
+                                ? "bg-[#FFC266] cursor-not-allowed"
+                                : "bg-[#FFB915] hover:bg-[#2C4A6B] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FFB915]"
                                 } transition-colors duration-300`}
                         >
                             {isLoading ? (
@@ -195,7 +195,7 @@ const Login: React.FC = () => {
                             Don't have an account?{" "}
                             <Link
                                 to="/register"
-                                className="font-medium text-[#FFA500] hover:text-[#FF9000]"
+                                className="font-medium text-[#FFB915] hover:text-[#008787]"
                             >
                                 Register here
                             </Link>

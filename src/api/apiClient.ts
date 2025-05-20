@@ -36,9 +36,22 @@ apiClient.interceptors.response.use(
     // Handle 401 Unauthorized errors by redirecting to login
     if (error.response && error.response.status === 401) {
       localStorage.removeItem('token');
-      // Avoid redirecting during API calls on login page
-      if (!window.location.pathname.includes('/login')) {
-        window.location.href = '/login';
+      localStorage.removeItem('userRole');
+      
+      // Get the current path
+      const currentPath = window.location.pathname;
+      
+      // Redirect to appropriate login page
+      if (currentPath.startsWith('/doctor')) {
+        // Doctor pages redirect to doctor login
+        if (!window.location.pathname.includes('/doctor/login')) {
+          window.location.href = '/doctor/login';
+        }
+      } else {
+        // Admin pages redirect to admin login
+        if (!window.location.pathname.includes('/login')) {
+          window.location.href = '/login';
+        }
       }
     }
     
@@ -46,7 +59,7 @@ apiClient.interceptors.response.use(
   }
 );
 
-// Blog specific API methods for frontend use
+// Blog specific API methods
 export interface Comment {
   user: { _id: string; fullName: string; };
   _id: string;
@@ -313,11 +326,535 @@ const sendContactMessage = (contactData: ContactFormData) => {
   return apiClient.post('/contact', contactData);
 };
 
+// Doctor profile interface
+interface DoctorProfileData {
+  name?: string;
+  speciality?: string;
+  phoneNumber?: string;
+  bio?: string;
+}
+
+// Doctor API methods
+const doctorApi = {
+  // Doctor login
+  login: (email: string, password: string) => {
+    return apiClient.post('/doctors/login', { email, password });
+  },
+
+  // Get doctor profile
+  getProfile: () => {
+    return apiClient.get('/doctors/profile');
+  },
+
+  // Update doctor profile
+  updateProfile: (profileData: DoctorProfileData) => {
+    return apiClient.put('/doctors/profile', profileData);
+  },
+
+  // Change doctor password
+  changePassword: (currentPassword: string, newPassword: string) => {
+    return apiClient.put('/doctors/profile/password', { currentPassword, newPassword });
+  },
+
+  // Get doctor availability
+  getAvailability: () => {
+    return apiClient.get('/doctors/availability');
+  },
+
+  // Update doctor availability
+  updateAvailability: (date: string, slots: Array<{ time: string; isAvailable: boolean }>) => {
+    return apiClient.post('/doctors/availability', { date, slots });
+  },
+
+  // Get doctor appointments
+  getAppointments: (status?: string, date?: string) => {
+    let url = '/doctors/appointments';
+    const params = new URLSearchParams();
+    
+    if (status) params.append('status', status);
+    if (date) params.append('date', date);
+    
+    if (params.toString()) {
+      url += `?${params.toString()}`;
+    }
+    
+    return apiClient.get(url);
+  },
+
+  // Get specific appointment
+  getAppointment: (id: string) => {
+    return apiClient.get(`/doctors/appointments/${id}`);
+  },
+
+  // Update appointment status
+  updateAppointmentStatus: (id: string, status: 'confirmed' | 'cancelled') => {
+    return apiClient.put(`/doctors/appointments/${id}`, { status });
+  }
+};
+
+// Admin doctor management API
+const adminDoctorApi = {
+  // Get all doctors
+  getAllDoctors: () => {
+    return apiClient.get('/doctors/admin');
+  },
+
+  // Get single doctor
+  getDoctor: (id: string) => {
+    return apiClient.get(`/doctors/admin/${id}`);
+  },
+
+  // Create new doctor
+  createDoctor: (doctorData: {
+    name: string;
+    email: string;
+    password: string;
+    speciality: string;
+    phoneNumber?: string;
+    bio?: string;
+    isActive?: boolean;
+  }) => {
+    return apiClient.post('/doctors/admin', doctorData);
+  },
+
+  // Update doctor
+  updateDoctor: (id: string, doctorData: {
+    name?: string;
+    email?: string;
+    password?: string;
+    speciality?: string;
+    phoneNumber?: string;
+    bio?: string;
+    isActive?: boolean;
+  }) => {
+    return apiClient.put(`/doctors/admin/${id}`, doctorData);
+  },
+
+  // Update doctor status (active/inactive)
+  updateDoctorStatus: (id: string, isActive: boolean) => {
+    return apiClient.put(`/doctors/admin/${id}/status`, { isActive });
+  },
+
+  // Delete doctor
+  deleteDoctor: (id: string) => {
+    return apiClient.delete(`/doctors/admin/${id}`);
+  }
+};
+
+const publicDoctorApi = {
+  // Get all active doctors
+  getAllDoctors: () => {
+    return apiClient.get('/doctors/public');
+  },
+  
+  // Get a single doctor
+  getDoctor: (id: string) => {
+    return apiClient.get(`/doctors/public/${id}`);
+  },
+  
+  // Get doctor's available dates
+  getDoctorAvailableDates: (id: string) => {
+    return apiClient.get(`/doctors/${id}/availability`);
+  },
+  
+  // Get doctor's available time slots for a specific date
+  getDoctorAvailableTimeSlots: (id: string, date: string) => {
+    return apiClient.get(`/doctors/${id}/availability/${date}`);
+  }
+};
+
+// Appointment API for patients
+const appointmentApi = {
+  // Book a new appointment
+  bookAppointment: (appointmentData: {
+    fullName: string;
+    phoneNumber: string;
+    email: string;
+    isHmoRegistered: boolean;
+    hmoName?: string;
+    hmoNumber?: string;
+    hasPreviousVisit: boolean;
+    medicalRecordNumber?: string;
+    briefHistory?: string;
+    appointmentDate: string;
+    appointmentTime: string;
+    doctorId: string;
+  }) => {
+    return apiClient.post('/appointments', appointmentData);
+  }
+};
+
+// src/api/apiClient.ts - Add these functions
+
+// Testimonial interfaces
+export interface Testimonial {
+  _id: string;
+  rating: number;
+  review: string;
+  name: string;
+  position: string;
+  image?: string;
+  isApproved: boolean;
+  createdAt: string;
+}
+
+export interface TestimonialFormData {
+  rating: number;
+  review: string;
+  name: string;
+  position: string;
+  image?: File | null;
+}
+
+// Testimonial API methods
+const testimonialApi = {
+  // Get all approved testimonials
+  getAllTestimonials: async () => {
+    const response = await apiClient.get('/testimonials');
+    return response.data;
+  },
+  
+  // Get recent testimonials (10)
+  getRecentTestimonials: async () => {
+    const response = await apiClient.get('/testimonials/recent');
+    return response.data;
+  },
+  
+  // Submit a new testimonial
+  submitTestimonial: async (data: TestimonialFormData) => {
+    // Create FormData object for file upload
+    const formData = new FormData();
+    formData.append('rating', data.rating.toString());
+    formData.append('review', data.review);
+    formData.append('name', data.name);
+    formData.append('position', data.position);
+    
+    if (data.image) {
+      formData.append('image', data.image);
+    }
+    
+    const response = await apiClient.post('/testimonials', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      }
+    });
+    return response.data;
+  },
+  
+  // Admin: Get all testimonials including unapproved
+  getAllAdminTestimonials: async () => {
+    const response = await apiClient.get('/testimonials/admin');
+    return response.data;
+  },
+  
+  // Admin: Get pending testimonials
+  getPendingTestimonials: async () => {
+    const response = await apiClient.get('/testimonials/admin/pending');
+    return response.data;
+  },
+  
+  // Admin: Approve a testimonial
+  approveTestimonial: async (id: string) => {
+    const response = await apiClient.put(`/testimonials/admin/${id}/approve`);
+    return response.data;
+  },
+  
+  // Admin: Reject a testimonial
+  rejectTestimonial: async (id: string) => {
+    const response = await apiClient.put(`/testimonials/admin/${id}/reject`);
+    return response.data;
+  },
+  
+  // Admin: Delete a testimonial
+  deleteTestimonial: async (id: string) => {
+    const response = await apiClient.delete(`/testimonials/admin/${id}`);
+    return response.data;
+  },
+  
+  // Admin: Update a testimonial
+  updateTestimonial: async (id: string, data: Partial<TestimonialFormData>) => {
+    // Create FormData object for file upload
+    const formData = new FormData();
+    
+    if (data.rating !== undefined) {
+      formData.append('rating', data.rating.toString());
+    }
+    
+    if (data.review !== undefined) {
+      formData.append('review', data.review);
+    }
+    
+    if (data.name !== undefined) {
+      formData.append('name', data.name);
+    }
+    
+    if (data.position !== undefined) {
+      formData.append('position', data.position);
+    }
+    
+    if (data.image) {
+      formData.append('image', data.image);
+    }
+    
+    const response = await apiClient.put(`/testimonials/admin/${id}`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      }
+    });
+    return response.data;
+  }
+};
+
+// src/api/apiClient.ts - Add these to your existing file
+
+// Event interfaces
+
+
+export interface EventFormData {
+  title: string;
+  description: string;
+  shortDescription: string;
+  eventDate: string;
+  eventTime: string;
+  location: string;
+  address: string;
+  featured?: boolean;
+  status?: 'upcoming' | 'ongoing' | 'past';
+  registrationLink?: string;
+  registrationRequired?: boolean;
+  capacity?: number;
+  coverImage?: File | null;
+  removeCoverImage?: boolean;
+  galleryImages?: File[];
+    removeGalleryImages?: number[];
+}
+export interface Event {
+  _id: string;
+  title: string;
+  description: string;
+  shortDescription: string;
+  eventDate: string;
+  eventTime: string;
+  location: string;
+  address: string;
+  featured: boolean;
+  status: 'upcoming' | 'ongoing' | 'past';
+  registrationLink?: string;
+  registrationRequired: boolean;
+  capacity?: number;
+  coverImage?: string;
+  gallery: string[];
+  galleryWithCaptions?: Array<{
+    url: string;
+    caption?: string;
+  }>;
+  galleryCaptions?: Record<string, string>;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// Event API methods
+const eventApi = {
+  // Get all events or filtered by status
+  getAllEvents: async (status?: string, featured?: boolean) => {
+    let url = '/events';
+    const params = new URLSearchParams();
+    
+    if (status) params.append('status', status);
+    if (featured) params.append('featured', 'true');
+    
+    if (params.toString()) {
+      url += `?${params.toString()}`;
+    }
+    
+    const response = await apiClient.get(url);
+    return response.data;
+  },
+  
+  // Get upcoming events
+  getUpcomingEvents: async () => {
+    const response = await apiClient.get('/events?status=upcoming');
+    return response.data;
+  },
+  
+  // Get past events
+  getPastEvents: async () => {
+    const response = await apiClient.get('/events?status=past');
+    return response.data;
+  },
+  
+  // Get featured events
+  getFeaturedEvents: async () => {
+    const response = await apiClient.get('/events?featured=true');
+    return response.data;
+  },
+  
+  // Get single event
+  getEvent: async (id: string) => {
+    const response = await apiClient.get(`/events/${id}`);
+    return response.data;
+  },
+  
+  // Admin API calls
+  admin: {
+    // Get all events (admin)
+    getAllEvents: async () => {
+      const response = await apiClient.get('/events/admin');
+      return response.data;
+    },
+    
+    // Create event
+    // Update the createEvent function in your apiClient.ts file
+
+// Create event
+createEvent: async (eventData: EventFormData) => {
+  // Create FormData object for file upload
+  const formData = new FormData();
+  
+  // Add all fields except files
+  Object.entries(eventData).forEach(([key, value]) => {
+    if (key !== 'coverImage' && key !== 'galleryImages' && value !== undefined) {
+      if (typeof value === 'boolean') {
+        formData.append(key, value.toString());
+      } else if (value !== null) {
+        formData.append(key, value as string);
+      }
+    }
+  });
+  
+  // Add cover image if provided
+  if (eventData.coverImage) {
+    formData.append('coverImage', eventData.coverImage);
+  }
+  
+  // Add gallery images if provided - IMPORTANT: The backend expects 'images', not 'galleryImages'
+  if (eventData.galleryImages && eventData.galleryImages.length > 0) {
+    // Use 'images' as field name because that's what the backend expects
+    eventData.galleryImages.forEach(image => {
+      formData.append('images', image);
+    });
+  }
+  
+  // Log the FormData contents for debugging (optional)
+  console.log('Uploading event with gallery images:', eventData.galleryImages?.length || 0);
+  
+  try {
+    const response = await apiClient.post('/events/admin', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    });
+    
+    return response.data;
+  } catch (error) {
+    console.error('Error creating event:', error);
+    throw error;
+  }
+},
+    
+    // Update event
+    updateEvent: async (id: string, eventData: Partial<EventFormData>) => {
+      // Create FormData object for file upload
+      const formData = new FormData();
+      
+      // Add all fields
+      Object.entries(eventData).forEach(([key, value]) => {
+        if (key !== 'coverImage' && value !== undefined) {
+          if (typeof value === 'boolean') {
+            formData.append(key, value.toString());
+          } else if (value !== null) {
+            formData.append(key, value as string);
+          }
+        }
+      });
+      
+      // Add cover image if provided
+      if (eventData.coverImage) {
+        formData.append('coverImage', eventData.coverImage);
+      }
+      
+      // Add removeCoverImage flag if needed
+      if (eventData.removeCoverImage) {
+        formData.append('removeCoverImage', 'true');
+      }
+      
+      const response = await apiClient.put(`/events/admin/${id}`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      
+      return response.data;
+    },
+    
+    // Delete event
+    deleteEvent: async (id: string) => {
+      const response = await apiClient.delete(`/events/admin/${id}`);
+      return response.data;
+    },
+    
+    // Update event status
+    updateEventStatus: async (id: string, status: 'upcoming' | 'ongoing' | 'past') => {
+      const response = await apiClient.put(`/events/admin/${id}/status`, { status });
+      return response.data;
+    },
+    
+    // Add images to gallery
+    addGalleryImages: async (id: string, images: File[]) => {
+      const formData = new FormData();
+      
+      // Add all images
+      images.forEach(image => {
+        formData.append('images', image);
+      });
+      
+      const response = await apiClient.post(`/events/admin/${id}/gallery`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      
+      return response.data;
+    },
+    
+    // Remove image from gallery
+    removeGalleryImage: async (id: string, imageIndex: number) => {
+      const response = await apiClient.delete(`/events/admin/${id}/gallery/${imageIndex}`);
+      return response.data;
+    },
+
+    updateGalleryOrder: async (id: string, galleryOrder: string[]) => {
+  const response = await apiClient.put(`/events/admin/${id}/gallery/order`, { gallery: galleryOrder });
+  return response.data;
+},
+
+// Add caption to gallery image
+addGalleryCaption: async (id: string, imageIndex: number, caption: string) => {
+  const response = await apiClient.put(`/events/admin/${id}/gallery/${imageIndex}/caption`, { caption });
+  return response.data;
+},
+
+// Get gallery images with captions
+getGalleryWithCaptions: async (id: string) => {
+  const response = await apiClient.get(`/events/admin/${id}/gallery`);
+  return response.data;
+}
+  }
+};
+
+
+
 export { 
   blogApi, 
   subscribeToNewsletter, 
   bookAppointment, 
-  sendContactMessage 
+  sendContactMessage,
+  doctorApi,
+  adminDoctorApi,
+  publicDoctorApi, 
+  appointmentApi,
+  testimonialApi,
+  eventApi
 };
 
 export default apiClient;

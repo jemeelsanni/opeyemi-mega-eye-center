@@ -330,7 +330,7 @@ const BlogDetail: React.FC = () => {
         <Header />
         <Navbar />
         <div className="flex justify-center items-center py-16 flex-grow">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#FFA500]"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#FFB915]"></div>
           <p className="ml-4 text-gray-600">Loading blog post...</p>
         </div>
         <Footer />
@@ -359,7 +359,7 @@ const BlogDetail: React.FC = () => {
             <div className="flex flex-col sm:flex-row justify-center gap-4">
               <button
                 onClick={handleGoBack}
-                className="bg-[#FFA500] hover:bg-[#FF9000] text-white font-medium py-2 px-6 rounded-md transition-colors inline-flex items-center justify-center"
+                className="bg-[#FFB915] hover:bg-[#2C4A6B] text-white font-medium py-2 px-6 rounded-md transition-colors inline-flex items-center justify-center"
               >
                 <FaArrowLeft className="mr-2" />
                 Go Back
@@ -430,12 +430,12 @@ const BlogDetail: React.FC = () => {
 
               <div className="flex flex-wrap items-center text-gray-500 mb-6 gap-4">
                 <div className="flex items-center">
-                  <FaCalendarAlt className="mr-2 text-[#FFA500]" />
+                  <FaCalendarAlt className="mr-2 text-[#FFB915]" />
                   <span>{formatDate(blog.createdAt)}</span>
                 </div>
 
                 <div className="flex items-center">
-                  <FaClock className="mr-2 text-[#FFA500]" />
+                  <FaClock className="mr-2 text-[#FFB915]" />
                   <span>{blog.readDuration}</span>
                 </div>
 
@@ -447,7 +447,7 @@ const BlogDetail: React.FC = () => {
               </div>
 
               {blog.description && (
-                <p className="text-lg text-gray-600 border-l-4 border-[#FFA500] pl-4 italic">
+                <p className="text-lg text-gray-600 border-l-4 border-[#FFB915] pl-4 italic">
                   {blog.description}
                 </p>
               )}
@@ -456,7 +456,7 @@ const BlogDetail: React.FC = () => {
             {/* Blog content */}
             <div className="p-6 md:p-10">
               <div
-                className="prose prose-lg max-w-none prose-headings:text-gray-800 prose-headings:font-bold prose-a:text-[#FFA500] prose-a:no-underline hover:prose-a:underline prose-img:rounded-lg"
+                className="prose prose-lg max-w-none prose-headings:text-gray-800 prose-headings:font-bold prose-a:text-[#FFB915] prose-a:no-underline hover:prose-a:underline prose-img:rounded-lg"
                 dangerouslySetInnerHTML={{ __html: blog.content }}
               />
             </div>
@@ -484,9 +484,9 @@ const BlogDetail: React.FC = () => {
                   {/* Like Button */}
                   <button
                     onClick={handleLike}
-                    className="hidden items-center gap-2 text-gray-600 hover:text-[#FFA500] transition-colors"
+                    className="hidden items-center gap-2 text-gray-600 hover:text-[#FFB915] transition-colors"
                   >
-                    <FaThumbsUp className={isLiked ? "text-[#FFA500]" : ""} />
+                    <FaThumbsUp className={isLiked ? "text-[#FFB915]" : ""} />
                     <span>{likeCount} {likeCount === 1 ? 'like' : 'likes'}</span>
                   </button>
 
@@ -554,7 +554,7 @@ const BlogDetail: React.FC = () => {
                       value={comment}
                       onChange={(e) => setComment(e.target.value)}
                       placeholder="Add a comment..."
-                      className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FFA500] focus:border-[#FFA500] transition-colors"
+                      className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FFB915] focus:border-[#FFB915] transition-colors"
                       rows={3}
                     ></textarea>
                     <div className="mt-2 flex justify-end">
@@ -562,7 +562,7 @@ const BlogDetail: React.FC = () => {
                         type="submit"
                         disabled={!comment.trim()}
                         className={`inline-flex items-center py-2 px-4 rounded-md ${comment.trim()
-                          ? "bg-[#FFA500] hover:bg-[#FF9000] text-white"
+                          ? "bg-[#FFB915] hover:bg-[#2C4A6B] text-white"
                           : "bg-gray-200 text-gray-500 cursor-not-allowed"
                           } transition-colors`}
                       >
@@ -595,7 +595,7 @@ const BlogDetail: React.FC = () => {
                           {/* Reply Button */}
                           <button
                             onClick={() => setReplyingTo(replyingTo === comment._id ? null : comment._id || null)}
-                            className="text-sm text-gray-500 hover:text-[#FFA500] mt-2 transition-colors"
+                            className="text-sm text-gray-500 hover:text-[#FFB915] mt-2 transition-colors"
                           >
                             Reply
                           </button>
@@ -607,7 +607,7 @@ const BlogDetail: React.FC = () => {
                                 value={replyText[comment._id || ''] || ''}
                                 onChange={(e) => setReplyText({ ...replyText, [comment._id || '']: e.target.value })}
                                 placeholder="Write a reply..."
-                                className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FFA500] focus:border-[#FFA500] text-sm"
+                                className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FFB915] focus:border-[#FFB915] text-sm"
                                 rows={2}
                               ></textarea>
                               <div className="mt-2 flex justify-end space-x-2">
@@ -623,7 +623,7 @@ const BlogDetail: React.FC = () => {
                                   onClick={() => handleReply(comment._id || '')}
                                   disabled={!replyText[comment._id || '']?.trim()}
                                   className={`py-1 px-3 text-xs rounded-md ${replyText[comment._id || '']?.trim()
-                                    ? "bg-[#FFA500] hover:bg-[#FF9000] text-white"
+                                    ? "bg-[#FFB915] hover:bg-[#2C4A6B] text-white"
                                     : "bg-gray-200 text-gray-500 cursor-not-allowed"
                                     } transition-colors`}
                                 >

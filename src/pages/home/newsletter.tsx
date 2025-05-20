@@ -80,7 +80,7 @@ const Newsletter: React.FC = () => {
   };
 
   return (
-    <section className="py-12 bg-[#FFA500]/5">
+    <section className="py-12 bg-[#FFB915]/5">
       <div className="container mx-auto px-4">
         {/* Desktop Newsletter Section */}
         <div className="hidden md:block">
@@ -115,7 +115,7 @@ const Newsletter: React.FC = () => {
                         }
                       }}
                       placeholder="Your email address"
-                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FFA500] focus:border-transparent"
+                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FFB915] focus:border-transparent"
                       required
                     />
                   </div>
@@ -125,8 +125,8 @@ const Newsletter: React.FC = () => {
                     disabled={isSubmitting}
                     className={`w-full flex items-center justify-center py-3 px-6 rounded-lg text-white font-medium ${isSubmitting
                       ? "bg-[#FFC266] cursor-not-allowed"
-                      : "bg-[#FFA500] hover:bg-[#FF9000]"
-                      } transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-[#FFA500] focus:ring-offset-2`}
+                      : "bg-[#FFB915] hover:bg-[#2C4A6B]"
+                      } transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-[#FFB915] focus:ring-offset-2`}
                   >
                     {isSubmitting ? (
                       <>
@@ -155,10 +155,10 @@ const Newsletter: React.FC = () => {
                 )}
               </div>
 
-              <div className="md:w-1/2 bg-[#FFA500]/10 p-10 hidden md:flex items-center justify-center">
+              <div className="md:w-1/2 bg-[#FFB915]/10 p-10 hidden md:flex items-center justify-center">
                 <div className="text-center">
                   <div className="flex justify-center mb-6">
-                    <FaEnvelope className="text-[#FFA500] text-6xl" />
+                    <FaEnvelope className="text-[#FFB915] text-6xl" />
                   </div>
                   <h3 className="text-xl font-bold text-gray-800 mb-2">
                     Stay Informed
@@ -181,7 +181,7 @@ const Newsletter: React.FC = () => {
             className="bg-white rounded-lg shadow-md p-6"
           >
             <div className="text-center mb-6">
-              <FaEnvelope className="text-[#FFA500] text-4xl mx-auto mb-4" />
+              <FaEnvelope className="text-[#FFB915] text-4xl mx-auto mb-4" />
               <h2 className="text-2xl font-bold text-gray-800 mb-2">
                 Join our Newsletter
               </h2>
@@ -202,7 +202,7 @@ const Newsletter: React.FC = () => {
                     }
                   }}
                   placeholder="Your email address"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FFA500] focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FFB915] focus:border-transparent"
                   required
                 />
 
@@ -211,7 +211,7 @@ const Newsletter: React.FC = () => {
                   disabled={isSubmitting}
                   className={`w-full py-3 px-4 rounded-lg text-white font-medium ${isSubmitting
                     ? "bg-[#FFC266] cursor-not-allowed"
-                    : "bg-[#FFA500] hover:bg-[#FF9000]"
+                    : "bg-[#FFB915] hover:bg-[#2C4A6B]"
                     } transition-colors duration-300`}
                 >
                   {isSubmitting ? "Subscribing..." : "Subscribe"}

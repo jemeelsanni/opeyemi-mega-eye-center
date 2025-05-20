@@ -128,7 +128,7 @@ const AdminBlogViewer: React.FC = () => {
         return (
             <AdminLayout>
                 <div className="flex justify-center items-center py-16">
-                    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#FFA500]"></div>
+                    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#FFB915]"></div>
                     <p className="ml-4 text-gray-600">Loading blog post...</p>
                 </div>
             </AdminLayout>
@@ -233,14 +233,14 @@ const AdminBlogViewer: React.FC = () => {
 
                         <div className="flex flex-wrap items-center text-gray-500 mb-6 gap-4">
                             <div className="flex items-center">
-                                <FaCalendarAlt className="mr-2 text-[#FFA500]" />
+                                <FaCalendarAlt className="mr-2 text-[#FFB915]" />
                                 <span>
                                     Created: {formatDate(blog.createdAt)}
                                 </span>
                             </div>
 
                             <div className="flex items-center">
-                                <FaClock className="mr-2 text-[#FFA500]" />
+                                <FaClock className="mr-2 text-[#FFB915]" />
                                 <span>{blog.readDuration}</span>
                             </div>
 
@@ -252,7 +252,7 @@ const AdminBlogViewer: React.FC = () => {
                         </div>
 
                         {blog.description && (
-                            <p className="text-lg text-gray-600 border-l-4 border-[#FFA500] pl-4 italic">
+                            <p className="text-lg text-gray-600 border-l-4 border-[#FFB915] pl-4 italic">
                                 {blog.description}
                             </p>
                         )}
@@ -261,7 +261,7 @@ const AdminBlogViewer: React.FC = () => {
                     {/* Blog content */}
                     <div className="p-6 md:p-10">
                         <div
-                            className="prose prose-lg max-w-none prose-headings:text-gray-800 prose-headings:font-bold prose-a:text-[#FFA500] prose-a:no-underline hover:prose-a:underline prose-img:rounded-lg"
+                            className="prose prose-lg max-w-none prose-headings:text-gray-800 prose-headings:font-bold prose-a:text-[#FFB915] prose-a:no-underline hover:prose-a:underline prose-img:rounded-lg"
                             dangerouslySetInnerHTML={{ __html: blog.content }}
                         />
                     </div>
@@ -337,7 +337,7 @@ const AdminBlogViewer: React.FC = () => {
 
                                 <button
                                     type="button"
-                                    className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FFA500] sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+                                    className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FFB915] sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
                                     onClick={() => setShowDeleteModal(false)}
                                 >
                                     Cancel

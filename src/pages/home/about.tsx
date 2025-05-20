@@ -64,7 +64,7 @@ const About: React.FC<AboutProps> = ({ welcomeImage }) => {
             className="w-1/2"
           >
             <h2 className="text-3xl md:text-4xl font-bold mb-6">
-              Welcome to <span className="text-[#FFA500]">OMEC</span>
+              Welcome to <span className="text-[#FFB915]">OMEC</span>
             </h2>
 
             <p className="text-gray-700 mb-6">
@@ -87,7 +87,7 @@ const About: React.FC<AboutProps> = ({ welcomeImage }) => {
                   variants={itemVariants}
                   className="flex items-start"
                 >
-                  <FaCheckCircle className="text-[#FFA500] mt-1 mr-2 flex-shrink-0" />
+                  <FaCheckCircle className="text-[#FFB915] mt-1 mr-2 flex-shrink-0" />
                   <span>{benefit}</span>
                 </motion.li>
               ))}
@@ -108,7 +108,7 @@ const About: React.FC<AboutProps> = ({ welcomeImage }) => {
             className="text-center mb-8"
           >
             <h2 className="text-3xl font-bold mb-4">
-              Welcome to <span className="text-[#FFA500]">OMEC</span>
+              Welcome to <span className="text-[#FFB915]">OMEC</span>
             </h2>
 
             <p className="text-gray-700 mb-6">
@@ -150,7 +150,7 @@ const About: React.FC<AboutProps> = ({ welcomeImage }) => {
                   variants={itemVariants}
                   className="flex items-start"
                 >
-                  <FaCheckCircle className="text-[#FFA500] mt-1 mr-2 flex-shrink-0" />
+                  <FaCheckCircle className="text-[#FFB915] mt-1 mr-2 flex-shrink-0" />
                   <span>{benefit}</span>
                 </motion.li>
               ))}

@@ -113,7 +113,7 @@ const AdminBlogList: React.FC = () => {
 
                     <Link
                         to="/admin/createBlog"
-                        className="inline-flex items-center px-4 py-2 bg-[#FFA500] hover:bg-[#FF9000] text-white font-medium rounded-lg transition-colors"
+                        className="inline-flex items-center px-4 py-2 bg-[#FFB915] hover:bg-[#2C4A6B] text-white font-medium rounded-lg transition-colors"
                     >
                         <FaPlus className="mr-2" />
                         Create New Blog
@@ -135,7 +135,7 @@ const AdminBlogList: React.FC = () => {
                         <input
                             type="text"
                             id="search"
-                            className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:ring-[#FFA500] focus:border-[#FFA500]"
+                            className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:ring-[#FFB915] focus:border-[#FFB915]"
                             placeholder="Search blogs by title or description..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
@@ -146,7 +146,7 @@ const AdminBlogList: React.FC = () => {
                 {/* Blog Table */}
                 {isLoading ? (
                     <div className="flex justify-center py-12">
-                        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#FFA500]"></div>
+                        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#FFB915]"></div>
                     </div>
                 ) : filteredBlogs.length === 0 ? (
                     <div className="bg-white rounded-lg shadow-md p-6 text-center">
@@ -154,7 +154,7 @@ const AdminBlogList: React.FC = () => {
                         {searchTerm && (
                             <button
                                 onClick={() => setSearchTerm('')}
-                                className="text-[#FFA500] hover:text-[#FF9000] font-medium"
+                                className="text-[#FFB915] hover:text-[#008787] font-medium"
                             >
                                 Clear search
                             </button>
@@ -318,7 +318,7 @@ const AdminBlogList: React.FC = () => {
                                                     key={page}
                                                     onClick={() => setCurrentPage(page)}
                                                     className={`relative inline-flex items-center px-4 py-2 border ${currentPage === page
-                                                        ? 'z-10 bg-[#FFA500] border-[#FFA500] text-white'
+                                                        ? 'z-10 bg-[#FFB915] border-[#FFB915] text-white'
                                                         : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
                                                         } text-sm font-medium`}
                                                 >
@@ -379,7 +379,7 @@ const AdminBlogList: React.FC = () => {
                                     </button>
                                     <button
                                         type="button"
-                                        className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FFA500] sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+                                        className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FFB915] sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
                                         onClick={() => setShowDeleteModal(false)}
                                     >
                                         Cancel

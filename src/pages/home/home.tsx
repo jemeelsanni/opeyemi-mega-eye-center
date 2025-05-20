@@ -1,13 +1,16 @@
-import React from "react";
+// src/pages/home/home.tsx
+import React, { useState, useEffect } from "react";
 import Header from "../../layout/header";
 import Navbar from "../../layout/navbar";
 import Hero from "./hero";
 import About from "./about";
 import Service from "./service";
-import VisitGuide from "./visitGuide"; // Import the new VisitGuide component
+import VisitGuide from "./visitGuide";
+import Doctors from "./doctors";
 import Testimonials from "./testimonials";
 import Newsletter from "./newsletter";
 import Footer from "../../layout/footer";
+import { testimonialApi, Testimonial } from "../../api/apiClient"; // Add Testimonial type import
 
 // Import images
 import Hero1 from "../../assets/hero1.jpg";
@@ -23,6 +26,33 @@ import OpticalsImg from "../../assets/opticals.jpg";
 import placeholder from "../../assets/imagep.png";
 
 const Home: React.FC = () => {
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([]); // Use Testimonial type
+  const [testimonialsLoading, setTestimonialsLoading] = useState(true);
+
+  // Fetch testimonials
+  useEffect(() => {
+    const fetchTestimonials = async () => {
+      try {
+        setTestimonialsLoading(true);
+        const response = await testimonialApi.getRecentTestimonials();
+        if (response?.data && Array.isArray(response.data) && response.data.length > 0) {
+          setTestimonials(response.data);
+        } else {
+          // Use fallback data if no testimonials are available
+          setTestimonials(fallbackTestimonials);
+        }
+      } catch (err) {
+        console.error("Error fetching testimonials:", err);
+        // Use fallback data on error
+        setTestimonials(fallbackTestimonials);
+      } finally {
+        setTestimonialsLoading(false);
+      }
+    };
+
+    fetchTestimonials();
+  }, []);
+
   // Sample data for Hero component
   const heroImages = [
     { image: Hero1, alt: "Eye examination" },
@@ -60,31 +90,41 @@ const Home: React.FC = () => {
     },
   ];
 
-  // Sample data for Testimonials component
-  const testimonialsData = [
+  // Fallback testimonials data in case API fails
+  // Define with proper Testimonial type
+  const fallbackTestimonials: Testimonial[] = [
     {
+      _id: "1",
       rating: 5,
       review:
         "The leading eye care service in Kwara State right now, offering top-notch care and quality. The staff are professional and caring, and the facilities are state-of-the-art.",
       name: "Fatimat Temim",
       position: "Lecturer in Kwara State University",
       image: placeholder,
+      isApproved: true,
+      createdAt: new Date().toISOString()
     },
     {
+      _id: "2",
       rating: 4,
       review:
         "Exceptional eye care services, combining professionalism with compassionate care to provide outstanding patient experiences. I highly recommend their services to anyone with eye problems.",
       name: "Rotimi Shefiu",
       position: "Software Engineer",
       image: placeholder,
+      isApproved: true,
+      createdAt: new Date().toISOString()
     },
     {
+      _id: "3",
       rating: 5,
       review:
         "Unmatched eye care in Kwara State, known for its expert staff and high-quality treatments that prioritize patient well-being. The service is second to none and the atmosphere is calming.",
       name: "Sanni Jemeel",
       position: "Software Engineer",
       image: placeholder,
+      isApproved: true,
+      createdAt: new Date().toISOString()
     },
   ];
 
@@ -95,8 +135,9 @@ const Home: React.FC = () => {
       <Hero heroImages={heroImages} />
       <About welcomeImage={Welcome} />
       <Service services={services} />
-      <VisitGuide /> {/* Added the VisitGuide component here */}
-      <Testimonials testimonialsData={testimonialsData} />
+      <Doctors />
+      <VisitGuide />
+      <Testimonials isLoading={testimonialsLoading} testimonialsData={testimonials} />
       <Newsletter />
       <Footer />
     </div>

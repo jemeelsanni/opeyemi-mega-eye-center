@@ -85,7 +85,7 @@ const Service: React.FC<ServiceProps> = ({ services }) => {
 
                 <Link
                   to="/services"
-                  className="inline-flex items-center text-[#FFA500] font-medium hover:text-[#FF9000] transition-colors"
+                  className="inline-flex items-center text-[#FFB915] font-medium hover:text-[#008787] transition-colors"
                 >
                   Learn More <FaArrowRight className="ml-2" />
                 </Link>
@@ -103,7 +103,7 @@ const Service: React.FC<ServiceProps> = ({ services }) => {
           >
             <Link
               to="/services"
-              className="inline-flex items-center justify-center bg-[#FFA500] hover:bg-[#FF9000] text-white font-medium py-3 px-8 rounded-full shadow-md hover:shadow-lg transition-all duration-300"
+              className="inline-flex items-center justify-center bg-[#FFB915] hover:bg-[#2C4A6B] text-white font-medium py-3 px-8 rounded-full shadow-md hover:shadow-lg transition-all duration-300"
             >
               Browse All Services
             </Link>

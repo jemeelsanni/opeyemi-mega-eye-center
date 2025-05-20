@@ -318,13 +318,13 @@ const BlogList: React.FC = () => {
                     type="text"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="block w-full pl-10 pr-4 py-3 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-[#FFA500] focus:border-[#FFA500]"
+                    className="block w-full pl-10 pr-4 py-3 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-[#FFB915] focus:border-[#FFB915]"
                     placeholder="Search blog posts..."
                   />
                 </div>
                 <button
                   type="submit"
-                  className="bg-[#FFA500] hover:bg-[#FF9000] text-white font-medium py-3 px-6 rounded-r-lg transition-colors"
+                  className="bg-[#FFB915] hover:bg-[#2C4A6B] text-white font-medium py-3 px-6 rounded-r-lg transition-colors"
                 >
                   Search
                 </button>
@@ -335,7 +335,7 @@ const BlogList: React.FC = () => {
             {selectedTag && (
               <div className="mb-4 flex items-center">
                 <span className="mr-2 text-gray-600">Filtering by:</span>
-                <div className="bg-[#FFA500] text-white px-3 py-1 rounded-full text-sm flex items-center">
+                <div className="bg-[#FFB915] text-white px-3 py-1 rounded-full text-sm flex items-center">
                   {selectedTag}
                   <button
                     onClick={() => setSelectedTag("")}
@@ -350,7 +350,7 @@ const BlogList: React.FC = () => {
 
             {isLoading ? (
               <div className="flex justify-center py-12">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#FFA500]"></div>
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#FFB915]"></div>
               </div>
             ) : error ? (
               <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded-md">
@@ -373,7 +373,7 @@ const BlogList: React.FC = () => {
                       setSelectedTag("");
                       fetchBlogs();
                     }}
-                    className="mt-4 text-[#FFA500] hover:text-[#FF9000] font-medium"
+                    className="mt-4 text-[#FFB915] hover:text-[#008787] font-medium"
                   >
                     Clear filters
                   </button>
@@ -408,17 +408,17 @@ const BlogList: React.FC = () => {
 
                             <div className="flex flex-wrap items-center text-gray-500 mb-3 gap-4">
                               <div className="flex items-center">
-                                <FaCalendarAlt className="mr-2 text-[#FFA500]" />
+                                <FaCalendarAlt className="mr-2 text-[#FFB915]" />
                                 <span>{formatDate(blog.createdAt)}</span>
                               </div>
 
                               <div className="flex items-center">
-                                <FaClock className="mr-2 text-[#FFA500]" />
+                                <FaClock className="mr-2 text-[#FFB915]" />
                                 <span>{blog.readDuration}</span>
                               </div>
 
                               <div className="flex items-center text-gray-500">
-                                <FaEye className="mr-2 text-[#FFA500]" />
+                                <FaEye className="mr-2 text-[#FFB915]" />
                                 <span>{blog.viewCount} views</span>
                               </div>
 
@@ -427,13 +427,13 @@ const BlogList: React.FC = () => {
                                 onClick={(e) => handleLike(blog._id, e)}
                               >
                                 <FaThumbsUp
-                                  className={`mr-2 ${isLikedByUser(blog) ? "text-[#FFA500]" : "text-gray-400"}`}
+                                  className={`mr-2 ${isLikedByUser(blog) ? "text-[#FFB915]" : "text-gray-400"}`}
                                 />
                                 <span>{blog.likes.length} likes</span>
                               </div>
 
                               <div className="hidden items-center text-gray-500">
-                                <FaComment className="mr-2 text-[#FFA500]" />
+                                <FaComment className="mr-2 text-[#FFB915]" />
                                 <span>{blog.comments?.length || 0} comments</span>
                               </div>
                             </div>
@@ -443,7 +443,7 @@ const BlogList: React.FC = () => {
                             </p>
 
                             <div className="flex flex-wrap justify-between items-center">
-                              <span className="inline-flex items-center text-[#FFA500] hover:text-[#FF9000] font-medium transition-colors">
+                              <span className="inline-flex items-center text-[#FFB915] hover:text-[#008787] font-medium transition-colors">
                                 Read More <FaArrowRight className="ml-2" />
                               </span>
                               <div className="flex items-center">
@@ -464,7 +464,7 @@ const BlogList: React.FC = () => {
                                         handleTagSelect(tag);
                                       }}
                                       className={`inline-flex items-center text-xs px-2 py-1 rounded-full ${selectedTag === tag
-                                        ? "bg-[#FFA500] text-white"
+                                        ? "bg-[#FFB915] text-white"
                                         : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                                         } cursor-pointer`}
                                     >
@@ -491,7 +491,7 @@ const BlogList: React.FC = () => {
                         disabled={currentPage === 1}
                         className={`inline-flex items-center justify-center w-10 h-10 rounded-full border ${currentPage === 1
                           ? "border-gray-200 text-gray-300 cursor-not-allowed"
-                          : "border-gray-300 text-gray-700 hover:border-[#FFA500] hover:text-[#FFA500]"
+                          : "border-gray-300 text-gray-700 hover:border-[#FFB915] hover:text-[#FFB915]"
                           } transition-colors`}
                         aria-label="Previous page"
                       >
@@ -507,7 +507,7 @@ const BlogList: React.FC = () => {
                         disabled={currentPage >= totalPages || blogs.length < blogsPerPage}
                         className={`inline-flex items-center justify-center w-10 h-10 rounded-full border ${currentPage >= totalPages || blogs.length < blogsPerPage
                           ? "border-gray-200 text-gray-300 cursor-not-allowed"
-                          : "border-gray-300 text-gray-700 hover:border-[#FFA500] hover:text-[#FFA500]"
+                          : "border-gray-300 text-gray-700 hover:border-[#FFB915] hover:text-[#FFB915]"
                           } transition-colors`}
                         aria-label="Next page"
                       >
@@ -541,13 +541,13 @@ const BlogList: React.FC = () => {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="Your email address"
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FFA500] focus:border-[#FFA500]"
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FFB915] focus:border-[#FFB915]"
                     required
                   />
                 </div>
                 <button
                   type="submit"
-                  className="w-full bg-[#FFA500] hover:bg-[#FF9000] text-white font-medium py-3 rounded-lg transition-colors"
+                  className="w-full bg-[#FFB915] hover:bg-[#2C4A6B] text-white font-medium py-3 rounded-lg transition-colors"
                 >
                   Subscribe
                 </button>
@@ -580,11 +580,11 @@ const BlogList: React.FC = () => {
                         />
                       )}
                       <div>
-                        <h4 className="font-medium text-gray-800 group-hover:text-[#FFA500] transition-colors line-clamp-2">
+                        <h4 className="font-medium text-gray-800 group-hover:text-[#FFB915] transition-colors line-clamp-2">
                           {blog.title}
                         </h4>
                         <div className="flex items-center text-xs text-gray-500 mt-1">
-                          <FaCalendarAlt className="mr-1 text-[#FFA500]" size={10} />
+                          <FaCalendarAlt className="mr-1 text-[#FFB915]" size={10} />
                           <span>{formatDate(blog.createdAt)}</span>
                         </div>
                       </div>
@@ -605,7 +605,7 @@ const BlogList: React.FC = () => {
                     key={index}
                     onClick={() => handleTagSelect(tag)}
                     className={`px-3 py-1 ${selectedTag === tag
-                      ? "bg-[#FFA500] text-white"
+                      ? "bg-[#FFB915] text-white"
                       : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                       } rounded-full text-sm transition-colors flex items-center`}
                   >

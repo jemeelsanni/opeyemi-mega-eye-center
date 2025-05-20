@@ -93,7 +93,7 @@ const BlogPagination: React.FC<PaginationProps> = ({ currentBlogId }) => {
                 {prevBlog ? (
                     <Link
                         to={`/blogDetail/${prevBlog._id}`}
-                        className="flex items-center text-gray-600 hover:text-[#FFA500] transition-colors mb-4 md:mb-0"
+                        className="flex items-center text-gray-600 hover:text-[#FFB915] transition-colors mb-4 md:mb-0"
                     >
                         <FaArrowLeft className="mr-2" />
                         <div>
@@ -115,7 +115,7 @@ const BlogPagination: React.FC<PaginationProps> = ({ currentBlogId }) => {
                 {nextBlog ? (
                     <Link
                         to={`/blogDetail/${nextBlog._id}`}
-                        className="flex items-center text-gray-600 hover:text-[#FFA500] transition-colors mt-4 md:mt-0 md:text-right"
+                        className="flex items-center text-gray-600 hover:text-[#FFB915] transition-colors mt-4 md:mt-0 md:text-right"
                     >
                         <div>
                             <span className="block text-sm text-gray-500">Next Article</span>

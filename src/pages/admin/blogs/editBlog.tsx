@@ -333,7 +333,7 @@ const EditBlog: React.FC = () => {
             <AdminLayout>
                 <div className="container mx-auto px-4 py-8">
                     <div className="flex justify-center py-12">
-                        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#FFA500]"></div>
+                        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#FFB915]"></div>
                         <p className="ml-4 text-gray-600">Loading blog...</p>
                     </div>
                 </div>
@@ -400,8 +400,8 @@ const EditBlog: React.FC = () => {
                                     placeholder="Enter an engaging title"
                                     className={`w-full p-3 border rounded-lg ${errors.title
                                         ? "border-red-500 bg-red-50"
-                                        : "border-gray-300 focus:border-[#FFA500]"
-                                        } focus:outline-none focus:ring-2 focus:ring-[#FFA500] transition-colors`}
+                                        : "border-gray-300 focus:border-[#FFB915]"
+                                        } focus:outline-none focus:ring-2 focus:ring-[#FFB915] transition-colors`}
                                 />
                                 {errors.title && (
                                     <p className="mt-1 text-sm text-red-600">{errors.title}</p>
@@ -429,8 +429,8 @@ const EditBlog: React.FC = () => {
                                     rows={3}
                                     className={`w-full p-3 border rounded-lg ${errors.description
                                         ? "border-red-500 bg-red-50"
-                                        : "border-gray-300 focus:border-[#FFA500]"
-                                        } focus:outline-none focus:ring-2 focus:ring-[#FFA500] transition-colors`}
+                                        : "border-gray-300 focus:border-[#FFB915]"
+                                        } focus:outline-none focus:ring-2 focus:ring-[#FFB915] transition-colors`}
                                 />
                                 <div className="flex justify-between mt-1">
                                     {errors.description ? (
@@ -450,7 +450,7 @@ const EditBlog: React.FC = () => {
                                         className="block text-sm font-medium text-gray-700 mb-1"
                                     >
                                         <div className="flex items-center">
-                                            <FaClock className="mr-2 text-[#FFA500]" />
+                                            <FaClock className="mr-2 text-[#FFB915]" />
                                             Read Duration <span className="text-red-500">*</span>
                                         </div>
                                     </label>
@@ -466,8 +466,8 @@ const EditBlog: React.FC = () => {
                                             placeholder="e.g., 5 min read"
                                             className={`w-full p-3 border rounded-lg ${errors.readDuration
                                                 ? "border-red-500 bg-red-50"
-                                                : "border-gray-300 focus:border-[#FFA500]"
-                                                } focus:outline-none focus:ring-2 focus:ring-[#FFA500] transition-colors`}
+                                                : "border-gray-300 focus:border-[#FFB915]"
+                                                } focus:outline-none focus:ring-2 focus:ring-[#FFB915] transition-colors`}
                                         />
                                         <button
                                             type="button"
@@ -491,7 +491,7 @@ const EditBlog: React.FC = () => {
                                         value={tags.join(',')}
                                         onChange={(e) => setTags(e.target.value.split(',').map(tag => tag.trim()))}
                                         placeholder="technology, programming, web"
-                                        className="w-full p-3 border border-gray-300 rounded-lg focus:border-[#FFA500] focus:outline-none focus:ring-2 focus:ring-[#FFA500] transition-colors"
+                                        className="w-full p-3 border border-gray-300 rounded-lg focus:border-[#FFB915] focus:outline-none focus:ring-2 focus:ring-[#FFB915] transition-colors"
                                     />
                                 </div>
                             </div>
@@ -499,7 +499,7 @@ const EditBlog: React.FC = () => {
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">
                                     <div className="flex items-center">
-                                        <FaImage className="mr-2 text-[#FFA500]" />
+                                        <FaImage className="mr-2 text-[#FFB915]" />
                                         Featured Image
                                     </div>
                                 </label>
@@ -511,13 +511,13 @@ const EditBlog: React.FC = () => {
                     file:mr-4 file:py-2 file:px-4
                     file:rounded-md file:border-0
                     file:text-sm file:font-semibold
-                    file:bg-[#FFA500] file:text-white
-                    hover:file:bg-[#FF9000]"
+                    file:bg-[#FFB915] file:text-white
+                    hover:file:bg-[#008787]"
                                 />
                                 {uploadingImage && (
                                     <div className="mt-2 w-full bg-gray-200 rounded-full h-2.5">
                                         <div
-                                            className="bg-[#FFA500] h-2.5 rounded-full"
+                                            className="bg-[#FFB915] h-2.5 rounded-full"
                                             style={{ width: `${imageUploadProgress}%` }}
                                         ></div>
                                         <p className="text-xs text-gray-500 mt-1">
@@ -585,8 +585,8 @@ const EditBlog: React.FC = () => {
                                     disabled={loading}
                                     className={`px-6 py-3 rounded-lg text-white flex items-center justify-center ${loading
                                         ? "bg-[#FFC266] cursor-not-allowed"
-                                        : "bg-[#FFA500] hover:bg-[#FF9000] hover:shadow-md"
-                                        } transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[#FFA500] focus:ring-offset-2`}
+                                        : "bg-[#FFB915] hover:bg-[#2C4A6B] hover:shadow-md"
+                                        } transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[#FFB915] focus:ring-offset-2`}
                                 >
                                     {loading ? (
                                         <>

@@ -2,7 +2,18 @@ import React, { useState } from "react";
 import Navbar from "../../layout/navbar";
 import Footer from "../../layout/footer";
 import Header from "../../layout/header";
-import { FaMapMarkerAlt, FaPhone, FaEnvelope, FaWhatsapp, FaFacebook, FaInstagram, FaTwitter } from "react-icons/fa";
+import {
+  FaMapMarkerAlt,
+  FaPhone,
+  FaEnvelope,
+  FaWhatsapp,
+  FaFacebook,
+  FaInstagram,
+  FaTwitter,
+  FaClock,
+  FaPaperPlane,
+  FaUserAlt
+} from "react-icons/fa";
 import { motion } from "framer-motion";
 import apiClient from "../../api/apiClient";
 
@@ -36,20 +47,24 @@ const Contact: React.FC = () => {
     type: "success" | "error" | "";
   }>({ message: "", type: "" });
 
+  // Google Maps URL for the address
+  const googleMapsUrl = "https://www.google.com/maps/search/?api=1&query=4B+Saboline+Isale+Amilegbe+Rd+opposite+Temitope+Hospital+Ilorin+Nigeria";
+
   const contactInfo = [
     {
-      icon: <FaMapMarkerAlt className="text-[#FFA500] text-2xl" />,
+      icon: <FaMapMarkerAlt className="text-[#FFB915] text-3xl" />,
       title: "Visit Us",
       details: "4B, Saboline Isale, Amilegbe Rd, opposite Temitope Hospital, Ilorin.",
+      link: googleMapsUrl,
     },
     {
-      icon: <FaPhone className="text-[#FFA500] text-2xl" />,
+      icon: <FaPhone className="text-[#FFB915] text-3xl" />,
       title: "Call Us",
       details: "+234-814-641-6676",
       link: "tel:+23481464166676",
     },
     {
-      icon: <FaEnvelope className="text-[#FFA500] text-2xl" />,
+      icon: <FaEnvelope className="text-[#FFB915] text-3xl" />,
       title: "Email Us",
       details: "omec.reach@gmail.com",
       link: "mailto:omec.reach@gmail.com",
@@ -57,10 +72,10 @@ const Contact: React.FC = () => {
   ];
 
   const socialLinks = [
-    { icon: <FaWhatsapp size={20} />, url: "https://wa.me/23481464166676", color: "bg-green-500" },
-    { icon: <FaFacebook size={20} />, url: "https://facebook.com/OpeyemiEyeCenter", color: "bg-blue-600" },
-    { icon: <FaInstagram size={20} />, url: "https://instagram.com/opeyemi_eye_center", color: "bg-pink-600" },
-    { icon: <FaTwitter size={20} />, url: "https://twitter.com/OpeyemiEye", color: "bg-sky-500" },
+    { icon: <FaWhatsapp size={22} />, url: "https://wa.me/23481464166676", color: "bg-green-500", name: "WhatsApp" },
+    { icon: <FaFacebook size={22} />, url: "https://facebook.com/OpeyemiEyeCenter", color: "bg-blue-600", name: "Facebook" },
+    { icon: <FaInstagram size={22} />, url: "https://instagram.com/opeyemi_eye_center", color: "bg-pink-600", name: "Instagram" },
+    { icon: <FaTwitter size={22} />, url: "https://twitter.com/OpeyemiEye", color: "bg-sky-500", name: "Twitter" },
   ];
 
   const handleChange = (
@@ -120,7 +135,6 @@ const Contact: React.FC = () => {
     return isValid;
   };
 
-  // Replace the handleSubmit function in your Contact component
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -162,6 +176,26 @@ const Contact: React.FC = () => {
     }
   };
 
+  // Animation variants
+  const fadeInUp = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.6 }
+    }
+  };
+
+  const staggerContainer = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.2
+      }
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       <Header />
@@ -181,7 +215,7 @@ const Contact: React.FC = () => {
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7 }}
-              className="text-4xl md:text-5xl font-bold text-[#FFA500] mb-4"
+              className="text-4xl md:text-5xl font-bold text-[#FFB915] mb-4"
             >
               Contact Us
             </motion.h1>
@@ -200,21 +234,29 @@ const Contact: React.FC = () => {
       <main className="flex-grow py-12 px-4 md:px-6 lg:px-8">
         <div className="container mx-auto">
           {/* Contact Info Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+          <motion.div
+            className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12"
+            variants={staggerContainer}
+            initial="hidden"
+            animate="visible"
+          >
             {contactInfo.map((info, index) => (
               <motion.div
                 key={index}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1, duration: 0.5 }}
-                className="bg-white rounded-lg shadow-md p-6 text-center hover:shadow-lg transition-shadow duration-300"
+                variants={fadeInUp}
+                whileHover={{ y: -5, boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.1)" }}
+                className="bg-white rounded-lg shadow-md p-8 text-center hover:shadow-lg transition-all duration-300 flex flex-col items-center"
               >
-                <div className="flex justify-center mb-4">{info.icon}</div>
-                <h3 className="text-xl font-bold text-gray-800 mb-2">{info.title}</h3>
+                <div className="flex justify-center mb-4 bg-[#FFB915]/10 p-4 rounded-full">
+                  {info.icon}
+                </div>
+                <h3 className="text-xl font-bold text-gray-800 mb-3">{info.title}</h3>
                 {info.link ? (
                   <a
                     href={info.link}
-                    className="text-gray-600 hover:text-[#FFA500] transition-colors"
+                    target={info.link.startsWith("http") ? "_blank" : undefined}
+                    rel={info.link.startsWith("http") ? "noopener noreferrer" : undefined}
+                    className="text-gray-600 hover:text-[#FFB915] transition-colors mt-1 text-center"
                   >
                     {info.details}
                   </a>
@@ -223,64 +265,97 @@ const Contact: React.FC = () => {
                 )}
               </motion.div>
             ))}
-          </div>
+          </motion.div>
 
           {/* Main Contact Section */}
-          <div className="bg-white rounded-lg shadow-md overflow-hidden">
+          <motion.div
+            className="bg-white rounded-lg shadow-lg overflow-hidden"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.2 }}
+          >
             <div className="md:flex">
-              {/* Map or Image Section */}
-              <div className="md:w-1/2 bg-[#FFA500]/10 p-6 md:p-10 flex flex-col justify-center">
-                <h2 className="text-3xl font-bold text-gray-800 mb-6">Get in touch</h2>
-                <p className="text-gray-600 mb-6">
-                  Have questions about our services? Need to schedule an appointment?
-                  Our team is ready to assist you. Feel free to reach out using the contact form.
-                </p>
+              {/* Info Section */}
+              <div className="md:w-2/5 bg-gradient-to-br from-[#2C4A6B] to-[#1A365D] p-8 md:p-10 flex flex-col justify-between text-white">
+                <div>
+                  <h2 className="text-3xl font-bold mb-6 text-[#FFB915]">Get in touch</h2>
+                  <p className="text-white/90 mb-8">
+                    Have questions about our services? Need to schedule an appointment?
+                    Our team is ready to assist you. Feel free to reach out using the contact form or any of the methods below.
+                  </p>
 
-                <div className="mb-6">
-                  <div className="flex items-center">
-                    <div className="flex space-x-3">
-                      {socialLinks.map((link, index) => (
-                        <a
-                          key={index}
-                          href={link.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className={`${link.color} text-white h-10 w-10 rounded-full flex items-center justify-center hover:opacity-90 transition-opacity`}
-                          aria-label={`Visit our social media`}
-                        >
-                          {link.icon}
-                        </a>
-                      ))}
-                    </div>
+                  <div className="space-y-6 mb-10">
+                    {contactInfo.map((info, index) => (
+                      <div key={index} className="flex items-start">
+                        <div className="bg-white/10 p-3 rounded-full mr-4">
+                          {React.cloneElement(info.icon as React.ReactElement, { className: "text-[#FFB915] text-xl" })}
+                        </div>
+                        <div>
+                          <h4 className="font-medium text-white">{info.title}</h4>
+                          {info.link ? (
+                            <a
+                              href={info.link}
+                              target={info.link.startsWith("http") ? "_blank" : undefined}
+                              rel={info.link.startsWith("http") ? "noopener noreferrer" : undefined}
+                              className="text-white/80 hover:text-[#FFB915] transition-colors"
+                            >
+                              {info.details}
+                            </a>
+                          ) : (
+                            <p className="text-white/80">{info.details}</p>
+                          )}
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
 
-                <div className="mt-auto">
-                  <h3 className="text-lg font-bold text-gray-800 mb-2">Business Hours</h3>
-                  <ul className="text-gray-600 space-y-1">
-                    <li className="flex justify-between">
-                      <span>Monday - Saturday:</span>
-                      <span>8:00 AM - 6:00 PM</span>
-                    </li>
-                    <li className="flex justify-between">
-                      <span>Sunday:</span>
-                      <span>Surgeries & Emergencies Only</span>
-                    </li>
-                  </ul>
+                <div>
+                  <h3 className="text-lg font-bold mb-4 text-white">Connect With Us</h3>
+                  <div className="flex space-x-4">
+                    {socialLinks.map((link, index) => (
+                      <a
+                        key={index}
+                        href={link.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="bg-white/10 hover:bg-white/20 text-white h-12 w-12 rounded-full flex items-center justify-center transition-all duration-300"
+                        aria-label={`Visit our ${link.name}`}
+                        title={link.name}
+                      >
+                        {link.icon}
+                      </a>
+                    ))}
+                  </div>
+
+                  <div className="mt-8 border-t border-white/10 pt-6">
+                    <div className="flex items-start">
+                      <FaClock className="text-[#FFB915] mt-1 mr-3" />
+                      <div>
+                        <h4 className="font-medium text-white">Business Hours</h4>
+                        <p className="text-white/80">Monday - Saturday: 8:00 AM - 6:00 PM</p>
+                        <p className="text-white/80">Sunday: Surgeries & Emergencies Only</p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
 
               {/* Contact Form */}
-              <div className="md:w-1/2 p-6 md:p-10">
+              <div className="md:w-3/5 p-8 md:p-10">
                 <h2 className="text-3xl font-bold text-gray-800 mb-6">Send us a message</h2>
 
                 {feedback.message && (
-                  <div className={`p-4 mb-6 rounded-md ${feedback.type === 'success'
-                    ? 'bg-green-100 text-green-800 border border-green-200'
-                    : 'bg-red-100 text-red-800 border border-red-200'
-                    }`}>
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className={`p-4 mb-6 rounded-md ${feedback.type === 'success'
+                      ? 'bg-green-100 text-green-800 border border-green-200'
+                      : 'bg-red-100 text-red-800 border border-red-200'
+                      }`}
+                  >
                     {feedback.message}
-                  </div>
+                  </motion.div>
                 )}
 
                 <form onSubmit={handleSubmit} className="space-y-6">
@@ -292,17 +367,22 @@ const Contact: React.FC = () => {
                     >
                       Full Name <span className="text-red-500">*</span>
                     </label>
-                    <input
-                      type="text"
-                      id="fullName"
-                      value={formData.fullName}
-                      onChange={handleChange}
-                      className={`w-full p-3 border rounded-lg ${errors.fullName
-                        ? "border-red-500 bg-red-50"
-                        : "border-gray-300 focus:border-[#FFA500]"
-                        } focus:outline-none focus:ring-2 focus:ring-[#FFA500] transition-colors`}
-                      placeholder="John Doe"
-                    />
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <FaUserAlt className="text-gray-400" />
+                      </div>
+                      <input
+                        type="text"
+                        id="fullName"
+                        value={formData.fullName}
+                        onChange={handleChange}
+                        className={`w-full pl-10 p-3 border rounded-lg ${errors.fullName
+                          ? "border-red-500 bg-red-50"
+                          : "border-gray-300 focus:border-[#FFB915]"
+                          } focus:outline-none focus:ring-2 focus:ring-[#FFB915] transition-colors`}
+                        placeholder="John Doe"
+                      />
+                    </div>
                     {errors.fullName && (
                       <p className="mt-1 text-sm text-red-600">{errors.fullName}</p>
                     )}
@@ -316,17 +396,22 @@ const Contact: React.FC = () => {
                     >
                       Email <span className="text-red-500">*</span>
                     </label>
-                    <input
-                      type="email"
-                      id="email"
-                      value={formData.email}
-                      onChange={handleChange}
-                      className={`w-full p-3 border rounded-lg ${errors.email
-                        ? "border-red-500 bg-red-50"
-                        : "border-gray-300 focus:border-[#FFA500]"
-                        } focus:outline-none focus:ring-2 focus:ring-[#FFA500] transition-colors`}
-                      placeholder="your.email@example.com"
-                    />
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <FaEnvelope className="text-gray-400" />
+                      </div>
+                      <input
+                        type="email"
+                        id="email"
+                        value={formData.email}
+                        onChange={handleChange}
+                        className={`w-full pl-10 p-3 border rounded-lg ${errors.email
+                          ? "border-red-500 bg-red-50"
+                          : "border-gray-300 focus:border-[#FFB915]"
+                          } focus:outline-none focus:ring-2 focus:ring-[#FFB915] transition-colors`}
+                        placeholder="your.email@example.com"
+                      />
+                    </div>
                     {errors.email && (
                       <p className="mt-1 text-sm text-red-600">{errors.email}</p>
                     )}
@@ -340,17 +425,22 @@ const Contact: React.FC = () => {
                     >
                       Phone Number <span className="text-red-500">*</span>
                     </label>
-                    <input
-                      type="tel"
-                      id="phoneNumber"
-                      value={formData.phoneNumber}
-                      onChange={handleChange}
-                      className={`w-full p-3 border rounded-lg ${errors.phoneNumber
-                        ? "border-red-500 bg-red-50"
-                        : "border-gray-300 focus:border-[#FFA500]"
-                        } focus:outline-none focus:ring-2 focus:ring-[#FFA500] transition-colors`}
-                      placeholder="+234 81 641 6676"
-                    />
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <FaPhone className="text-gray-400" />
+                      </div>
+                      <input
+                        type="tel"
+                        id="phoneNumber"
+                        value={formData.phoneNumber}
+                        onChange={handleChange}
+                        className={`w-full pl-10 p-3 border rounded-lg ${errors.phoneNumber
+                          ? "border-red-500 bg-red-50"
+                          : "border-gray-300 focus:border-[#FFB915]"
+                          } focus:outline-none focus:ring-2 focus:ring-[#FFB915] transition-colors`}
+                        placeholder="+234 81 641 6676"
+                      />
+                    </div>
                     {errors.phoneNumber && (
                       <p className="mt-1 text-sm text-red-600">{errors.phoneNumber}</p>
                     )}
@@ -371,8 +461,8 @@ const Contact: React.FC = () => {
                       rows={5}
                       className={`w-full p-3 border rounded-lg ${errors.message
                         ? "border-red-500 bg-red-50"
-                        : "border-gray-300 focus:border-[#FFA500]"
-                        } focus:outline-none focus:ring-2 focus:ring-[#FFA500] transition-colors`}
+                        : "border-gray-300 focus:border-[#FFB915]"
+                        } focus:outline-none focus:ring-2 focus:ring-[#FFB915] transition-colors`}
                       placeholder="Please write your message here..."
                     ></textarea>
                     {errors.message && (
@@ -381,13 +471,15 @@ const Contact: React.FC = () => {
                   </div>
 
                   {/* Submit Button */}
-                  <button
+                  <motion.button
                     type="submit"
                     disabled={isSubmitting}
-                    className={`w-full py-3 px-6 rounded-lg text-white text-lg font-medium ${isSubmitting
+                    whileHover={!isSubmitting ? { scale: 1.02 } : {}}
+                    whileTap={!isSubmitting ? { scale: 0.98 } : {}}
+                    className={`w-full py-3 px-6 rounded-lg text-white text-lg font-medium flex items-center justify-center ${isSubmitting
                       ? "bg-[#FFC266] cursor-not-allowed"
-                      : "bg-[#FFA500] hover:bg-[#FF9000] hover:shadow-md"
-                      } transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[#FFA500] focus:ring-offset-2`}
+                      : "bg-[#FFB915] hover:bg-[#2C4A6B] hover:shadow-md"
+                      } transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[#FFB915] focus:ring-offset-2`}
                   >
                     {isSubmitting ? (
                       <>
@@ -398,13 +490,38 @@ const Contact: React.FC = () => {
                         Sending Message...
                       </>
                     ) : (
-                      "Submit Enquiry"
+                      <>
+                        <FaPaperPlane className="mr-2" /> Submit Enquiry
+                      </>
                     )}
-                  </button>
+                  </motion.button>
                 </form>
               </div>
             </div>
-          </div>
+          </motion.div>
+
+          {/* Google Maps Embed */}
+          <motion.div
+            className="mt-12 bg-white rounded-lg shadow-lg p-6 overflow-hidden"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.4 }}
+          >
+            <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">Find Us on the Map</h2>
+            <div className="h-96 rounded-lg overflow-hidden">
+              <iframe
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3949.4127345553064!2d4.5493!3d8.5123!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zOMKwMzAnNDQuMyJOIDTCsDMzJzEwLjciRQ!5e0!3m2!1sen!2sng!4v1621520977654!5m2!1sen!2sng"
+                width="100%"
+                height="100%"
+                style={{ border: 0 }}
+                allowFullScreen
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                title="Opeyemi Mega Eye Center Location"
+                className="rounded-lg"
+              ></iframe>
+            </div>
+          </motion.div>
         </div>
       </main>
 

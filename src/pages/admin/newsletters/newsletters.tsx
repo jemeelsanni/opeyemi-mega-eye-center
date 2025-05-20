@@ -160,7 +160,7 @@ const AdminNewsletters: React.FC = () => {
                             }
                             setShowSendModal(true);
                         }}
-                        className="inline-flex items-center px-4 py-2 bg-[#FFA500] hover:bg-[#FF9000] text-white font-medium rounded-lg transition-colors"
+                        className="inline-flex items-center px-4 py-2 bg-[#FFB915] hover:bg-[#2C4A6B] text-white font-medium rounded-lg transition-colors"
                     >
                         <FaPaperPlane className="mr-2" />
                         Send Newsletter
@@ -185,7 +185,7 @@ const AdminNewsletters: React.FC = () => {
                                 <input
                                     type="text"
                                     id="search"
-                                    className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:ring-[#FFA500] focus:border-[#FFA500]"
+                                    className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:ring-[#FFB915] focus:border-[#FFB915]"
                                     placeholder="Search by email..."
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
@@ -199,7 +199,7 @@ const AdminNewsletters: React.FC = () => {
                             </label>
                             <select
                                 id="status"
-                                className="block w-full pl-3 pr-10 py-2 border border-gray-300 rounded-md focus:ring-[#FFA500] focus:border-[#FFA500]"
+                                className="block w-full pl-3 pr-10 py-2 border border-gray-300 rounded-md focus:ring-[#FFB915] focus:border-[#FFB915]"
                                 value={statusFilter}
                                 onChange={(e) => {
                                     setStatusFilter(e.target.value);
@@ -217,7 +217,7 @@ const AdminNewsletters: React.FC = () => {
                 {/* Subscribers Table */}
                 {isLoading ? (
                     <div className="flex justify-center py-12">
-                        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#FFA500]"></div>
+                        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#FFB915]"></div>
                     </div>
                 ) : filteredSubscribers.length === 0 ? (
                     <div className="bg-white rounded-lg shadow-md p-6 text-center">
@@ -225,7 +225,7 @@ const AdminNewsletters: React.FC = () => {
                         {searchTerm && (
                             <button
                                 onClick={() => setSearchTerm('')}
-                                className="text-[#FFA500] hover:text-[#FF9000] font-medium"
+                                className="text-[#FFB915] hover:text-[#008787] font-medium"
                             >
                                 Clear search
                             </button>
@@ -241,7 +241,7 @@ const AdminNewsletters: React.FC = () => {
                                             <div className="flex items-center">
                                                 <input
                                                     type="checkbox"
-                                                    className="h-4 w-4 text-[#FFA500] focus:ring-[#FFA500] border-gray-300 rounded"
+                                                    className="h-4 w-4 text-[#FFB915] focus:ring-[#FFB915] border-gray-300 rounded"
                                                     checked={selectAll}
                                                     onChange={() => setSelectAll(!selectAll)}
                                                     disabled={filteredSubscribers.filter(s => s.isActive).length === 0}
@@ -269,7 +269,7 @@ const AdminNewsletters: React.FC = () => {
                                                 <div className="flex items-center">
                                                     <input
                                                         type="checkbox"
-                                                        className="h-4 w-4 text-[#FFA500] focus:ring-[#FFA500] border-gray-300 rounded"
+                                                        className="h-4 w-4 text-[#FFB915] focus:ring-[#FFB915] border-gray-300 rounded"
                                                         checked={selectedSubscribers.includes(subscriber._id)}
                                                         onChange={() => handleSelectSubscriber(subscriber._id)}
                                                         disabled={!subscriber.isActive}
@@ -278,8 +278,8 @@ const AdminNewsletters: React.FC = () => {
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <div className="flex items-center">
-                                                    <div className="flex-shrink-0 h-10 w-10 rounded-full bg-[#FFA500]/10 flex items-center justify-center">
-                                                        <FaEnvelope className="text-[#FFA500]" />
+                                                    <div className="flex-shrink-0 h-10 w-10 rounded-full bg-[#FFB915]/10 flex items-center justify-center">
+                                                        <FaEnvelope className="text-[#FFB915]" />
                                                     </div>
                                                     <div className="ml-4">
                                                         <div className="text-sm font-medium text-gray-900">{subscriber.email}</div>
@@ -383,7 +383,7 @@ const AdminNewsletters: React.FC = () => {
                                                     key={page}
                                                     onClick={() => setCurrentPage(page)}
                                                     className={`relative inline-flex items-center px-4 py-2 border ${currentPage === page
-                                                        ? 'z-10 bg-[#FFA500] border-[#FFA500] text-white'
+                                                        ? 'z-10 bg-[#FFB915] border-[#FFB915] text-white'
                                                         : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
                                                         } text-sm font-medium`}
                                                 >
@@ -419,8 +419,8 @@ const AdminNewsletters: React.FC = () => {
                             <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
                                 <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                                     <div className="sm:flex sm:items-start">
-                                        <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-[#FFA500]/10 sm:mx-0 sm:h-10 sm:w-10">
-                                            <FaPaperPlane className="h-6 w-6 text-[#FFA500]" />
+                                        <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-[#FFB915]/10 sm:mx-0 sm:h-10 sm:w-10">
+                                            <FaPaperPlane className="h-6 w-6 text-[#FFB915]" />
                                         </div>
                                         <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
                                             <h3 className="text-lg leading-6 font-medium text-gray-900" id="modal-title">
@@ -437,7 +437,7 @@ const AdminNewsletters: React.FC = () => {
                                                         id="subject"
                                                         value={newsletterSubject}
                                                         onChange={(e) => setNewsletterSubject(e.target.value)}
-                                                        className="w-full border border-gray-300 rounded-md p-2 focus:ring-[#FFA500] focus:border-[#FFA500]"
+                                                        className="w-full border border-gray-300 rounded-md p-2 focus:ring-[#FFB915] focus:border-[#FFB915]"
                                                         placeholder="Enter newsletter subject..."
                                                         required
                                                     />
@@ -452,7 +452,7 @@ const AdminNewsletters: React.FC = () => {
                                                         rows={10}
                                                         value={newsletterContent}
                                                         onChange={(e) => setNewsletterContent(e.target.value)}
-                                                        className="w-full border border-gray-300 rounded-md p-2 focus:ring-[#FFA500] focus:border-[#FFA500]"
+                                                        className="w-full border border-gray-300 rounded-md p-2 focus:ring-[#FFB915] focus:border-[#FFB915]"
                                                         placeholder="Enter newsletter content..."
                                                         required
                                                     />
@@ -467,7 +467,7 @@ const AdminNewsletters: React.FC = () => {
                                                 <div className="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
                                                     <button
                                                         type="submit"
-                                                        className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-[#FFA500] text-base font-medium text-white hover:bg-[#FF9000] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FFA500] sm:ml-3 sm:w-auto sm:text-sm"
+                                                        className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-[#FFB915] text-base font-medium text-white hover:bg-[#2C4A6B] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FFB915] sm:ml-3 sm:w-auto sm:text-sm"
                                                         disabled={isSending}
                                                     >
                                                         {isSending ? (
@@ -484,7 +484,7 @@ const AdminNewsletters: React.FC = () => {
                                                     </button>
                                                     <button
                                                         type="button"
-                                                        className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FFA500] sm:mt-0 sm:w-auto sm:text-sm"
+                                                        className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FFB915] sm:mt-0 sm:w-auto sm:text-sm"
                                                         onClick={() => setShowSendModal(false)}
                                                     >
                                                         Cancel

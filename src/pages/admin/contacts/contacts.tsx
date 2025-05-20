@@ -345,7 +345,7 @@ const AdminContacts: React.FC = () => {
                         </div>
                         <input
                             type="text"
-                            className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:ring-[#FFA500] focus:border-[#FFA500]"
+                            className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:ring-[#FFB915] focus:border-[#FFB915]"
                             placeholder="Search by name, email, phone or message content..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
@@ -408,7 +408,7 @@ const AdminContacts: React.FC = () => {
                 {/* Contacts Table */}
                 {isLoading ? (
                     <div className="flex justify-center py-12">
-                        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#FFA500]"></div>
+                        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#FFB915]"></div>
                     </div>
                 ) : filteredContacts.length === 0 ? (
                     <div className="bg-white rounded-lg shadow-md p-6 text-center">
@@ -416,7 +416,7 @@ const AdminContacts: React.FC = () => {
                         {searchTerm && (
                             <button
                                 onClick={() => setSearchTerm('')}
-                                className="text-[#FFA500] hover:text-[#FF9000] font-medium"
+                                className="text-[#FFB915] hover:text-[#008787] font-medium"
                             >
                                 Clear search
                             </button>
@@ -453,8 +453,8 @@ const AdminContacts: React.FC = () => {
                                         >
                                             <td className="px-6 py-4">
                                                 <div className="flex items-center">
-                                                    <div className="flex-shrink-0 h-10 w-10 rounded-full bg-[#FFA500]/10 flex items-center justify-center">
-                                                        <FaUser className="text-[#FFA500]" />
+                                                    <div className="flex-shrink-0 h-10 w-10 rounded-full bg-[#FFB915]/10 flex items-center justify-center">
+                                                        <FaUser className="text-[#FFB915]" />
                                                     </div>
                                                     <div className="ml-4">
                                                         <div className="text-sm font-medium text-gray-900">{contact.fullName}</div>
@@ -575,7 +575,7 @@ const AdminContacts: React.FC = () => {
                                                     key={page}
                                                     onClick={() => setCurrentPage(page)}
                                                     className={`relative inline-flex items-center px-4 py-2 border ${currentPage === page
-                                                        ? 'z-10 bg-[#FFA500] border-[#FFA500] text-white'
+                                                        ? 'z-10 bg-[#FFB915] border-[#FFB915] text-white'
                                                         : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
                                                         } text-sm font-medium`}
                                                 >
@@ -614,8 +614,8 @@ const AdminContacts: React.FC = () => {
                             <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
                                 <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                                     <div className="sm:flex sm:items-start">
-                                        <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-[#FFA500]/10 sm:mx-0 sm:h-10 sm:w-10">
-                                            <FaEnvelope className="h-6 w-6 text-[#FFA500]" />
+                                        <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-[#FFB915]/10 sm:mx-0 sm:h-10 sm:w-10">
+                                            <FaEnvelope className="h-6 w-6 text-[#FFB915]" />
                                         </div>
                                         <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
                                             <div className="flex justify-between items-center">
@@ -632,12 +632,12 @@ const AdminContacts: React.FC = () => {
                                                     <div className="text-sm font-medium text-gray-500">From</div>
                                                     <div className="text-sm text-gray-900">{selectedContact.fullName}</div>
                                                     <div className="text-sm text-gray-500">
-                                                        <a href={`mailto:${selectedContact.email}`} className="hover:text-[#FFA500]">
+                                                        <a href={`mailto:${selectedContact.email}`} className="hover:text-[#FFB915]">
                                                             {selectedContact.email}
                                                         </a>
                                                     </div>
                                                     <div className="text-sm text-gray-500">
-                                                        <a href={`tel:${selectedContact.phoneNumber}`} className="hover:text-[#FFA500]">
+                                                        <a href={`tel:${selectedContact.phoneNumber}`} className="hover:text-[#FFB915]">
                                                             {selectedContact.phoneNumber}
                                                         </a>
                                                     </div>
@@ -678,21 +678,21 @@ const AdminContacts: React.FC = () => {
                                                                 rows={5}
                                                                 value={replyMessage}
                                                                 onChange={(e) => setReplyMessage(e.target.value)}
-                                                                className="w-full border border-gray-300 rounded-md p-2 text-sm focus:ring-[#FFA500] focus:border-[#FFA500]"
+                                                                className="w-full border border-gray-300 rounded-md p-2 text-sm focus:ring-[#FFB915] focus:border-[#FFB915]"
                                                                 placeholder="Type your reply here..."
                                                                 required
                                                             />
                                                             <div className="mt-3 flex justify-end space-x-3">
                                                                 <button
                                                                     type="button"
-                                                                    className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FFA500]"
+                                                                    className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FFB915]"
                                                                     onClick={() => setShowReplyForm(false)}
                                                                 >
                                                                     Cancel
                                                                 </button>
                                                                 <button
                                                                     type="submit"
-                                                                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-[#FFA500] hover:bg-[#FF9000] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FFA500]"
+                                                                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-[#FFB915] hover:bg-[#2C4A6B] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FFB915]"
                                                                     disabled={isSending}
                                                                 >
                                                                     {isSending ? (
@@ -715,7 +715,7 @@ const AdminContacts: React.FC = () => {
                                                         {selectedContact.status !== 'replied' && (
                                                             <button
                                                                 type="button"
-                                                                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-[#FFA500] hover:bg-[#FF9000] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FFA500]"
+                                                                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-[#FFB915] hover:bg-[#2C4A6B] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FFB915]"
                                                                 onClick={() => setShowReplyForm(true)}
                                                             >
                                                                 <FaReply className="mr-2" />
@@ -741,7 +741,7 @@ const AdminContacts: React.FC = () => {
                                     )}
                                     <button
                                         type="button"
-                                        className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FFA500] sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+                                        className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FFB915] sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
                                         onClick={() => {
                                             setShowDetailsModal(false);
                                             setShowReplyForm(false);
@@ -764,8 +764,8 @@ const AdminContacts: React.FC = () => {
                             <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
                                 <div className="bg-white px-4 pt-5 pb-4 sm:p-6">
                                     <div className="sm:flex sm:items-start">
-                                        <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-[#FFA500]/10 sm:mx-0 sm:h-10 sm:w-10">
-                                            <FaFilter className="h-6 w-6 text-[#FFA500]" />
+                                        <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-[#FFB915]/10 sm:mx-0 sm:h-10 sm:w-10">
+                                            <FaFilter className="h-6 w-6 text-[#FFB915]" />
                                         </div>
                                         <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
                                             <h3 className="text-lg leading-6 font-medium text-gray-900" id="modal-title">
@@ -781,7 +781,7 @@ const AdminContacts: React.FC = () => {
                                                         id="statusFilter"
                                                         value={filters.status}
                                                         onChange={(e) => setFilters(prev => ({ ...prev, status: e.target.value }))}
-                                                        className="block w-full pl-3 pr-10 py-2 border border-gray-300 rounded-md focus:ring-[#FFA500] focus:border-[#FFA500]"
+                                                        className="block w-full pl-3 pr-10 py-2 border border-gray-300 rounded-md focus:ring-[#FFB915] focus:border-[#FFB915]"
                                                     >
                                                         <option value="all">All Statuses</option>
                                                         <option value="unread">Unread</option>
@@ -799,7 +799,7 @@ const AdminContacts: React.FC = () => {
                                                         id="dateFilter"
                                                         value={filters.date}
                                                         onChange={(e) => setFilters(prev => ({ ...prev, date: e.target.value }))}
-                                                        className="block w-full pl-3 pr-10 py-2 border border-gray-300 rounded-md focus:ring-[#FFA500] focus:border-[#FFA500]"
+                                                        className="block w-full pl-3 pr-10 py-2 border border-gray-300 rounded-md focus:ring-[#FFB915] focus:border-[#FFB915]"
                                                     />
                                                 </div>
                                             </div>
@@ -810,20 +810,20 @@ const AdminContacts: React.FC = () => {
                                     <button
                                         type="button"
                                         onClick={applyFilters}
-                                        className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-[#FFA500] text-base font-medium text-white hover:bg-[#FF9000] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FFA500] sm:ml-3 sm:w-auto sm:text-sm"
+                                        className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-[#FFB915] text-base font-medium text-white hover:bg-[#2C4A6B] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FFB915] sm:ml-3 sm:w-auto sm:text-sm"
                                     >
                                         Apply Filters
                                     </button>
                                     <button
                                         type="button"
                                         onClick={resetFilters}
-                                        className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FFA500] sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+                                        className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FFB915] sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
                                     >
                                         Reset Filters
                                     </button>
                                     <button
                                         type="button"
-                                        className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FFA500] sm:mt-0 sm:w-auto sm:text-sm"
+                                        className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FFB915] sm:mt-0 sm:w-auto sm:text-sm"
                                         onClick={() => setShowFiltersModal(false)}
                                     >
                                         Cancel

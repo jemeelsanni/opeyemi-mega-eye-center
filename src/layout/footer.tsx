@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import { FaWhatsapp, FaInstagram, FaTwitter, FaFacebook, FaPhone, FaEnvelope, FaMapMarkerAlt, FaClock, FaHeart, FaPaperPlane } from "react-icons/fa";
 import apiClient from "../api/apiClient";
 import { motion } from "framer-motion";
+import Logo from "../assets/omeclogo.png";
+
 
 const Footer: React.FC = () => {
   const currentYear = new Date().getFullYear();
@@ -26,10 +28,13 @@ const Footer: React.FC = () => {
 
   const quickLinks = [
     { name: "Home", path: "/" },
+    { name: "About Us", path: "/about" },
     { name: "Services", path: "/services" },
     { name: "Blog", path: "/blog" },
     { name: "Contact", path: "/contact" },
     { name: "Book Appointment", path: "/contact" },
+    { name: "Testimonials", path: "/testimonials" },
+    { name: "Events", path: "/events" },
   ];
 
   const serviceLinks = [
@@ -84,7 +89,7 @@ const Footer: React.FC = () => {
   };
 
   return (
-    <footer className="bg-gray-900 text-white">
+    <footer className="bg-[#2C4A6B] text-white">
       {/* Main Footer */}
       <div className="pt-12 pb-6">
         <div className="container mx-auto px-4 md:px-6">
@@ -97,7 +102,7 @@ const Footer: React.FC = () => {
               viewport={{ once: true }}
               transition={{ duration: 0.6 }}
             >
-              <h3 className="text-xl font-bold mb-4 text-[#FFA500]">Opeyemi Mega Eye Center</h3>
+              <span className=""><img src={Logo} alt="" className="h-12 w-12 mb-4" /></span>
               <p className="text-gray-300 mb-4">
                 A world-class health facility dedicated to providing comprehensive eye care services with cutting-edge equipment and expert professionals.
               </p>
@@ -109,7 +114,7 @@ const Footer: React.FC = () => {
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label={link.label}
-                    className="bg-gray-800 hover:bg-[#FFA500] h-10 w-10 rounded-full flex items-center justify-center transition-colors duration-300"
+                    className="bg-gray-800 hover:bg-[#FFB915] h-10 w-10 rounded-full flex items-center justify-center transition-colors duration-300"
                   >
                     {link.icon}
                   </a>
@@ -124,7 +129,7 @@ const Footer: React.FC = () => {
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: 0.1 }}
             >
-              <h3 className="text-xl font-bold mb-4 text-[#FFA500]">Quick Links</h3>
+              <h3 className="text-xl font-bold mb-4 text-[#FFB915]">Quick Links</h3>
               <ul className="space-y-2">
                 {quickLinks.map((link, index) => (
                   <li key={index}>
@@ -147,7 +152,7 @@ const Footer: React.FC = () => {
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: 0.2 }}
             >
-              <h3 className="text-xl font-bold mb-4 text-[#FFA500]">Our Services</h3>
+              <h3 className="text-xl font-bold mb-4 text-[#FFB915]">Our Services</h3>
               <ul className="space-y-2">
                 {serviceLinks.map((link, index) => (
                   <li key={index}>
@@ -170,16 +175,16 @@ const Footer: React.FC = () => {
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: 0.3 }}
             >
-              <h3 className="text-xl font-bold mb-4 text-[#FFA500]">Contact Information</h3>
+              <h3 className="text-xl font-bold mb-4 text-[#FFB915]">Contact Information</h3>
               <ul className="space-y-4">
                 <li className="flex items-start">
-                  <FaMapMarkerAlt className="text-[#FFA500] mt-1 mr-3 flex-shrink-0" />
+                  <FaMapMarkerAlt className="text-[#FFB915] mt-1 mr-3 flex-shrink-0" />
                   <span className="text-gray-300">
                     4B, Saboline Isale, Amilegbe Rd, opposite Temitope Hospital, Ilorin
                   </span>
                 </li>
                 <li className="flex items-center">
-                  <FaPhone className="text-[#FFA500] mr-3 flex-shrink-0" />
+                  <FaPhone className="text-[#FFB915] mr-3 flex-shrink-0" />
                   <a
                     href="tel:+2348164166676"
                     className="text-gray-300 hover:text-white transition-colors"
@@ -188,7 +193,7 @@ const Footer: React.FC = () => {
                   </a>
                 </li>
                 <li className="flex items-center">
-                  <FaEnvelope className="text-[#FFA500] mr-3 flex-shrink-0" />
+                  <FaEnvelope className="text-[#FFB915] mr-3 flex-shrink-0" />
                   <a
                     href="mailto:contact@opeyemieyecenter.com"
                     className="text-gray-300 hover:text-white transition-colors"
@@ -197,7 +202,7 @@ const Footer: React.FC = () => {
                   </a>
                 </li>
                 <li className="flex items-center">
-                  <FaClock className="text-[#FFA500] mr-3 flex-shrink-0" />
+                  <FaClock className="text-[#FFB915] mr-3 flex-shrink-0" />
                   <span className="text-gray-300">
                     Mon-Sat: 8am - 6pm<br />
                     Sundays: Surgery & Emergencies
@@ -226,7 +231,7 @@ const Footer: React.FC = () => {
                     }
                   }}
                   placeholder="Your email address"
-                  className="flex-grow px-4 py-2 rounded-lg bg-gray-800 border border-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-[#FFA500]"
+                  className="flex-grow px-4 py-2 rounded-lg bg-gray-800 border border-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-[#FFB915]"
                   required
                 />
                 <button
@@ -234,8 +239,8 @@ const Footer: React.FC = () => {
                   disabled={isSubmitting}
                   className={`w-full flex items-center justify-center py-3 px-6 rounded-lg text-white font-medium ${isSubmitting
                     ? "bg-[#FFC266] cursor-not-allowed"
-                    : "bg-[#FFA500] hover:bg-[#FF9000]"
-                    } transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-[#FFA500] focus:ring-offset-2`}
+                    : "bg-[#FFB915] hover:bg-[#2C4A6B]"
+                    } transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-[#FFB915] focus:ring-offset-2`}
                 >
                   {isSubmitting ? (
                     <>
@@ -268,7 +273,7 @@ const Footer: React.FC = () => {
                 href="https://bluesprinttechnology.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-[#FFA500] hover:text-white transition-colors mx-1"
+                className="text-[#FFB915] hover:text-white transition-colors mx-1"
               >
                 Techscribe Innovations
               </a>
@@ -282,7 +287,7 @@ const Footer: React.FC = () => {
       <div className="fixed bottom-6 right-6 z-10">
         <button
           onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-          className="bg-[#FFA500] hover:bg-[#FF9000] h-10 w-10 rounded-full flex items-center justify-center shadow-lg transition-colors"
+          className="bg-[#FFB915] hover:bg-[#2C4A6B] h-10 w-10 rounded-full flex items-center justify-center shadow-lg transition-colors"
           aria-label="Back to top"
         >
           <svg

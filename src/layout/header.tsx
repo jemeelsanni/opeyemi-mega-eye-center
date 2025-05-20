@@ -3,14 +3,14 @@ import { FaClock, FaPhone, FaMapMarkerAlt } from "react-icons/fa";
 
 const Header: React.FC = () => {
   return (
-    <div className="bg-gray-900 text-white">
+    <div className="bg-[#2C4A6B] text-white">
       {/* Desktop Header */}
       <div className="hidden md:block">
         <div className="container mx-auto py-2 px-4 md:px-6">
           <div className="flex justify-between items-center">
             {/* Working Hours */}
             <div className="flex items-center text-sm">
-              <FaClock className="text-[#FFA500] mr-2" />
+              <FaClock className="text-[#FFB915] mr-2" />
               <div>
                 <p className="font-medium">Working Hours:</p>
                 <p className="text-gray-300">
@@ -23,7 +23,7 @@ const Header: React.FC = () => {
             <div className="flex items-center space-x-6">
               {/* Phone */}
               <div className="flex items-center text-sm">
-                <FaPhone className="text-[#FFA500] mr-2 rotate-12" />
+                <FaPhone className="text-[#FFB915] mr-2 rotate-12" />
                 <div>
                   <p className="font-medium">Phone:</p>
                   <a
@@ -37,7 +37,7 @@ const Header: React.FC = () => {
 
               {/* Location */}
               <div className="flex items-center text-sm">
-                <FaMapMarkerAlt className="text-[#FFA500] mr-2" />
+                <FaMapMarkerAlt className="text-[#FFB915] mr-2" />
                 <div>
                   <p className="font-medium">Location:</p>
                   <p className="text-gray-300">
@@ -56,7 +56,7 @@ const Header: React.FC = () => {
           <div className="flex items-center justify-between">
             {/* Location only for mobile */}
             <div className="flex items-center text-xs">
-              <FaMapMarkerAlt className="text-[#FFA500] mr-1 flex-shrink-0" />
+              <FaMapMarkerAlt className="text-[#FFB915] mr-1 flex-shrink-0" />
               <p className="text-gray-300 line-clamp-2">
                 4B, Saboline Isale, Amilegbe Rd, opposite Temitope Hospital, Ilorin
               </p>
@@ -65,7 +65,7 @@ const Header: React.FC = () => {
             {/* Phone for mobile - compact */}
             <a
               href="tel:+2348146416676"
-              className="flex items-center bg-[#FFA500] rounded-full px-3 py-1 ml-2 text-white"
+              className="flex items-center bg-[#FFB915] hover:bg-[#E07A48] rounded-full px-3 py-1 ml-2 text-white"
             >
               <FaPhone className="mr-1 rotate-12 text-xs" />
               <span className="text-xs font-medium">Call</span>

@@ -113,7 +113,7 @@ blockquote {
 
 /* Links */
 a {
-  color: #ffa500;
+  color: #ffb915;
 }
 
 a:hover {
@@ -197,4 +197,80 @@ ol {
   padding-top: 0.75rem !important;
   padding-bottom: 0.75rem !important;
   font-size: 16px !;
+}
+.event-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.event-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Image hover zoom effect */
+.image-zoom {
+  overflow: hidden;
+}
+
+.image-zoom img {
+  transition: transform 0.5s ease;
+}
+
+.image-zoom:hover img {
+  transform: scale(1.05);
+}
+
+/* Line clamp for multi-line text truncation */
+.line-clamp-1 {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* src/components/events/PastEventGalleries.css */
+.image-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 2px;
+}
+
+.image-grid-item {
+  overflow: hidden;
+}
+
+.grid-item-1 {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.grid-item-2 {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.grid-item-3 {
+  grid-column: 1;
+  grid-row: 2;
+}
+
+.grid-item-4 {
+  grid-column: 2;
+  grid-row: 2;
 }

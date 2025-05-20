@@ -58,7 +58,7 @@ const Dashboard: React.FC = () => {
 
                 {isLoading ? (
                     <div className="flex justify-center py-12">
-                        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#FFA500]"></div>
+                        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#FFB915]"></div>
                     </div>
                 ) : error ? (
                     <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6">
@@ -166,7 +166,7 @@ const Dashboard: React.FC = () => {
                                 ))}
                             </div>
                             <div className="px-6 py-3 bg-gray-50 text-right">
-                                <button className="text-sm text-[#FFA500] font-medium hover:text-[#FF9000]">
+                                <button className="text-sm text-[#FFB915] font-medium hover:text-[#008787]">
                                     View All Activity
                                 </button>
                             </div>

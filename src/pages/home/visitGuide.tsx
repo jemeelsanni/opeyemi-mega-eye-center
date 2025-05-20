@@ -73,7 +73,7 @@ const VisitGuide: React.FC = () => {
     };
 
     return (
-        <section className="py-16 bg-[#FFA50080]">
+        <section className="py-16 bg-[#FFB91580]">
             <div className="container mx-auto px-4">
                 <motion.div
                     initial={{ opacity: 0, y: -20 }}
@@ -126,10 +126,10 @@ const StepCard: React.FC<StepProps & { variants: Variants }> = ({
             className="bg-white rounded-lg shadow-md overflow-hidden flex flex-col items-center p-6 h-full transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg"
         >
             <div className="relative mb-6">
-                <div className="h-16 w-16 rounded-full bg-[#FFA500] flex items-center justify-center">
+                <div className="h-16 w-16 rounded-full bg-[#FFB915] flex items-center justify-center">
                     {icon}
                 </div>
-                <div className="absolute -bottom-2 -right-2 h-8 w-8 rounded-full bg-[#FFA500] flex items-center justify-center text-white font-bold text-lg">
+                <div className="absolute -bottom-2 -right-2 h-8 w-8 rounded-full bg-[#FFB915] flex items-center justify-center text-white font-bold text-lg">
                     {number}
                 </div>
             </div>

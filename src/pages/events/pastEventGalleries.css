@@ -1,0 +1,31 @@
+/* src/components/events/PastEventGalleries.css */
+.image-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 2px;
+}
+
+.image-grid-item {
+  overflow: hidden;
+}
+
+.grid-item-1 {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.grid-item-2 {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.grid-item-3 {
+  grid-column: 1;
+  grid-row: 2;
+}
+
+.grid-item-4 {
+  grid-column: 2;
+  grid-row: 2;
+}
