@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { FaCalendarAlt, FaUser, FaPhone, FaEnvelope, FaSearch, FaEye, FaCheck, FaTimes, FaSpinner, FaFilter } from 'react-icons/fa';
+import { FaCalendarAlt, FaUser, FaPhone, FaEnvelope, FaSearch, FaEye, FaCheck, FaTimes, FaSpinner, FaFilter, FaPaperPlane } from 'react-icons/fa';
 import AdminLayout from '../../../layout/adminLayout';
-import apiClient from '../../../api/apiClient';
+import { adminApi } from '../../../api/apiClient';
 
 interface Appointment {
     _id: string;
@@ -9,7 +9,12 @@ interface Appointment {
     phoneNumber: string;
     email: string;
     appointmentDate: string;
-    preferredPhysician: string;
+    appointmentTime: string;
+    doctorId: {
+        _id: string;
+        name: string;
+        speciality: string;
+    } | string; // Allow both object and string types for doctorId
     isHmoRegistered: boolean;
     hmoName?: string;
     hmoNumber?: string;
@@ -40,11 +45,18 @@ const AdminAppointments: React.FC = () => {
     });
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
+    const [totalItems, setTotalItems] = useState(0);
     const [itemsPerPage] = useState(10);
     const [showDetailsModal, setShowDetailsModal] = useState(false);
     const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
     const [updatingStatus, setUpdatingStatus] = useState(false);
     const [showFiltersModal, setShowFiltersModal] = useState(false);
+    const [showEmailModal, setShowEmailModal] = useState(false);
+    const [emailForm, setEmailForm] = useState({
+        subject: '',
+        message: ''
+    });
+    const [sendingEmail, setSendingEmail] = useState(false);
 
     // Available physicians
     const physicians = [
@@ -56,23 +68,44 @@ const AdminAppointments: React.FC = () => {
 
     useEffect(() => {
         fetchAppointments();
-    }, [currentPage]);
+    }, [currentPage, filters]);
 
     const fetchAppointments = async () => {
         try {
             setIsLoading(true);
             setError('');
 
-            // In a real app, you'd pass filters to the backend
-            const status = filters.status !== 'all' ? `&status=${filters.status}` : '';
-            const date = filters.date ? `&date=${filters.date}` : '';
-            const physician = filters.physician ? `&physician=${encodeURIComponent(filters.physician)}` : '';
+            const response = await adminApi.appointments.getAllAppointments(
+                currentPage,
+                itemsPerPage,
+                filters
+            );
 
-            const response = await apiClient.get(`/admin/appointments?page=${currentPage}&limit=${itemsPerPage}${status}${date}${physician}`);
+            if (response.success) {
+                const processedAppointments = response.data.map((appointment: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any
+                    // Ensure doctorId is properly formatted
+                    if (typeof appointment.doctorId === 'object' && appointment.doctorId !== null) {
+                        return appointment;
+                    } else {
+                        // If doctorId is just a string, create a placeholder doctor object
+                        return {
+                            ...appointment,
+                            doctorId: {
+                                _id: appointment.doctorId,
+                                name: "Unknown Doctor",
+                                speciality: ""
+                            }
+                        };
+                    }
+                });
 
-            setAppointments(response.data.data);
-            setFilteredAppointments(response.data.data);
-            setTotalPages(response.data.pages);
+                setAppointments(processedAppointments);
+                setFilteredAppointments(processedAppointments);
+                setTotalPages(response.pages || 1);
+                setTotalItems(response.total || processedAppointments.length);
+            } else {
+                setError('Failed to fetch appointments');
+            }
         } catch (err: unknown) {
             console.error('Failed to fetch appointments:', err);
             setError(err instanceof Error ? err.message : 'Failed to load appointments. Please try again.');
@@ -84,8 +117,8 @@ const AdminAppointments: React.FC = () => {
     // Apply filters
     const applyFilters = () => {
         setCurrentPage(1);
-        fetchAppointments();
         setShowFiltersModal(false);
+        // fetchAppointments will be called due to useEffect dependency on filters
     };
 
     // Reset filters
@@ -96,8 +129,8 @@ const AdminAppointments: React.FC = () => {
             physician: ''
         });
         setCurrentPage(1);
-        fetchAppointments();
         setShowFiltersModal(false);
+        // fetchAppointments will be called due to useEffect dependency on filters
     };
 
     // Filter appointments based on search term
@@ -120,92 +153,112 @@ const AdminAppointments: React.FC = () => {
         setShowDetailsModal(true);
     };
 
-    const updateAppointmentStatus = async (id: string, status: string) => {
+    const updateAppointmentStatus = async (id: string, status: 'confirmed' | 'cancelled') => {
         try {
             setUpdatingStatus(true);
+            setError('');
 
-            await apiClient.put(`/admin/appointments/${id}`, { status });
+            const response = await adminApi.appointments.updateAppointmentStatus(id, status);
 
-            // Update local state
-            setAppointments(prevAppointments =>
-                prevAppointments.map(appointment =>
-                    appointment._id === id ? { ...appointment, status: status as 'pending' | 'confirmed' | 'cancelled' } : appointment
-                )
-            );
+            if (response.success) {
+                // Update the appointment in local state
+                setAppointments(prevAppointments =>
+                    prevAppointments.map(app =>
+                        app._id === id ? { ...app, status } : app
+                    )
+                );
 
-            setFilteredAppointments(prevAppointments =>
-                prevAppointments.map(appointment =>
-                    appointment._id === id ? { ...appointment, status: status as 'pending' | 'confirmed' | 'cancelled' } : appointment
-                )
-            );
+                setFilteredAppointments(prevAppointments =>
+                    prevAppointments.map(app =>
+                        app._id === id ? { ...app, status } : app
+                    )
+                );
 
-            if (selectedAppointment && selectedAppointment._id === id) {
-                setSelectedAppointment({ ...selectedAppointment, status: status as 'pending' | 'confirmed' | 'cancelled' });
+                if (selectedAppointment && selectedAppointment._id === id) {
+                    setSelectedAppointment({ ...selectedAppointment, status });
+                }
+
+                setSuccessMessage(`Appointment ${status === 'confirmed' ? 'confirmed' : 'cancelled'} successfully`);
+
+                // Clear success message after 3 seconds
+                setTimeout(() => {
+                    setSuccessMessage('');
+                }, 3000);
+            } else {
+                setError(response.message || 'Failed to update appointment status');
             }
-
-            setSuccessMessage(`Appointment ${status === 'confirmed' ? 'confirmed' : 'cancelled'} successfully`);
-
-            // Clear success message after 3 seconds
-            setTimeout(() => {
-                setSuccessMessage('');
-            }, 3000);
-
         } catch (err: unknown) {
             console.error('Failed to update appointment status:', err);
-            interface ApiErrorResponse {
-                response?: {
-                    data?: {
-                        message?: string;
-                    };
-                };
-            }
-
-            setError(
-                err && typeof err === 'object' && 'response' in err
-                    ? ((err as ApiErrorResponse).response?.data?.message || 'Failed to update appointment status. Please try again.')
-                    : 'Failed to update appointment status. Please try again.'
-            );
+            const errorMessage = err instanceof Error ? err.message : 'Failed to update appointment status. Please try again.';
+            setError(errorMessage);
         } finally {
             setUpdatingStatus(false);
         }
     };
 
-    interface ApiErrorResponse {
-        response?: {
-            data?: {
-                message?: string;
-            };
-        };
-    }
+    // Open email modal
+    const openEmailModal = () => {
+        if (!selectedAppointment) return;
+
+        // Pre-populate email subject based on appointment status
+        let subject = '';
+        if (selectedAppointment.status === 'confirmed') {
+            subject = `Your Eye Center Appointment - Confirmed for ${formatDate(selectedAppointment.appointmentDate)}`;
+        } else if (selectedAppointment.status === 'cancelled') {
+            subject = `Your Eye Center Appointment - Cancelled`;
+        } else {
+            subject = `Your Eye Center Appointment - Update`;
+        }
+
+        setEmailForm({
+            subject,
+            message: `Dear ${selectedAppointment.fullName},\n\nRegarding your appointment on ${formatDate(selectedAppointment.appointmentDate)} at ${selectedAppointment.appointmentTime}.\n\n[Your message here]\n\nBest regards,\nThe Eye Center Team`
+        });
+
+        setShowEmailModal(true);
+    };
 
     // Send email to patient
-    const sendEmailToPatient = async (email: string, subject: string, message: string) => {
+    const sendEmailToPatient = async (e: React.FormEvent) => {
+        e.preventDefault();
+
+        if (!selectedAppointment) return;
+
         try {
-            setIsLoading(true);
+            setSendingEmail(true);
 
-            // In a real app, you'd have an API endpoint to send emails
-            await apiClient.post('/admin/send-email', {
-                to: email,
-                subject,
-                message
-            });
+            const response = await adminApi.appointments.sendEmailToPatient(
+                selectedAppointment._id,
+                emailForm.subject,
+                emailForm.message
+            );
 
-            setSuccessMessage('Email sent successfully');
+            if (response.success) {
+                setSuccessMessage('Email sent successfully');
+                setShowEmailModal(false);
 
-            // Clear success message after 3 seconds
-            setTimeout(() => {
-                setSuccessMessage('');
-            }, 3000);
-
+                // Clear success message after 3 seconds
+                setTimeout(() => {
+                    setSuccessMessage('');
+                }, 3000);
+            } else {
+                setError(response.message || 'Failed to send email');
+            }
         } catch (err: unknown) {
             console.error('Failed to send email:', err);
-            const errorMessage = err && typeof err === 'object' && 'response' in err
-                ? ((err as ApiErrorResponse).response?.data?.message || 'Failed to send email. Please try again.')
-                : 'Failed to send email. Please try again.';
+            const errorMessage = err instanceof Error ? err.message : 'Failed to send email. Please try again.';
             setError(errorMessage);
         } finally {
-            setIsLoading(false);
+            setSendingEmail(false);
         }
+    };
+
+    const handleEmailInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        const { name, value } = e.target;
+        setEmailForm(prev => ({
+            ...prev,
+            [name]: value
+        }));
     };
 
     const getStatusBadgeClass = (status: string) => {
@@ -239,6 +292,17 @@ const AdminAppointments: React.FC = () => {
             month: 'long',
             day: 'numeric'
         }).format(date);
+    };
+
+    // Helper function to safely get doctor name
+    const getDoctorName = (doctorId: any): string => { // eslint-disable-line @typescript-eslint/no-explicit-any
+        if (!doctorId) return 'Unknown Doctor';
+
+        if (typeof doctorId === 'object' && doctorId !== null && 'name' in doctorId) {
+            return doctorId.name;
+        }
+
+        return 'Unknown Doctor';
     };
 
     return (
@@ -396,7 +460,7 @@ const AdminAppointments: React.FC = () => {
                                                     <FaCalendarAlt className="mr-1 text-gray-400" /> {formatAppointmentDate(appointment.appointmentDate)}
                                                 </div>
                                                 <div className="text-sm text-gray-500">
-                                                    {appointment.preferredPhysician || 'Any physician'}
+                                                    {appointment.appointmentTime} - {getDoctorName(appointment.doctorId)}
                                                 </div>
                                             </td>
                                             <td className="px-6 py-4">
@@ -471,9 +535,9 @@ const AdminAppointments: React.FC = () => {
                                         <p className="text-sm text-gray-700">
                                             Showing <span className="font-medium">{(currentPage - 1) * itemsPerPage + 1}</span> to{' '}
                                             <span className="font-medium">
-                                                {Math.min(currentPage * itemsPerPage, filteredAppointments.length)}
+                                                {Math.min(currentPage * itemsPerPage, totalItems)}
                                             </span>{' '}
-                                            of <span className="font-medium">{filteredAppointments.length}</span> results
+                                            of <span className="font-medium">{totalItems}</span> results
                                         </p>
                                     </div>
                                     <div>
@@ -490,19 +554,40 @@ const AdminAppointments: React.FC = () => {
                                                 &lt;
                                             </button>
 
-                                            {/* Page numbers */}
-                                            {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
-                                                <button
-                                                    key={page}
-                                                    onClick={() => setCurrentPage(page)}
-                                                    className={`relative inline-flex items-center px-4 py-2 border ${currentPage === page
-                                                        ? 'z-10 bg-[#FFB915] border-[#FFB915] text-white'
-                                                        : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
-                                                        } text-sm font-medium`}
-                                                >
-                                                    {page}
-                                                </button>
-                                            ))}
+                                            {/* Show limited page numbers with ellipsis for large page counts */}
+                                            {[...Array(totalPages)].map((_, i) => {
+                                                const pageNum = i + 1;
+
+                                                // Always show first page, last page, current page, and pages adjacent to current page
+                                                if (
+                                                    pageNum === 1 ||
+                                                    pageNum === totalPages ||
+                                                    (pageNum >= currentPage - 1 && pageNum <= currentPage + 1)
+                                                ) {
+                                                    return (
+                                                        <button
+                                                            key={pageNum}
+                                                            onClick={() => setCurrentPage(pageNum)}
+                                                            className={`relative inline-flex items-center px-4 py-2 border ${currentPage === pageNum
+                                                                ? 'z-10 bg-[#FFB915] border-[#FFB915] text-white'
+                                                                : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
+                                                                } text-sm font-medium`}
+                                                        >
+                                                            {pageNum}
+                                                        </button>
+                                                    );
+                                                }
+
+                                                // Show ellipsis but avoid duplicate ellipses
+                                                if (
+                                                    (pageNum === 2 && currentPage > 3) ||
+                                                    (pageNum === totalPages - 1 && currentPage < totalPages - 2)
+                                                ) {
+                                                    return <span key={pageNum} className="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">...</span>;
+                                                }
+
+                                                return null;
+                                            })}
 
                                             <button
                                                 onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
@@ -604,6 +689,71 @@ const AdminAppointments: React.FC = () => {
                                                         </div>
                                                     </div>
 
+                                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                                        <div>
+                                                            <div className="text-sm font-medium text-gray-500">Doctor</div>
+                                                            <div className="text-sm text-gray-900">
+                                                                {getDoctorName(selectedAppointment.doctorId)}
+                                                            </div>
+                                                        </div>
+
+                                                        <div>
+                                                            <div className="text-sm font-medium text-gray-500">Time</div>
+                                                            <div className="text-sm text-gray-900">
+                                                                {selectedAppointment.appointmentTime}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                                        <div>
+                                                            <div className="text-sm font-medium text-gray-500">HMO Registered</div>
+                                                            <div className="text-sm text-gray-900">
+                                                                {selectedAppointment.isHmoRegistered ? 'Yes' : 'No'}
+                                                            </div>
+                                                            {selectedAppointment.isHmoRegistered && selectedAppointment.hmoName && (
+                                                                <>
+                                                                    <div className="text-sm font-medium text-gray-500 mt-2">HMO Name</div>
+                                                                    <div className="text-sm text-gray-900">
+                                                                        {selectedAppointment.hmoName}
+                                                                    </div>
+                                                                    {selectedAppointment.hmoNumber && (
+                                                                        <>
+                                                                            <div className="text-sm font-medium text-gray-500 mt-2">HMO Number</div>
+                                                                            <div className="text-sm text-gray-900">
+                                                                                {selectedAppointment.hmoNumber}
+                                                                            </div>
+                                                                        </>
+                                                                    )}
+                                                                </>
+                                                            )}
+                                                        </div>
+
+                                                        <div>
+                                                            <div className="text-sm font-medium text-gray-500">Previous Visit</div>
+                                                            <div className="text-sm text-gray-900">
+                                                                {selectedAppointment.hasPreviousVisit ? 'Yes' : 'No'}
+                                                            </div>
+                                                            {selectedAppointment.hasPreviousVisit && selectedAppointment.medicalRecordNumber && (
+                                                                <>
+                                                                    <div className="text-sm font-medium text-gray-500 mt-2">Medical Record No.</div>
+                                                                    <div className="text-sm text-gray-900">
+                                                                        {selectedAppointment.medicalRecordNumber}
+                                                                    </div>
+                                                                </>
+                                                            )}
+                                                        </div>
+                                                    </div>
+
+                                                    {selectedAppointment.briefHistory && (
+                                                        <div>
+                                                            <div className="text-sm font-medium text-gray-500">Brief History</div>
+                                                            <div className="text-sm text-gray-900 mt-1 p-2 bg-gray-50 rounded">
+                                                                {selectedAppointment.briefHistory}
+                                                            </div>
+                                                        </div>
+                                                    )}
+
                                                     <div>
                                                         <div className="text-sm font-medium text-gray-500">Request Submitted</div>
                                                         <div className="text-sm text-gray-900">{formatDate(selectedAppointment.createdAt)}</div>
@@ -617,13 +767,9 @@ const AdminAppointments: React.FC = () => {
                                     <button
                                         type="button"
                                         className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-[#FFB915] text-base font-medium text-white hover:bg-[#2C4A6B] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FFB915] sm:ml-3 sm:w-auto sm:text-sm"
-                                        onClick={() => {
-                                            const emailSubject = `Your Eye Center Appointment - ${selectedAppointment.status.charAt(0).toUpperCase() + selectedAppointment.status.slice(1)}`;
-                                            const emailBody = `Dear ${selectedAppointment.fullName},\n\nYour appointment on ${formatAppointmentDate(selectedAppointment.appointmentDate)} has been ${selectedAppointment.status}.\n\nThank you for choosing our Eye Center.\n\nBest regards,\nThe Eye Center Team`;
-
-                                            sendEmailToPatient(selectedAppointment.email, emailSubject, emailBody);
-                                        }}
+                                        onClick={openEmailModal}
                                     >
+                                        <FaPaperPlane className="mr-2" />
                                         Send Email Notification
                                     </button>
                                     <button
@@ -634,6 +780,89 @@ const AdminAppointments: React.FC = () => {
                                         Close
                                     </button>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Email Modal */}
+                {showEmailModal && selectedAppointment && (
+                    <div className="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+                        <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+                            <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" onClick={() => setShowEmailModal(false)}></div>
+                            <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+                            <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+                                <form onSubmit={sendEmailToPatient}>
+                                    <div className="bg-white px-4 pt-5 pb-4 sm:p-6">
+                                        <div className="sm:flex sm:items-start">
+                                            <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-[#FFB915]/10 sm:mx-0 sm:h-10 sm:w-10">
+                                                <FaPaperPlane className="h-6 w-6 text-[#FFB915]" />
+                                            </div>
+                                            <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+                                                <h3 className="text-lg leading-6 font-medium text-gray-900" id="modal-title">
+                                                    Send Email to Patient
+                                                </h3>
+
+                                                <div className="mt-4 space-y-4">
+                                                    <div>
+                                                        <label htmlFor="subject" className="block text-sm font-medium text-gray-700">
+                                                            Subject
+                                                        </label>
+                                                        <input
+                                                            type="text"
+                                                            name="subject"
+                                                            id="subject"
+                                                            value={emailForm.subject}
+                                                            onChange={handleEmailInputChange}
+                                                            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-[#FFB915] focus:border-[#FFB915] sm:text-sm"
+                                                            required
+                                                        />
+                                                    </div>
+                                                    <div>
+                                                        <label htmlFor="message" className="block text-sm font-medium text-gray-700">
+                                                            Message
+                                                        </label>
+                                                        <textarea
+                                                            name="message"
+                                                            id="message"
+                                                            rows={6}
+                                                            value={emailForm.message}
+                                                            onChange={handleEmailInputChange}
+                                                            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-[#FFB915] focus:border-[#FFB915] sm:text-sm"
+                                                            required
+                                                        ></textarea>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                                        <button
+                                            type="submit"
+                                            disabled={sendingEmail}
+                                            className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-[#FFB915] text-base font-medium text-white hover:bg-[#2C4A6B] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FFB915] sm:ml-3 sm:w-auto sm:text-sm"
+                                        >
+                                            {sendingEmail ? (
+                                                <>
+                                                    <FaSpinner className="animate-spin mr-2" />
+                                                    Sending...
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <FaPaperPlane className="mr-2" />
+                                                    Send
+                                                </>
+                                            )}
+                                        </button>
+                                        <button
+                                            type="button"
+                                            className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FFB915] sm:mt-0 sm:mr-3 sm:w-auto sm:text-sm"
+                                            onClick={() => setShowEmailModal(false)}
+                                        >
+                                            Cancel
+                                        </button>
+                                    </div>
+                                </form>
                             </div>
                         </div>
                     </div>

@@ -1,7 +1,6 @@
-// src/pages/doctor/DoctorAppointments.tsx
 import React, { useState, useEffect } from 'react';
 import DoctorLayout from '../../layout/doctorLayout';
-import { doctorApi } from '../../api/apiClient';
+import { doctorAppointmentApi } from '../../api/apiClient';
 import { FaCalendarAlt, FaUserAlt, FaEye, FaCheck, FaTimes, FaSpinner } from 'react-icons/fa';
 
 interface Appointment {
@@ -13,7 +12,10 @@ interface Appointment {
     appointmentTime: string;
     status: 'pending' | 'confirmed' | 'cancelled';
     isHmoRegistered: boolean;
+    hmoName?: string;
+    hmoNumber?: string;
     hasPreviousVisit: boolean;
+    medicalRecordNumber?: string;
     briefHistory: string;
     createdAt: string;
 }
@@ -22,6 +24,7 @@ const DoctorAppointments: React.FC = () => {
     const [appointments, setAppointments] = useState<Appointment[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState('');
+    const [successMessage, setSuccessMessage] = useState('');
     const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
     const [showDetailsModal, setShowDetailsModal] = useState(false);
     const [isUpdating, setIsUpdating] = useState(false);
@@ -42,8 +45,13 @@ const DoctorAppointments: React.FC = () => {
             const statusParam = filter.status !== 'all' ? filter.status : undefined;
             const dateParam = filter.date ? filter.date : undefined;
 
-            const response = await doctorApi.getAppointments(statusParam, dateParam);
-            setAppointments(response.data.data);
+            const response = await doctorAppointmentApi.getAppointments(statusParam, dateParam);
+
+            if (response.success) {
+                setAppointments(response.data);
+            } else {
+                setError(response.message || 'Failed to load appointments. Please try again.');
+            }
         } catch (err: any) { // eslint-disable-line @typescript-eslint/no-explicit-any
             console.error('Failed to fetch appointments:', err);
             setError(err.response?.data?.message || 'Failed to load appointments. Please try again.');
@@ -55,20 +63,31 @@ const DoctorAppointments: React.FC = () => {
     const handleStatusUpdate = async (id: string, status: 'confirmed' | 'cancelled') => {
         try {
             setIsUpdating(true);
+            setError('');
 
-            await doctorApi.updateAppointmentStatus(id, status);
+            const response = await doctorAppointmentApi.updateAppointmentStatus(id, status);
 
-            // Update the appointment in local state
-            setAppointments(prevAppointments =>
-                prevAppointments.map(app =>
-                    app._id === id ? { ...app, status } : app
-                )
-            );
+            if (response.success) {
+                // Update the appointment in local state
+                setAppointments(prevAppointments =>
+                    prevAppointments.map(app =>
+                        app._id === id ? { ...app, status } : app
+                    )
+                );
 
-            if (selectedAppointment && selectedAppointment._id === id) {
-                setSelectedAppointment({ ...selectedAppointment, status });
+                if (selectedAppointment && selectedAppointment._id === id) {
+                    setSelectedAppointment({ ...selectedAppointment, status });
+                }
+
+                setSuccessMessage(`Appointment ${status === 'confirmed' ? 'confirmed' : 'cancelled'} successfully and notification email sent to patient.`);
+
+                // Clear success message after 3 seconds
+                setTimeout(() => {
+                    setSuccessMessage('');
+                }, 5000);
+            } else {
+                setError(response.message || 'Failed to update appointment status. Please try again.');
             }
-
         } catch (err: any) { // eslint-disable-line @typescript-eslint/no-explicit-any
             console.error('Failed to update appointment status:', err);
             setError(err.response?.data?.message || 'Failed to update appointment status. Please try again.');
@@ -101,6 +120,12 @@ const DoctorAppointments: React.FC = () => {
                 {error && (
                     <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6">
                         {error}
+                    </div>
+                )}
+
+                {successMessage && (
+                    <div className="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6">
+                        {successMessage}
                     </div>
                 )}
 
@@ -323,6 +348,14 @@ const DoctorAppointments: React.FC = () => {
                                             <p className="text-sm text-gray-900 mt-1">
                                                 {selectedAppointment.isHmoRegistered ? 'Yes' : 'No'}
                                             </p>
+                                            {selectedAppointment.isHmoRegistered && (
+                                                <>
+                                                    <h4 className="text-sm font-medium text-gray-500 mt-2">HMO Name</h4>
+                                                    <p className="text-sm text-gray-900 mt-1">{selectedAppointment.hmoName}</p>
+                                                    <h4 className="text-sm font-medium text-gray-500 mt-2">HMO Number</h4>
+                                                    <p className="text-sm text-gray-900 mt-1">{selectedAppointment.hmoNumber}</p>
+                                                </>
+                                            )}
                                         </div>
 
                                         <div>
@@ -330,11 +363,30 @@ const DoctorAppointments: React.FC = () => {
                                             <p className="text-sm text-gray-900 mt-1">
                                                 {selectedAppointment.hasPreviousVisit ? 'Yes' : 'No'}
                                             </p>
+                                            {selectedAppointment.hasPreviousVisit && selectedAppointment.medicalRecordNumber && (
+                                                <>
+                                                    <h4 className="text-sm font-medium text-gray-500 mt-2">Medical Record Number</h4>
+                                                    <p className="text-sm text-gray-900 mt-1">{selectedAppointment.medicalRecordNumber}</p>
+                                                </>
+                                            )}
                                         </div>
 
                                         <div>
                                             <h4 className="text-sm font-medium text-gray-500">Brief History</h4>
-                                            <p className="text-sm text-gray-900 mt-1">{selectedAppointment.briefHistory || 'None provided'}</p>
+                                            <p className="text-sm text-gray-900 mt-1 p-2 bg-gray-50 rounded">{selectedAppointment.briefHistory || 'None provided'}</p>
+                                        </div>
+
+                                        <div>
+                                            <h4 className="text-sm font-medium text-gray-500">Request Submitted</h4>
+                                            <p className="text-sm text-gray-900 mt-1">
+                                                {new Date(selectedAppointment.createdAt).toLocaleDateString('en-US', {
+                                                    year: 'numeric',
+                                                    month: 'long',
+                                                    day: 'numeric',
+                                                    hour: '2-digit',
+                                                    minute: '2-digit'
+                                                })}
+                                            </p>
                                         </div>
                                     </div>
                                 </div>

@@ -62,7 +62,7 @@ const Hero: React.FC<HeroProps> = ({ heroImages }) => {
               className="lg:w-1/2 text-center lg:text-left z-10"
             >
               <div className="inline-block px-4 py-1 bg-[#FFB915]/10 text-[#FFB915] rounded-full mb-4 font-medium">
-                Opeyemi Eye Care Center
+                Opeyemi Mega Eye Center
               </div>
 
               <h1 className="text-4xl lg:text-5xl xl:text-6xl font-bold text-gray-800 mb-6 leading-tight">
@@ -86,9 +86,9 @@ const Hero: React.FC<HeroProps> = ({ heroImages }) => {
                   Book Appointment
                 </motion.button>
 
-                <a href="tel:+2347012345678" className="flex items-center justify-center md:justify-start text-[#2C4A6B] font-medium hover:text-[#FFB915] transition-colors">
+                <a href="tel:+2348146416676" className="flex items-center justify-center md:justify-start text-[#2C4A6B] font-medium hover:text-[#FFB915] transition-colors">
                   <FaPhoneAlt className="mr-2" />
-                  <span>+234 701 234 5678</span>
+                  <span>+234 814 641 6676</span>
                 </a>
               </div>
 
@@ -201,7 +201,7 @@ const Hero: React.FC<HeroProps> = ({ heroImages }) => {
             className="text-center mb-8"
           >
             <div className="inline-block px-4 py-1 bg-[#FFB915]/10 text-[#FFB915] rounded-full mb-4 font-medium">
-              Opeyemi Eye Care Center
+              Opeyemi Mega Eye Center
             </div>
 
             <h1 className="text-3xl font-bold text-gray-800 mb-4">

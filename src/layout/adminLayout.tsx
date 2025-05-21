@@ -108,7 +108,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
       path: '/admin/doctors',
       icon: <FaUserMd className="h-5 w-5" />,
       roles: ['superadmin'],
-      hasSubmenu: true,
+
     },
     {
       name: 'Appointments',

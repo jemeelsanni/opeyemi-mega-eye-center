@@ -16,6 +16,7 @@
     "firebase": "^10.13.0",
     "framer-motion": "^12.10.4",
     "quill": "^2.0.2",
+    "quill-image-resize-module-react": "^3.0.0",
     "react": "^18.2.0",
     "react-calendar": "^5.0.0",
     "react-dnd": "^16.0.1",

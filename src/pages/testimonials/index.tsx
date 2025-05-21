@@ -64,18 +64,33 @@ const TestimonialsPage: React.FC = () => {
         <div className="min-h-screen flex flex-col bg-gray-50">
             <Header />
             <Navbar />
+            <section className="bg-gradient-to-r from-[#2C4A6B] to-[#FFB915] py-16 md:py-24">
+                <div className="container mx-auto px-4">
+                    <div className="max-w-4xl mx-auto text-center text-white">
+                        <motion.h1
+                            initial={{ opacity: 0, y: -20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.7 }}
+                            className="text-4xl md:text-6xl font-bold mb-4"
+                        >
+                            Patient Testimonials
+                        </motion.h1>
+                        <motion.p
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            transition={{ duration: 0.7, delay: 0.3 }}
+                            className="text-xl md:text-2xl opacity-90"
+                        >
+                            Read what our patients say about their experiences with our eye care services
+                        </motion.p>
+                    </div>
+                </div>
+            </section>
 
-            <main className="flex-grow py-16">
+            <main className="flex-grow pb-16 pt-8">
                 <div className="container mx-auto px-4">
                     {/* Page Header */}
                     <div className="text-center mb-12">
-                        <h1 className="text-4xl md:text-5xl font-bold text-gray-800 mb-4">
-                            Patient Testimonials
-                        </h1>
-                        <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-                            Read what our patients say about their experiences with our eye care services
-                        </p>
-
                         {/* Add Testimonial Button */}
                         <button
                             onClick={() => setShowModal(true)}

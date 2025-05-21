@@ -272,35 +272,28 @@ const BlogList: React.FC = () => {
       <Navbar />
 
       {/* Hero Banner with Featured Blog */}
-      {featuredBlog && (
-        <div className="relative bg-cover bg-center py-16"
-          style={{
-            backgroundImage: featuredBlog.featuredImage
-              ? `url(${featuredBlog.featuredImage})`
-              : "url(https://i.ibb.co/DYWWBXH/national-cancer-institute-L8t-WZT4-Cc-VQ-unsplash.jpg)",
-            backgroundColor: '#1a1a2e'
-          }}
-        >
-          <div className="absolute inset-0 bg-black/60"></div>
-          <div className="container mx-auto px-4 relative z-10">
-            <div className="max-w-2xl mx-auto text-center">
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.7 }}
-                className="text-center mb-12"
-              >
-                <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-                  OMEC Blog
-                </h2>
-                <p className="text-xl text-white max-w-2xl mx-auto">
-                  Stay updated with our latest eye care tips, news, and special offers.                </p>
-              </motion.div>
-
-            </div>
+      <section className="bg-gradient-to-r from-[#2C4A6B] to-[#FFB915] py-16 md:py-24">
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto text-center text-white">
+            <motion.h1
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7 }}
+              className="text-4xl md:text-6xl font-bold mb-4"
+            >
+              OMEC Blog
+            </motion.h1>
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.7, delay: 0.3 }}
+              className="text-xl md:text-2xl opacity-90"
+            >
+              Stay updated with our latest eye care tips, news, and special offers.
+            </motion.p>
           </div>
         </div>
-      )}
+      </section>
 
       {/* Main Content */}
       <main className="flex-grow container mx-auto px-4 py-10 md:py-16">

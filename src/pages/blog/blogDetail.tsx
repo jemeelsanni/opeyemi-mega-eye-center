@@ -23,6 +23,7 @@ import {
 } from "react-icons/fa";
 import { motion } from "framer-motion";
 import { useAuth } from "../../context/AuthContext";
+import BlogContentPreview from "../../components/common/blogContentPreview";
 
 interface Comment {
   _id?: string;
@@ -455,9 +456,9 @@ const BlogDetail: React.FC = () => {
 
             {/* Blog content */}
             <div className="p-6 md:p-10">
-              <div
-                className="prose prose-lg max-w-none prose-headings:text-gray-800 prose-headings:font-bold prose-a:text-[#FFB915] prose-a:no-underline hover:prose-a:underline prose-img:rounded-lg"
-                dangerouslySetInnerHTML={{ __html: blog.content }}
+              <BlogContentPreview
+                content={blog.content}
+                className="prose-headings:text-gray-800 prose-headings:font-bold prose-a:text-[#FFB915] prose-a:no-underline hover:prose-a:underline prose-img:rounded-lg"
               />
             </div>
 

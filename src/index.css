@@ -274,3 +274,70 @@ ol {
   grid-column: 2;
   grid-row: 2;
 }
+
+.ql-editor img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 1rem auto;
+}
+
+/* For the blog preview */
+.prose img {
+  max-width: 100%;
+  width: 100%;
+  height: auto;
+  display: block;
+  margin: 1rem 0;
+}
+
+/* Make sure lists display correctly */
+.prose ul {
+  list-style-type: disc;
+  padding-left: 1.5em;
+}
+
+.prose ol {
+  list-style-type: decimal;
+  padding-left: 1.5em;
+}
+
+/* For ReactQuill to properly show bullets and numbers */
+.ql-editor ul {
+  list-style-type: disc !important;
+  padding-left: 1.5em !important;
+}
+
+.ql-editor ol {
+  list-style-type: decimal !important;
+  padding-left: 1.5em !important;
+}
+
+/* Ensure Quill edit and preview match */
+.ql-editor {
+  font-family: inherit;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.ql-editor img {
+  max-width: 100% !important;
+  width: 100% !important;
+  height: auto !important;
+  display: block !important;
+  margin: 1rem auto !important;
+}
+.ql-editor ul {
+  list-style-type: disc !important;
+  padding-left: 1.5em !important;
+}
+.ql-editor ol {
+  list-style-type: decimal !important;
+  padding-left: 1.5em !important;
+}
+.ql-editor li {
+  display: list-item !important;
+}
+.ql-editor li::before {
+  display: none !important;
+}

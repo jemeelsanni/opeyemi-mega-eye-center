@@ -338,7 +338,7 @@ const CreateBlog: React.FC = () => {
 
             {loading && !isEditing ? (
               <div className="flex justify-center py-12">
-                <svg className="animate-spin h-12 w-12 text-[#FFB915]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <svg className="animate-spin h-12 w-12 text-[#F08C5A]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
@@ -364,8 +364,8 @@ const CreateBlog: React.FC = () => {
                       placeholder="Enter an engaging title"
                       className={`w-full p-3 border rounded-lg ${errors.title
                         ? "border-red-500 bg-red-50"
-                        : "border-gray-300 focus:border-[#FFB915]"
-                        } focus:outline-none focus:ring-2 focus:ring-[#FFB915] transition-colors`}
+                        : "border-gray-300 focus:border-[#F08C5A]"
+                        } focus:outline-none focus:ring-2 focus:ring-[#F08C5A] transition-colors`}
                     />
                     {errors.title && (
                       <p className="mt-1 text-sm text-red-600">{errors.title}</p>
@@ -393,8 +393,8 @@ const CreateBlog: React.FC = () => {
                       rows={3}
                       className={`w-full p-3 border rounded-lg ${errors.description
                         ? "border-red-500 bg-red-50"
-                        : "border-gray-300 focus:border-[#FFB915]"
-                        } focus:outline-none focus:ring-2 focus:ring-[#FFB915] transition-colors`}
+                        : "border-gray-300 focus:border-[#F08C5A]"
+                        } focus:outline-none focus:ring-2 focus:ring-[#F08C5A] transition-colors`}
                     />
                     <div className="flex justify-between mt-1">
                       {errors.description ? (
@@ -414,7 +414,7 @@ const CreateBlog: React.FC = () => {
                         className="block text-sm font-medium text-gray-700 mb-1"
                       >
                         <div className="flex items-center">
-                          <FaClock className="mr-2 text-[#FFB915]" />
+                          <FaClock className="mr-2 text-[#F08C5A]" />
                           Read Duration <span className="text-red-500">*</span>
                         </div>
                       </label>
@@ -430,8 +430,8 @@ const CreateBlog: React.FC = () => {
                           placeholder="e.g., 5 min read"
                           className={`w-full p-3 border rounded-lg ${errors.readDuration
                             ? "border-red-500 bg-red-50"
-                            : "border-gray-300 focus:border-[#FFB915]"
-                            } focus:outline-none focus:ring-2 focus:ring-[#FFB915] transition-colors`}
+                            : "border-gray-300 focus:border-[#F08C5A]"
+                            } focus:outline-none focus:ring-2 focus:ring-[#F08C5A] transition-colors`}
                         />
                         <button
                           type="button"
@@ -455,7 +455,7 @@ const CreateBlog: React.FC = () => {
                         value={tags.join(',')}
                         onChange={(e) => setTags(e.target.value.split(',').map(tag => tag.trim()))}
                         placeholder="technology, programming, web"
-                        className="w-full p-3 border border-gray-300 rounded-lg focus:border-[#FFB915] focus:outline-none focus:ring-2 focus:ring-[#FFB915] transition-colors"
+                        className="w-full p-3 border border-gray-300 rounded-lg focus:border-[#F08C5A] focus:outline-none focus:ring-2 focus:ring-[#F08C5A] transition-colors"
                       />
                     </div>
                   </div>
@@ -463,7 +463,7 @@ const CreateBlog: React.FC = () => {
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       <div className="flex items-center">
-                        <FaImage className="mr-2 text-[#FFB915]" />
+                        <FaImage className="mr-2 text-[#F08C5A]" />
                         Featured Image
                       </div>
                     </label>
@@ -475,13 +475,13 @@ const CreateBlog: React.FC = () => {
                 file:mr-4 file:py-2 file:px-4
                 file:rounded-md file:border-0
                 file:text-sm file:font-semibold
-                file:bg-[#FFB915] file:text-white
+                file:bg-[#F08C5A] file:text-white
                 hover:file:bg-[#008787]"
                     />
                     {uploadingImage && (
                       <div className="mt-2 w-full bg-gray-200 rounded-full h-2.5">
                         <div
-                          className="bg-[#FFB915] h-2.5 rounded-full"
+                          className="bg-[#F08C5A] h-2.5 rounded-full"
                           style={{ width: `${imageUploadProgress}%` }}
                         ></div>
                         <p className="text-xs text-gray-500 mt-1">
@@ -549,8 +549,8 @@ const CreateBlog: React.FC = () => {
                       disabled={loading}
                       className={`px-6 py-3 rounded-lg text-white flex items-center justify-center ${loading
                         ? "bg-[#FFC266] cursor-not-allowed"
-                        : "bg-[#FFB915] hover:bg-[#2C4A6B] hover:shadow-md"
-                        } transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[#FFB915] focus:ring-offset-2`}
+                        : "bg-[#F08C5A] hover:bg-[#2C4A6B] hover:shadow-md"
+                        } transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[#F08C5A] focus:ring-offset-2`}
                     >
                       {loading ? (
                         <>

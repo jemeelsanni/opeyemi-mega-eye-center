@@ -48,7 +48,7 @@ const Contact: React.FC = () => {
   }>({ message: "", type: "" });
 
   // Google Maps URL for the address
-  const googleMapsUrl = "https://www.google.com/maps/search/?api=1&query=4B+Saboline+Isale+Amilegbe+Rd+opposite+Temitope+Hospital+Ilorin+Nigeria";
+  const googleMapsUrl = "https://www.google.com/maps/search/?api=1&query=Opeyemi+Mega+Eye+Center,+4B+Saboline+Isale+Amilegbe+Rd+opposite+Temitope+Hospital+Ilorin+Nigeria";
 
   const contactInfo = [
     {
@@ -202,34 +202,28 @@ const Contact: React.FC = () => {
       <Navbar />
 
       {/* Hero Banner */}
-      <div
-        className="relative bg-cover bg-center h-56 md:h-64 lg:h-72"
-        style={{
-          backgroundImage:
-            "url(https://i.ibb.co/DYWWBXH/national-cancer-institute-L8t-WZT4-Cc-VQ-unsplash.jpg)",
-        }}
-      >
-        <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
-          <div className="text-center px-4">
+      <section className="bg-gradient-to-r from-[#2C4A6B] to-[#FFB915] py-16 md:py-24">
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto text-center text-white">
             <motion.h1
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7 }}
-              className="text-4xl md:text-5xl font-bold text-[#FFB915] mb-4"
+              className="text-4xl md:text-6xl font-bold mb-4"
             >
               Contact Us
             </motion.h1>
             <motion.p
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ delay: 0.3, duration: 0.7 }}
-              className="text-white text-lg md:text-xl max-w-2xl mx-auto"
+              transition={{ duration: 0.7, delay: 0.3 }}
+              className="text-xl md:text-2xl opacity-90"
             >
-              We're here to help with all your eye care needs
+              We're here to help with all your eye care needs.
             </motion.p>
           </div>
         </div>
-      </div>
+      </section>
 
       <main className="flex-grow py-12 px-4 md:px-6 lg:px-8">
         <div className="container mx-auto">
@@ -510,7 +504,7 @@ const Contact: React.FC = () => {
             <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">Find Us on the Map</h2>
             <div className="h-96 rounded-lg overflow-hidden">
               <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3949.4127345553064!2d4.5493!3d8.5123!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zOMKwMzAnNDQuMyJOIDTCsDMzJzEwLjciRQ!5e0!3m2!1sen!2sng!4v1621520977654!5m2!1sen!2sng"
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3946.043775901437!2d4.560795775871491!3d8.495124791546488!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x10364d7de1955555%3A0x7efb879f69db7833!2sOPEYEMI%20MEGA%20EYE%20CENTER!5e0!3m2!1sen!2sng!4v1747810971754!5m2!1sen!2sng"
                 width="100%"
                 height="100%"
                 style={{ border: 0 }}

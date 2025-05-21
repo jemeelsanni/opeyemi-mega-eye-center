@@ -59,7 +59,247 @@ apiClient.interceptors.response.use(
   }
 );
 
-// Blog specific API methods
+//======================================================================
+// APPOINTMENT API METHODS
+//======================================================================
+
+// Doctor appointments API
+const doctorAppointmentApi = {
+  // Get doctor's appointments (with filtering)
+  getAppointments: async (status?: string, date?: string) => {
+    let url = '/appointments/doctor';
+    const params = new URLSearchParams();
+    
+    if (status && status !== 'all') params.append('status', status);
+    if (date) params.append('date', date);
+    
+    if (params.toString()) {
+      url += `?${params.toString()}`;
+    }
+    
+    const response = await apiClient.get(url);
+    return response.data;
+  },
+  
+  // Get appointment details
+  getAppointment: async (id: string) => {
+    const response = await apiClient.get(`/appointments/doctor/${id}`);
+    return response.data;
+  },
+  
+  // Update appointment status
+  updateAppointmentStatus: async (id: string, status: 'confirmed' | 'cancelled') => {
+    const response = await apiClient.put(`/appointments/doctor/${id}`, { status });
+    return response.data;
+  },
+  
+  // Get today's appointments
+  getTodayAppointments: async () => {
+    const response = await apiClient.get('/appointments/doctor/today');
+    return response.data;
+  },
+  
+  // Get appointment stats
+  getAppointmentStats: async () => {
+    const response = await apiClient.get('/appointments/doctor/stats');
+    return response.data;
+  }
+};
+
+// Admin appointment API
+const adminAppointmentApi = {
+  // Get all appointments (with filtering)
+  getAllAppointments: async (page = 1, limit = 10, filters = {}) => {
+    let url = `/appointments/admin?page=${page}&limit=${limit}`;
+    
+    // Add filters to URL if provided
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-expect-error
+    if (filters.status) url += `&status=${filters.status}`;
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    if (filters.date) url += `&date=${filters.date}`;
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    if (filters.physician) url += `&physician=${encodeURIComponent(filters.physician)}`;
+    
+    const response = await apiClient.get(url);
+    return response.data;
+  },
+  
+  // Get a specific appointment
+  getAppointment: async (id: string) => {
+    const response = await apiClient.get(`/appointments/admin/${id}`);
+    return response.data;
+  },
+  
+  // Update appointment status
+  updateAppointmentStatus: async (id: string, status: 'confirmed' | 'cancelled') => {
+    const response = await apiClient.put(`/appointments/admin/${id}`, { status });
+    return response.data;
+  },
+  
+  // Send custom email to patient
+  sendEmailToPatient: async (id: string, subject: string, message: string) => {
+    const response = await apiClient.post(`/appointments/admin/${id}/send-email`, { subject, message });
+    return response.data;
+  }
+};
+
+// Patient appointment API
+interface AppointmentInputData {
+  fullName: string;
+  phoneNumber: string;
+  email: string;
+  isHmoRegistered: string; // 'yes' or 'no'
+  hmoName?: string;
+  hmoNumber?: string;
+  hasPreviousVisit: string; // 'yes' or 'no'
+  medicalRecordNumber?: string;
+  briefHistory?: string;
+  appointmentDate: string;
+  appointmentTime: string;
+  doctorId: string;
+}
+
+const patientAppointmentApi = {
+  // Book a new appointment
+  bookAppointment: async (appointmentData: AppointmentInputData) => {
+    const response = await apiClient.post('/appointments', appointmentData);
+    return response.data;
+  },
+  
+  // Get patient's appointments by email
+  getAppointmentsByEmail: async (email: string) => {
+    const response = await apiClient.get(`/appointments/patient?email=${encodeURIComponent(email)}`);
+    return response.data;
+  }
+};
+
+//======================================================================
+// DOCTOR API METHODS
+//======================================================================
+
+// Doctor profile interface
+interface DoctorProfileData {
+  name?: string;
+  speciality?: string;
+  phoneNumber?: string;
+  bio?: string;
+}
+
+// Doctor API methods
+const doctorApi = {
+  // Doctor login
+  login: (email: string, password: string) => {
+    return apiClient.post('/doctors/login', { email, password });
+  },
+
+  // Get doctor profile
+  getProfile: () => {
+    return apiClient.get('/doctors/profile');
+  },
+
+  // Update doctor profile
+  updateProfile: (profileData: DoctorProfileData) => {
+    return apiClient.put('/doctors/profile', profileData);
+  },
+
+  // Change doctor password
+  changePassword: (currentPassword: string, newPassword: string) => {
+    return apiClient.put('/doctors/profile/password', { currentPassword, newPassword });
+  },
+
+  // Get doctor availability
+  getAvailability: () => {
+    return apiClient.get('/doctors/availability');
+  },
+
+  // Update doctor availability
+  updateAvailability: (date: string, slots: Array<{ time: string; isAvailable: boolean }>) => {
+    return apiClient.post('/doctors/availability', { date, slots });
+  },
+
+  // Appointments - Using the dedicated appointment API
+  appointments: doctorAppointmentApi
+};
+
+// Admin doctor management API
+const adminDoctorApi = {
+  // Get all doctors
+  getAllDoctors: () => {
+    return apiClient.get('/doctors/admin');
+  },
+
+  // Get single doctor
+  getDoctor: (id: string) => {
+    return apiClient.get(`/doctors/admin/${id}`);
+  },
+
+  // Create new doctor
+  createDoctor: (doctorData: {
+    name: string;
+    email: string;
+    password: string;
+    speciality: string;
+    phoneNumber?: string;
+    bio?: string;
+    isActive?: boolean;
+  }) => {
+    return apiClient.post('/doctors/admin', doctorData);
+  },
+
+  // Update doctor
+  updateDoctor: (id: string, doctorData: {
+    name?: string;
+    email?: string;
+    password?: string;
+    speciality?: string;
+    phoneNumber?: string;
+    bio?: string;
+    isActive?: boolean;
+  }) => {
+    return apiClient.put(`/doctors/admin/${id}`, doctorData);
+  },
+
+  // Update doctor status (active/inactive)
+  updateDoctorStatus: (id: string, isActive: boolean) => {
+    return apiClient.put(`/doctors/admin/${id}/status`, { isActive });
+  },
+
+  // Delete doctor
+  deleteDoctor: (id: string) => {
+    return apiClient.delete(`/doctors/admin/${id}`);
+  }
+};
+
+// Public doctor API
+const publicDoctorApi = {
+  // Get all active doctors
+  getAllDoctors: () => {
+    return apiClient.get('/doctors/public');
+  },
+  
+  // Get a single doctor
+  getDoctor: (id: string) => {
+    return apiClient.get(`/doctors/public/${id}`);
+  },
+  
+  // Get doctor's available dates
+  getDoctorAvailableDates: (id: string) => {
+    return apiClient.get(`/doctors/${id}/availability`);
+  },
+  
+  // Get doctor's available time slots for a specific date
+  getDoctorAvailableTimeSlots: (id: string, date: string) => {
+    return apiClient.get(`/doctors/${id}/availability/${date}`);
+  }
+};
+
+//======================================================================
+// BLOG API METHODS
+//======================================================================
+
 export interface Comment {
   user: { _id: string; fullName: string; };
   _id: string;
@@ -293,24 +533,13 @@ const blogApi: BlogApi = {
   }
 };
 
+//======================================================================
+// HELPER METHODS
+//======================================================================
+
 // Newsletter subscription
 const subscribeToNewsletter = (email: string) => {
   return apiClient.post('/newsletter', { email });
-};
-
-// Appointment interface
-interface AppointmentData {
-  name: string;
-  email: string;
-  phone: string;
-  date: string;
-  service: string;
-  message?: string;
-}
-
-// Service appointments
-const bookAppointment = (appointmentData: AppointmentData) => {
-  return apiClient.post('/appointments', appointmentData);
 };
 
 // Contact form interface
@@ -326,167 +555,10 @@ const sendContactMessage = (contactData: ContactFormData) => {
   return apiClient.post('/contact', contactData);
 };
 
-// Doctor profile interface
-interface DoctorProfileData {
-  name?: string;
-  speciality?: string;
-  phoneNumber?: string;
-  bio?: string;
-}
+//======================================================================
+// TESTIMONIAL API METHODS
+//======================================================================
 
-// Doctor API methods
-const doctorApi = {
-  // Doctor login
-  login: (email: string, password: string) => {
-    return apiClient.post('/doctors/login', { email, password });
-  },
-
-  // Get doctor profile
-  getProfile: () => {
-    return apiClient.get('/doctors/profile');
-  },
-
-  // Update doctor profile
-  updateProfile: (profileData: DoctorProfileData) => {
-    return apiClient.put('/doctors/profile', profileData);
-  },
-
-  // Change doctor password
-  changePassword: (currentPassword: string, newPassword: string) => {
-    return apiClient.put('/doctors/profile/password', { currentPassword, newPassword });
-  },
-
-  // Get doctor availability
-  getAvailability: () => {
-    return apiClient.get('/doctors/availability');
-  },
-
-  // Update doctor availability
-  updateAvailability: (date: string, slots: Array<{ time: string; isAvailable: boolean }>) => {
-    return apiClient.post('/doctors/availability', { date, slots });
-  },
-
-  // Get doctor appointments
-  getAppointments: (status?: string, date?: string) => {
-    let url = '/doctors/appointments';
-    const params = new URLSearchParams();
-    
-    if (status) params.append('status', status);
-    if (date) params.append('date', date);
-    
-    if (params.toString()) {
-      url += `?${params.toString()}`;
-    }
-    
-    return apiClient.get(url);
-  },
-
-  // Get specific appointment
-  getAppointment: (id: string) => {
-    return apiClient.get(`/doctors/appointments/${id}`);
-  },
-
-  // Update appointment status
-  updateAppointmentStatus: (id: string, status: 'confirmed' | 'cancelled') => {
-    return apiClient.put(`/doctors/appointments/${id}`, { status });
-  }
-};
-
-// Admin doctor management API
-const adminDoctorApi = {
-  // Get all doctors
-  getAllDoctors: () => {
-    return apiClient.get('/doctors/admin');
-  },
-
-  // Get single doctor
-  getDoctor: (id: string) => {
-    return apiClient.get(`/doctors/admin/${id}`);
-  },
-
-  // Create new doctor
-  createDoctor: (doctorData: {
-    name: string;
-    email: string;
-    password: string;
-    speciality: string;
-    phoneNumber?: string;
-    bio?: string;
-    isActive?: boolean;
-  }) => {
-    return apiClient.post('/doctors/admin', doctorData);
-  },
-
-  // Update doctor
-  updateDoctor: (id: string, doctorData: {
-    name?: string;
-    email?: string;
-    password?: string;
-    speciality?: string;
-    phoneNumber?: string;
-    bio?: string;
-    isActive?: boolean;
-  }) => {
-    return apiClient.put(`/doctors/admin/${id}`, doctorData);
-  },
-
-  // Update doctor status (active/inactive)
-  updateDoctorStatus: (id: string, isActive: boolean) => {
-    return apiClient.put(`/doctors/admin/${id}/status`, { isActive });
-  },
-
-  // Delete doctor
-  deleteDoctor: (id: string) => {
-    return apiClient.delete(`/doctors/admin/${id}`);
-  }
-};
-
-const publicDoctorApi = {
-  // Get all active doctors
-  getAllDoctors: () => {
-    return apiClient.get('/doctors/public');
-  },
-  
-  // Get a single doctor
-  getDoctor: (id: string) => {
-    return apiClient.get(`/doctors/public/${id}`);
-  },
-  
-  // Get doctor's available dates
-  getDoctorAvailableDates: (id: string) => {
-    return apiClient.get(`/doctors/${id}/availability`);
-  },
-  
-  // Get doctor's available time slots for a specific date
-  getDoctorAvailableTimeSlots: (id: string, date: string) => {
-    return apiClient.get(`/doctors/${id}/availability/${date}`);
-  }
-};
-
-// Appointment API for patients
-const appointmentApi = {
-  // Book a new appointment
-  bookAppointment: (appointmentData: {
-    fullName: string;
-    phoneNumber: string;
-    email: string;
-    isHmoRegistered: boolean;
-    hmoName?: string;
-    hmoNumber?: string;
-    hasPreviousVisit: boolean;
-    medicalRecordNumber?: string;
-    briefHistory?: string;
-    appointmentDate: string;
-    appointmentTime: string;
-    doctorId: string;
-  }) => {
-    return apiClient.post('/appointments', appointmentData);
-  }
-};
-
-// src/api/apiClient.ts - Add these functions
-
-// Testimonial interfaces
 export interface Testimonial {
   _id: string;
   rating: number;
@@ -506,7 +578,6 @@ export interface TestimonialFormData {
   image?: File | null;
 }
 
-// Testimonial API methods
 const testimonialApi = {
   // Get all approved testimonials
   getAllTestimonials: async () => {
@@ -605,10 +676,9 @@ const testimonialApi = {
   }
 };
 
-// src/api/apiClient.ts - Add these to your existing file
-
-// Event interfaces
-
+//======================================================================
+// EVENT API METHODS
+//======================================================================
 
 export interface EventFormData {
   title: string;
@@ -626,8 +696,9 @@ export interface EventFormData {
   coverImage?: File | null;
   removeCoverImage?: boolean;
   galleryImages?: File[];
-    removeGalleryImages?: number[];
+  removeGalleryImages?: number[];
 }
+
 export interface Event {
   _id: string;
   title: string;
@@ -653,7 +724,6 @@ export interface Event {
   updatedAt: string;
 }
 
-// Event API methods
 const eventApi = {
   // Get all events or filtered by status
   getAllEvents: async (status?: string, featured?: boolean) => {
@@ -704,53 +774,50 @@ const eventApi = {
     },
     
     // Create event
-    // Update the createEvent function in your apiClient.ts file
-
-// Create event
-createEvent: async (eventData: EventFormData) => {
-  // Create FormData object for file upload
-  const formData = new FormData();
-  
-  // Add all fields except files
-  Object.entries(eventData).forEach(([key, value]) => {
-    if (key !== 'coverImage' && key !== 'galleryImages' && value !== undefined) {
-      if (typeof value === 'boolean') {
-        formData.append(key, value.toString());
-      } else if (value !== null) {
-        formData.append(key, value as string);
+    createEvent: async (eventData: EventFormData) => {
+      // Create FormData object for file upload
+      const formData = new FormData();
+      
+      // Add all fields except files
+      Object.entries(eventData).forEach(([key, value]) => {
+        if (key !== 'coverImage' && key !== 'galleryImages' && value !== undefined) {
+          if (typeof value === 'boolean') {
+            formData.append(key, value.toString());
+          } else if (value !== null) {
+            formData.append(key, value as string);
+          }
+        }
+      });
+      
+      // Add cover image if provided
+      if (eventData.coverImage) {
+        formData.append('coverImage', eventData.coverImage);
       }
-    }
-  });
-  
-  // Add cover image if provided
-  if (eventData.coverImage) {
-    formData.append('coverImage', eventData.coverImage);
-  }
-  
-  // Add gallery images if provided - IMPORTANT: The backend expects 'images', not 'galleryImages'
-  if (eventData.galleryImages && eventData.galleryImages.length > 0) {
-    // Use 'images' as field name because that's what the backend expects
-    eventData.galleryImages.forEach(image => {
-      formData.append('images', image);
-    });
-  }
-  
-  // Log the FormData contents for debugging (optional)
-  console.log('Uploading event with gallery images:', eventData.galleryImages?.length || 0);
-  
-  try {
-    const response = await apiClient.post('/events/admin', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data'
+      
+      // Add gallery images if provided - IMPORTANT: The backend expects 'images', not 'galleryImages'
+      if (eventData.galleryImages && eventData.galleryImages.length > 0) {
+        // Use 'images' as field name because that's what the backend expects
+        eventData.galleryImages.forEach(image => {
+          formData.append('images', image);
+        });
       }
-    });
-    
-    return response.data;
-  } catch (error) {
-    console.error('Error creating event:', error);
-    throw error;
-  }
-},
+      
+      // Log the FormData contents for debugging (optional)
+      console.log('Uploading event with gallery images:', eventData.galleryImages?.length || 0);
+      
+      try {
+        const response = await apiClient.post('/events/admin', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        });
+        
+        return response.data;
+      } catch (error) {
+        console.error('Error creating event:', error);
+        throw error;
+      }
+    },
     
     // Update event
     updateEvent: async (id: string, eventData: Partial<EventFormData>) => {
@@ -824,37 +891,60 @@ createEvent: async (eventData: EventFormData) => {
     },
 
     updateGalleryOrder: async (id: string, galleryOrder: string[]) => {
-  const response = await apiClient.put(`/events/admin/${id}/gallery/order`, { gallery: galleryOrder });
-  return response.data;
-},
+      const response = await apiClient.put(`/events/admin/${id}/gallery/order`, { gallery: galleryOrder });
+      return response.data;
+    },
 
-// Add caption to gallery image
-addGalleryCaption: async (id: string, imageIndex: number, caption: string) => {
-  const response = await apiClient.put(`/events/admin/${id}/gallery/${imageIndex}/caption`, { caption });
-  return response.data;
-},
+    // Add caption to gallery image
+    addGalleryCaption: async (id: string, imageIndex: number, caption: string) => {
+      const response = await apiClient.put(`/events/admin/${id}/gallery/${imageIndex}/caption`, { caption });
+      return response.data;
+    },
 
-// Get gallery images with captions
-getGalleryWithCaptions: async (id: string) => {
-  const response = await apiClient.get(`/events/admin/${id}/gallery`);
-  return response.data;
-}
+    // Get gallery images with captions
+    getGalleryWithCaptions: async (id: string) => {
+      const response = await apiClient.get(`/events/admin/${id}/gallery`);
+      return response.data;
+    }
   }
 };
 
+//======================================================================
+// EXPORT ALL API METHODS
+//======================================================================
 
+// Create an admin API object for convenience
+const adminApi = {
+  doctors: adminDoctorApi,
+  appointments: adminAppointmentApi,
+  events: eventApi.admin,
+  testimonials: {
+    getAll: testimonialApi.getAllAdminTestimonials,
+    getPending: testimonialApi.getPendingTestimonials,
+    approve: testimonialApi.approveTestimonial,
+    reject: testimonialApi.rejectTestimonial,
+    delete: testimonialApi.deleteTestimonial,
+    update: testimonialApi.updateTestimonial
+  }
+};
 
 export { 
+  // Main API objects
   blogApi, 
-  subscribeToNewsletter, 
-  bookAppointment, 
-  sendContactMessage,
   doctorApi,
-  adminDoctorApi,
-  publicDoctorApi, 
-  appointmentApi,
+  adminApi,
+  publicDoctorApi,
   testimonialApi,
-  eventApi
+  eventApi,
+  
+  // Appointment APIs
+  doctorAppointmentApi,
+  adminAppointmentApi,
+  patientAppointmentApi,
+  
+  // Helper methods
+  subscribeToNewsletter, 
+  sendContactMessage
 };
 
 export default apiClient;

@@ -226,39 +226,28 @@ const AboutUs: React.FC = () => {
             <Navbar />
 
             {/* Hero Banner */}
-            <div
-                className="relative bg-cover bg-center h-56 md:h-64 lg:h-80"
-                style={{
-                    backgroundImage:
-                        "url(https://images.unsplash.com/photo-1516714435131-44d6b64dc6a2?q=80&w=2070&auto=format&fit=crop)",
-                }}
-            >
-                <motion.div
-                    className="absolute inset-0 bg-black/70 flex items-center justify-center"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ duration: 1 }}
-                >
-                    <div className="text-center px-4">
+            <section className="bg-gradient-to-r from-[#2C4A6B] to-[#FFB915] py-16 md:py-24">
+                <div className="container mx-auto px-4">
+                    <div className="max-w-4xl mx-auto text-center text-white">
                         <motion.h1
                             initial={{ opacity: 0, y: -20 }}
                             animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.7, delay: 0.2 }}
-                            className="text-4xl md:text-5xl font-bold text-[#FFB915] mb-4"
+                            transition={{ duration: 0.7 }}
+                            className="text-4xl md:text-6xl font-bold mb-4"
                         >
-                            About Us
+                            About us
                         </motion.h1>
                         <motion.p
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
-                            transition={{ delay: 0.5, duration: 0.7 }}
-                            className="text-white text-lg md:text-xl max-w-2xl mx-auto"
+                            transition={{ duration: 0.7, delay: 0.3 }}
+                            className="text-xl md:text-2xl opacity-90"
                         >
-                            Excellence in eye care for over 15 years
+                            Excellence in eye care
                         </motion.p>
                     </div>
-                </motion.div>
-            </div>
+                </div>
+            </section>
 
             {/* Main Content */}
             <main className="flex-grow py-12 px-4 md:px-6 lg:px-8">
@@ -303,10 +292,7 @@ const AboutUs: React.FC = () => {
                                     <h3 className="text-2xl font-bold text-gray-800">Our Mission</h3>
                                 </div>
                                 <p className="text-gray-600 flex-grow">
-                                    To provide accessible, comprehensive, and high-quality eye care services to all patients,
-                                    regardless of their background or circumstances. We are committed to employing the latest
-                                    medical technologies and techniques to diagnose, treat, and prevent eye diseases,
-                                    while fostering a compassionate and supportive environment for our patients and staff.
+                                    To provide affordable and accessible quality eye healthcare to everyone.
                                 </p>
                             </motion.div>
 
@@ -322,10 +308,7 @@ const AboutUs: React.FC = () => {
                                     <h3 className="text-2xl font-bold text-gray-800">Our Vision</h3>
                                 </div>
                                 <p className="text-gray-600 flex-grow">
-                                    To be the leading eye care provider in West Africa, recognized for clinical excellence,
-                                    innovation, and patient-centered care. We aspire to continually advance the field of
-                                    ophthalmology through research, education, and community engagement, ultimately
-                                    contributing to a world where preventable vision loss is eliminated and eye health is prioritized.
+                                    To be a leading eye care hospital, with best practices and work force.
                                 </p>
                             </motion.div>
                         </motion.div>
@@ -352,10 +335,13 @@ const AboutUs: React.FC = () => {
                                 </h2>
                                 <div className="space-y-4 text-gray-600">
                                     <p>
-                                        Established in 2008, Opeyemi Mega Eye Center has grown to become a leading provider of comprehensive eye care services in Lagos and beyond. Our state-of-the-art facility is equipped with advanced diagnostic and treatment technology, allowing us to deliver exceptional care to all our patients.
+                                        Opeyemi Mega Eye Centre is a world class health facility dedicated to providing all your Eye health needs, not only curative but also preventives. We boast of cutting edge equipment which aid in the diagnosis and treatment of medical and surgical eye conditions, well-established Professional eye hospital based in Ilorin, Kwara State. It is a 20-bed capacity hospital that has all the units of a General Eye Hospital including specialist service, high tech investigation equipments and pharmacy.
                                     </p>
                                     <p>
-                                        We take pride in our team of highly qualified ophthalmologists, optometrists, and support staff who are committed to maintaining the highest standards of patient care. Our approach combines medical expertise with compassion, ensuring that each patient receives personalized attention and effective treatment.
+                                        We have highly trained and dedicated staff who provide excellent care.
+                                    </p>
+                                    <p>
+                                        Our computerized systems ensures confidentiality and continuity. Our hospital is well endowed with a team of experts and professionals with some specialization in delivering quality healthcare solutions with professionalism and according to International standard with thorough understanding of the Nigerian service requirements and culture. We aim to set a standard for medical eye care hence we continue updating and upgrading to ensure that you get the best.
                                     </p>
                                 </div>
 

@@ -169,7 +169,7 @@ const EventsPage: React.FC = () => {
 
                                 {/* Filters */}
                                 <div className="flex flex-wrap items-center justify-between">
-                                    <div className="flex items-center mb-2 sm:mb-0">
+                                    {/* <div className="flex items-center mb-2 sm:mb-0">
                                         <input
                                             id="gallery-filter"
                                             type="checkbox"
@@ -181,7 +181,7 @@ const EventsPage: React.FC = () => {
                                             <FaImages className="mr-1 text-[#FFB915]" />
                                             Show events with photos only
                                         </label>
-                                    </div>
+                                    </div> */}
 
                                     {(searchTerm || showGalleryOnly) && (
                                         <button

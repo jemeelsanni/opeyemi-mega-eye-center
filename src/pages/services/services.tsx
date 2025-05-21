@@ -128,34 +128,28 @@ const Services: React.FC = () => {
       <Navbar />
 
       {/* Hero Banner */}
-      <div
-        className="relative bg-cover bg-center h-56 md:h-64 lg:h-80"
-        style={{
-          backgroundImage:
-            "url(https://i.ibb.co/DYWWBXH/national-cancer-institute-L8t-WZT4-Cc-VQ-unsplash.jpg)",
-        }}
-      >
-        <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
-          <div className="text-center px-4">
+      <section className="bg-gradient-to-r from-[#2C4A6B] to-[#FFB915] py-16 md:py-24">
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto text-center text-white">
             <motion.h1
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7 }}
-              className="text-4xl md:text-5xl font-bold text-[#FFB915] mb-4"
+              className="text-4xl md:text-6xl font-bold mb-4"
             >
               Services & Facilities
             </motion.h1>
             <motion.p
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ delay: 0.3, duration: 0.7 }}
-              className="text-white text-lg md:text-xl max-w-2xl mx-auto"
+              transition={{ duration: 0.7, delay: 0.3 }}
+              className="text-xl md:text-2xl opacity-90"
             >
               Comprehensive eye care solutions with state-of-the-art technology
             </motion.p>
           </div>
         </div>
-      </div>
+      </section>
 
       {/* Main Content */}
       <main className="flex-grow py-12 px-4 md:px-6 lg:px-8">
