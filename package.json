@@ -27,7 +27,8 @@
     "react-phone-input-2": "^2.15.1",
     "react-quill": "^2.0.0",
     "react-router-dom": "^6.26.1",
-    "swiper": "^8.4.7"
+    "swiper": "^8.4.7",
+    "web-push": "^3.6.7"
   },
   "devDependencies": {
     "@types/react": "^18.2.43",

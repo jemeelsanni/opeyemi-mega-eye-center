@@ -26,6 +26,13 @@ import DoctorManagement from './pages/admin/doctors/doctorManagement';
 import AddDoctor from './pages/admin/doctors/addDoctor';
 import EditDoctorPage from './pages/admin/doctors/editDoctorPage';
 import TestimonialManagement from './pages/admin/testimonials/testimonialManagement';
+
+// Email Marketing Components
+import EmailComposer from './pages/admin/email/emailComposer';
+import EmailTemplates from './pages/admin/email/emailTemplate';
+import EmailCampaigns from './pages/admin/email/emailCampaigns';
+import EmailAnalytics from './pages/admin/email/emailAnalytics';
+
 // import AdminDoctorDetailsPage from "./pages/admin/doctors/doctorDetailsPage"; // For admin viewing doctor details
 
 // import Unauthorized from "./pages/Unauthorized";
@@ -36,9 +43,6 @@ import DoctorProfile from './pages/doctors/doctorProfile';
 import DoctorAvailability from './pages/doctors/doctorAvailability';
 import DoctorAppointments from './pages/doctors/doctorAppointments';
 import DoctorSettings from './pages/doctors/doctorSettings';
-
-
-
 
 // Protected Routes
 import ProtectedRoute from "./ProtectedRoute";
@@ -66,7 +70,6 @@ const App: React.FC = () => {
           <Route path="/events" element={<EventsPage />} />
           <Route path="/events/:id" element={<EventDetails />} />
 
-
           {/* Auth Routes */}
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
@@ -76,14 +79,22 @@ const App: React.FC = () => {
           {/* Admin Routes with Role Protection */}
           <Route element={<ProtectedRoute roles={['admin', 'superadmin']} />}>
             <Route path="/admin" element={<Dashboard />} />
+
+            {/* Blog Management */}
             <Route path="/admin/blogs" element={<AdminBlogList />} />
             <Route path="/admin/createBlog" element={<CreateBlog />} />
             <Route path="/admin/edit-blog/:id" element={<EditBlog />} />
-            <Route path="/admin/events" element={<EventManagement />} />
-
-
-            {/* Updated route for admin blog viewing - critical for fixing 404 issues */}
             <Route path="/admin/blog/:blogId" element={<AdminBlogViewer />} />
+
+            {/* Email Marketing Routes */}
+            <Route path="/admin/email" element={<EmailComposer />} />
+            <Route path="/admin/email/compose" element={<EmailComposer />} />
+            <Route path="/admin/email/templates" element={<EmailTemplates />} />
+            <Route path="/admin/email/campaigns" element={<EmailCampaigns />} />
+            <Route path="/admin/email/analytics" element={<EmailAnalytics />} />
+
+            {/* Event Management */}
+            <Route path="/admin/events" element={<EventManagement />} />
           </Route>
 
           {/* Super Admin Only Routes */}
@@ -92,12 +103,14 @@ const App: React.FC = () => {
             <Route path="/admin/contacts" element={<AdminContacts />} />
             <Route path="/admin/newsletters" element={<AdminNewsletters />} />
             <Route path="/admin/users" element={<AdminUsers />} />
+
             {/* Doctor Management Routes */}
             <Route path="/admin/doctors" element={<DoctorManagement />} />
             <Route path="/admin/doctors/add" element={<AddDoctor />} />
             <Route path="/admin/doctors/:id" element={<EditDoctorPage />} />
-            <Route path="/admin/testimonials" element={<TestimonialManagement />} />
 
+            {/* Testimonial Management */}
+            <Route path="/admin/testimonials" element={<TestimonialManagement />} />
           </Route>
 
           {/* Doctor Routes */}

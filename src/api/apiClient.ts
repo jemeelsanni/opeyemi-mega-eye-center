@@ -1,4 +1,4 @@
-// api/apiClient.ts
+// api/apiClient.ts - Complete API client with all methods
 import axios from 'axios';
 
 // Define base URL based on environment
@@ -12,7 +12,7 @@ const apiClient = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  timeout: 10000, // Set a reasonable timeout
+  timeout: 30000, // Increased timeout for email operations
 });
 
 // Add a request interceptor to include the auth token in requests
@@ -43,12 +43,10 @@ apiClient.interceptors.response.use(
       
       // Redirect to appropriate login page
       if (currentPath.startsWith('/doctor')) {
-        // Doctor pages redirect to doctor login
         if (!window.location.pathname.includes('/doctor/login')) {
           window.location.href = '/doctor/login';
         }
       } else {
-        // Admin pages redirect to admin login
         if (!window.location.pathname.includes('/login')) {
           window.location.href = '/login';
         }
@@ -58,6 +56,333 @@ apiClient.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+
+//======================================================================
+// EMAIL SYSTEM INTERFACES
+//======================================================================
+
+export interface EmailTemplate {
+  _id: string;
+  name: string;
+  description: string;
+  category: 'newsletter' | 'appointment' | 'promotional' | 'notification' | 'welcome' | 'reminder' | 'custom';
+  subject: string;
+  htmlContent: string;
+  textContent: string;
+  variables: EmailVariable[];
+  thumbnail?: string;
+  isActive: boolean;
+  usageCount: number;
+  createdBy?: {
+    _id: string;
+    fullName: string;
+    email: string;
+  };
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface EmailVariable {
+  name: string;
+  description: string;
+  type: 'text' | 'number' | 'date' | 'url' | 'email';
+  required: boolean;
+  defaultValue?: string;
+}
+
+export interface EmailRecipient {
+  email: string;
+  name?: string;
+  status: 'pending' | 'sent' | 'delivered' | 'failed' | 'bounced';
+  sentAt?: string;
+  deliveredAt?: string;
+  failureReason?: string;
+}
+
+export interface EmailAttachment {
+  filename: string;
+  url: string;
+  size: number;
+  mimeType: string;
+}
+
+export interface Email {
+  _id: string;
+  sender: {
+    _id: string;
+    fullName: string;
+    email: string;
+  };
+  recipients: EmailRecipient[];
+  subject: string;
+  content: string;
+  htmlContent?: string;
+  template: string;
+  attachments: EmailAttachment[];
+  priority: 'low' | 'normal' | 'high';
+  scheduledFor?: string;
+  status: 'draft' | 'scheduled' | 'sending' | 'sent' | 'failed';
+  totalRecipients: number;
+  sentCount: number;
+  deliveredCount: number;
+  failedCount: number;
+  openRate: number;
+  clickRate: number;
+  tags: string[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface EmailAnalytics {
+  totalEmails: number;
+  totalRecipients: number;
+  totalSent: number;
+  totalDelivered: number;
+  totalFailed: number;
+  avgOpenRate: number;
+  avgClickRate: number;
+}
+
+//======================================================================
+// UPDATED EMAIL SYSTEM API METHODS
+//======================================================================
+
+const emailApi = {
+  // Email campaigns - Admin routes
+  getAllEmails: async (params: {
+    page?: number;
+    limit?: number;
+    status?: string;
+    template?: string;
+    startDate?: string;
+    endDate?: string;
+    sender?: string; // Admin can filter by sender
+  } = {}) => {
+    const response = await apiClient.get('/mailer/admin/emails', { params });
+    return response.data;
+  },
+
+  getEmailById: async (id: string) => {
+    const response = await apiClient.get(`/mailer/admin/emails/${id}`);
+    return response.data;
+  },
+
+  sendEmail: async (emailData: {
+    recipients: string | Array<{email: string; name?: string}>;
+    subject: string;
+    content: string;
+    htmlContent?: string;
+    template?: string;
+    priority?: 'low' | 'normal' | 'high';
+    scheduledFor?: string;
+    attachments?: File[];
+  }) => {
+    const formData = new FormData();
+    
+    // Handle recipients
+    const recipientsData = typeof emailData.recipients === 'string' 
+      ? emailData.recipients 
+      : JSON.stringify(emailData.recipients);
+    formData.append('recipients', recipientsData);
+    
+    // Add other fields
+    formData.append('subject', emailData.subject);
+    formData.append('content', emailData.content);
+    
+    if (emailData.htmlContent) {
+      formData.append('htmlContent', emailData.htmlContent);
+    }
+    
+    if (emailData.template) {
+      formData.append('template', emailData.template);
+    }
+    
+    if (emailData.priority) {
+      formData.append('priority', emailData.priority);
+    }
+    
+    if (emailData.scheduledFor) {
+      formData.append('scheduledFor', emailData.scheduledFor);
+    }
+    
+    // Add attachments
+    if (emailData.attachments && emailData.attachments.length > 0) {
+      emailData.attachments.forEach(file => {
+        formData.append('attachments', file);
+      });
+    }
+
+    const response = await apiClient.post('/mailer/admin/emails', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  },
+
+  resendEmail: async (id: string) => {
+    const response = await apiClient.post(`/mailer/admin/emails/${id}/resend`);
+    return response.data;
+  },
+
+  getEmailAnalytics: async (params: {
+    startDate?: string;
+    endDate?: string;
+  } = {}) => {
+    const response = await apiClient.get('/mailer/admin/analytics', { params });
+    return response.data;
+  },
+
+  testEmailConfig: async () => {
+    const response = await apiClient.post('/mailer/test');
+    return response.data;
+  },
+
+  // Email templates - Admin routes
+  getAllTemplates: async (params: {
+    page?: number;
+    limit?: number;
+    category?: string;
+    search?: string;
+    isActive?: boolean; // Admin can see inactive templates
+  } = {}) => {
+    const response = await apiClient.get('/mailer/admin/templates', { params });
+    return response.data;
+  },
+
+  getTemplateById: async (id: string) => {
+    const response = await apiClient.get(`/mailer/admin/templates/${id}`);
+    return response.data;
+  },
+
+  createTemplate: async (templateData: {
+    name: string;
+    description: string;
+    category: string;
+    subject: string;
+    htmlContent: string;
+    textContent: string;
+    variables?: EmailVariable[];
+    thumbnail?: File;
+  }) => {
+    const formData = new FormData();
+    
+    // Add template data
+    Object.keys(templateData).forEach(key => {
+      if (key === 'variables') {
+        formData.append(key, JSON.stringify(templateData[key] || []));
+      } else if (key === 'thumbnail' && templateData[key]) {
+        formData.append(key, templateData[key] as File);
+      } else if (key !== 'thumbnail') {
+        formData.append(key, templateData[key as keyof typeof templateData] as string);
+      }
+    });
+
+    const response = await apiClient.post('/mailer/admin/templates', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  },
+
+  updateTemplate: async (id: string, templateData: Partial<{
+    name: string;
+    description: string;
+    category: string;
+    subject: string;
+    htmlContent: string;
+    textContent: string;
+    variables: EmailVariable[];
+    thumbnail: File;
+    isActive: boolean; // Admin can activate/deactivate templates
+  }>) => {
+    const formData = new FormData();
+    
+    // Add template data
+    Object.keys(templateData).forEach(key => {
+      if (key === 'variables') {
+        formData.append(key, JSON.stringify(templateData[key] || []));
+      } else if (key === 'thumbnail' && templateData[key]) {
+        formData.append(key, templateData[key] as File);
+      } else if (key === 'isActive') {
+        formData.append(key, String(templateData[key]));
+      } else if (key !== 'thumbnail' && templateData[key as keyof typeof templateData] !== undefined) {
+        formData.append(key, templateData[key as keyof typeof templateData] as string);
+      }
+    });
+
+    const response = await apiClient.put(`/mailer/admin/templates/${id}`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  },
+
+  deleteTemplate: async (id: string) => {
+    const response = await apiClient.delete(`/mailer/admin/templates/${id}`);
+    return response.data;
+  },
+
+  sendTemplateEmail: async (templateId: string, data: {
+    recipients: Array<{email: string; name?: string}>;
+    variables?: Record<string, string>;
+    scheduledFor?: string;
+  }) => {
+    const response = await apiClient.post(`/mailer/admin/emails/template/${templateId}`, data);
+    return response.data;
+  },
+
+  // Quick recipient loading (unchanged)
+  loadSubscribers: async () => {
+    const response = await apiClient.get('/newsletter/subscribers');
+    return response.data;
+  },
+
+  loadPatients: async () => {
+    const response = await apiClient.get('/appointments/patients');
+    return response.data;
+  },
+
+  // User-specific email methods (for regular users, not admin)
+  user: {
+    getAllEmails: async (params: {
+      page?: number;
+      limit?: number;
+      status?: string;
+      template?: string;
+      startDate?: string;
+      endDate?: string;
+    } = {}) => {
+      const response = await apiClient.get('/mailer/emails', { params });
+      return response.data;
+    },
+
+    getEmailAnalytics: async (params: {
+      startDate?: string;
+      endDate?: string;
+    } = {}) => {
+      const response = await apiClient.get('/mailer/analytics', { params });
+      return response.data;
+    },
+
+    getAllTemplates: async (params: {
+      page?: number;
+      limit?: number;
+      category?: string;
+      search?: string;
+    } = {}) => {
+      const response = await apiClient.get('/mailer/templates', { params });
+      return response.data;
+    },
+
+    getTemplateById: async (id: string) => {
+      const response = await apiClient.get(`/mailer/templates/${id}`);
+      return response.data;
+    }
+  }
+};
 
 //======================================================================
 // APPOINTMENT API METHODS
@@ -109,18 +434,12 @@ const doctorAppointmentApi = {
 // Admin appointment API
 const adminAppointmentApi = {
   // Get all appointments (with filtering)
-  getAllAppointments: async (page = 1, limit = 10, filters = {}) => {
+  getAllAppointments: async (page = 1, limit = 10, filters: any = {}) => { // eslint-disable-line @typescript-eslint/no-explicit-any
     let url = `/appointments/admin?page=${page}&limit=${limit}`;
     
     // Add filters to URL if provided
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-expect-error
     if (filters.status) url += `&status=${filters.status}`;
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
     if (filters.date) url += `&date=${filters.date}`;
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
     if (filters.physician) url += `&physician=${encodeURIComponent(filters.physician)}`;
     
     const response = await apiClient.get(url);
@@ -218,6 +537,46 @@ const doctorApi = {
   // Update doctor availability
   updateAvailability: (date: string, slots: Array<{ time: string; isAvailable: boolean }>) => {
     return apiClient.post('/doctors/availability', { date, slots });
+  },
+
+  getVapidPublicKey: async () => {
+    try {
+      const response = await apiClient.get('/doctors/vapid-public-key');
+      return response.data;
+    } catch (error) {
+      console.error('Error getting VAPID public key:', error);
+      return {
+        success: false,
+        message: 'Failed to get VAPID public key',
+        publicKey: null
+      };
+    }
+  },
+
+  savePushSubscription: async (subscription: PushSubscriptionJSON) => {
+    try {
+      const response = await apiClient.post('/doctors/push-subscription', { subscription });
+      return response.data;
+    } catch (error) {
+      console.error('Error saving push subscription:', error);
+      return {
+        success: false,
+        message: error instanceof Error ? error.message : 'Failed to save push subscription'
+      };
+    }
+  },
+
+  deletePushSubscription: async () => {
+    try {
+      const response = await apiClient.delete('/doctors/push-subscription');
+      return response.data;
+    } catch (error) {
+      console.error('Error deleting push subscription:', error);
+      return {
+        success: false,
+        message: error instanceof Error ? error.message : 'Failed to delete push subscription'
+      };
+    }
   },
 
   // Appointments - Using the dedicated appointment API
@@ -437,42 +796,25 @@ const blogApi: BlogApi = {
       return Promise.reject(new Error('Blog ID is required'));
     }
     
-    console.group("getBlog API Call");
-    console.log(`Fetching blog with ID: ${id}`);
-    
     try {
       const response = await apiClient.get(`/blogs/${id}`);
-      
-      console.log("getBlog response status:", response.status);
-      console.log("getBlog response type:", typeof response.data);
       
       // Check the response structure
       if (response.data) {
         if (response.data.data && typeof response.data.data === 'object') {
-          // Response has nested data property
-          console.log("Response has nested data property");
-          console.log("Blog data keys:", Object.keys(response.data.data));
-          console.groupEnd();
           return response.data.data;
         } else if (response.data._id) {
-          // Direct blog object
-          console.log("Response has direct blog object");
-          console.log("Blog data keys:", Object.keys(response.data));
-          console.groupEnd();
           return response.data;
         } else {
           console.error("Unexpected response structure:", response.data);
-          console.groupEnd();
           return Promise.reject(new Error('Invalid blog data structure'));
         }
       } else {
         console.error("No data in response");
-        console.groupEnd();
         return Promise.reject(new Error('No data in response'));
       }
     } catch (error) {
       console.error("Error in getBlog:", error);
-      console.groupEnd();
       return Promise.reject(error);
     }
   },
@@ -483,31 +825,30 @@ const blogApi: BlogApi = {
   },
   
   // Admin: Get single blog
-  getAdminBlog: (id) => {
+  getAdminBlog: (id: string) => {
     if (!id) {
       return Promise.reject(new Error('Blog ID is required'));
     }
-    console.log(`Fetching admin blog with ID: ${id}`);
     return apiClient.get(`/admin/blogs/${id}`);
   },
   
   // Create new blog
-  createBlog: (blogData) => {
+  createBlog: (blogData: CreateBlogData) => {
     return apiClient.post('/blogs', blogData);
   },
   
   // Update existing blog
-  updateBlog: (id, blogData) => {
+  updateBlog: (id: string, blogData: Partial<CreateBlogData>) => {
     return apiClient.put(`/blogs/${id}`, blogData);
   },
   
   // Delete blog
-  deleteBlog: (id) => {
+  deleteBlog: (id: string) => {
     return apiClient.delete(`/blogs/${id}`);
   },
   
   // Upload featured image
-  uploadImage: (file) => {
+  uploadImage: (file: File) => {
     const formData = new FormData();
     formData.append('featuredImage', file);
     return apiClient.post('/upload/image', formData, {
@@ -518,41 +859,19 @@ const blogApi: BlogApi = {
   },
   
   // Like/Unlike a blog
-  likeBlog: (id) => {
+  likeBlog: (id: string) => {
     return apiClient.post(`/blogs/${id}/like`);
   },
   
   // Comment on a blog
-  addComment: (id, text) => {
-    return apiClient.post(`/blogs/${id}/comments`, { text });
+  addComment: (id: string, commentData: CommentData) => {
+    return apiClient.post(`/blogs/${id}/comments`, commentData);
   },
   
   // Reply to a comment
-  addReply: (blogId, commentId, text) => {
+  addReply: (blogId: string, commentId: string, text: string) => {
     return apiClient.post(`/blogs/${blogId}/comments/${commentId}/replies`, { text });
   }
-};
-
-//======================================================================
-// HELPER METHODS
-//======================================================================
-
-// Newsletter subscription
-const subscribeToNewsletter = (email: string) => {
-  return apiClient.post('/newsletter', { email });
-};
-
-// Contact form interface
-interface ContactFormData {
-  name: string;
-  email: string;
-  subject: string;
-  message: string;
-}
-
-// Contact form
-const sendContactMessage = (contactData: ContactFormData) => {
-  return apiClient.post('/contact', contactData);
 };
 
 //======================================================================
@@ -593,7 +912,6 @@ const testimonialApi = {
   
   // Submit a new testimonial
   submitTestimonial: async (data: TestimonialFormData) => {
-    // Create FormData object for file upload
     const formData = new FormData();
     formData.append('rating', data.rating.toString());
     formData.append('review', data.review);
@@ -644,7 +962,6 @@ const testimonialApi = {
   
   // Admin: Update a testimonial
   updateTestimonial: async (id: string, data: Partial<TestimonialFormData>) => {
-    // Create FormData object for file upload
     const formData = new FormData();
     
     if (data.rating !== undefined) {
@@ -775,7 +1092,6 @@ const eventApi = {
     
     // Create event
     createEvent: async (eventData: EventFormData) => {
-      // Create FormData object for file upload
       const formData = new FormData();
       
       // Add all fields except files
@@ -794,34 +1110,24 @@ const eventApi = {
         formData.append('coverImage', eventData.coverImage);
       }
       
-      // Add gallery images if provided - IMPORTANT: The backend expects 'images', not 'galleryImages'
+      // Add gallery images if provided
       if (eventData.galleryImages && eventData.galleryImages.length > 0) {
-        // Use 'images' as field name because that's what the backend expects
         eventData.galleryImages.forEach(image => {
           formData.append('images', image);
         });
       }
       
-      // Log the FormData contents for debugging (optional)
-      console.log('Uploading event with gallery images:', eventData.galleryImages?.length || 0);
+      const response = await apiClient.post('/events/admin', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
       
-      try {
-        const response = await apiClient.post('/events/admin', formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data'
-          }
-        });
-        
-        return response.data;
-      } catch (error) {
-        console.error('Error creating event:', error);
-        throw error;
-      }
+      return response.data;
     },
     
     // Update event
     updateEvent: async (id: string, eventData: Partial<EventFormData>) => {
-      // Create FormData object for file upload
       const formData = new FormData();
       
       // Add all fields
@@ -870,7 +1176,6 @@ const eventApi = {
     addGalleryImages: async (id: string, images: File[]) => {
       const formData = new FormData();
       
-      // Add all images
       images.forEach(image => {
         formData.append('images', image);
       });
@@ -910,13 +1215,86 @@ const eventApi = {
 };
 
 //======================================================================
-// EXPORT ALL API METHODS
+// NEWSLETTER/SUBSCRIBER API METHODS
+//======================================================================
+
+const subscriberApi = {
+  getAllSubscribers: async (params: {
+    page?: number;
+    limit?: number;
+    isActive?: boolean;
+  } = {}) => {
+    const response = await apiClient.get('/newsletter/subscribers', { params });
+    return response.data;
+  },
+
+  updateSubscriberStatus: async (id: string, isActive: boolean) => {
+    const response = await apiClient.put(`/newsletter/subscribers/${id}`, { isActive });
+    return response.data;
+  },
+
+  subscribe: async (email: string) => {
+    const response = await apiClient.post('/newsletter', { email });
+    return response.data;
+  },
+
+  unsubscribe: async (email: string) => {
+    const response = await apiClient.post('/newsletter/unsubscribe', { email });
+    return response.data;
+  }
+};
+
+//======================================================================
+// HELPER METHODS
+//======================================================================
+
+// Contact form interface
+interface ContactFormData {
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+}
+
+// Contact form
+const sendContactMessage = (contactData: ContactFormData) => {
+  return apiClient.post('/contact', contactData);
+};
+
+//======================================================================
+// SYSTEM HEALTH API METHODS
+//======================================================================
+
+const systemApi = {
+  getHealthStatus: async () => {
+    const response = await apiClient.get('/health');
+    return response.data;
+  },
+
+  getEmailHealthStatus: async () => {
+    const response = await apiClient.get('/email-health');
+    return response.data;
+  },
+
+  getDbHealthStatus: async () => {
+    const response = await apiClient.get('/db-health');
+    return response.data;
+  }
+};
+
+//======================================================================
+// ADMIN API CONSOLIDATION
 //======================================================================
 
 // Create an admin API object for convenience
 const adminApi = {
+  // Email system
+  email: emailApi,
+  
+  // Existing systems
   doctors: adminDoctorApi,
   appointments: adminAppointmentApi,
+  subscribers: subscriberApi,
   events: eventApi.admin,
   testimonials: {
     getAll: testimonialApi.getAllAdminTestimonials,
@@ -925,10 +1303,22 @@ const adminApi = {
     reject: testimonialApi.rejectTestimonial,
     delete: testimonialApi.deleteTestimonial,
     update: testimonialApi.updateTestimonial
-  }
+  },
+  
+  // System health
+  system: systemApi,
 };
 
+//======================================================================
+// EXPORT ALL API METHODS
+//======================================================================
+
 export { 
+  // Email system APIs
+  emailApi,
+  subscriberApi,
+  systemApi,
+  
   // Main API objects
   blogApi, 
   doctorApi,
@@ -943,8 +1333,9 @@ export {
   patientAppointmentApi,
   
   // Helper methods
-  subscribeToNewsletter, 
-  sendContactMessage
+  sendContactMessage,
+  
+  // Types are already exported from Part 1
 };
 
 export default apiClient;

@@ -15,7 +15,8 @@ import {
   FaAngleRight,
   FaCog,
   FaUserMd,
-  FaStar
+  FaStar,
+  FaPaperPlane
 } from 'react-icons/fa';
 import { useAuth } from '../context/AuthContext';
 
@@ -29,6 +30,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [blogSubmenu, setBlogSubmenu] = useState(false);
   const [doctorSubmenu, setDoctorSubmenu] = useState(false);
+  const [emailSubmenu, setEmailSubmenu] = useState(false);
 
   const { user, logout } = useAuth();
   const location = useLocation();
@@ -84,6 +86,11 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
     return location.pathname.includes('/admin/doctors');
   };
 
+  // Is email section active
+  const isEmailSectionActive = () => {
+    return location.pathname.includes('/admin/email') || location.pathname.includes('/admin/mailer');
+  };
+
   // Menu items with role-based visibility
   const menuItems = [
     {
@@ -104,11 +111,23 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
       ]
     },
     {
+      name: 'Email Marketing',
+      path: '#',
+      icon: <FaPaperPlane className="h-5 w-5" />,
+      roles: ['admin', 'superadmin'],
+      hasSubmenu: true,
+      submenuItems: [
+        { name: 'Compose Email', path: '/admin/email/compose' },
+        { name: 'Email Templates', path: '/admin/email/templates' },
+        { name: 'Email Campaigns', path: '/admin/email/campaigns' },
+        { name: 'Email Analytics', path: '/admin/email/analytics' }
+      ]
+    },
+    {
       name: 'Doctors',
       path: '/admin/doctors',
       icon: <FaUserMd className="h-5 w-5" />,
       roles: ['superadmin'],
-
     },
     {
       name: 'Appointments',
@@ -164,7 +183,8 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
     { id: 1, text: 'New appointment request from John Doe', time: '2 min ago', type: 'appointment' },
     { id: 2, text: 'New contact message from Sarah Smith', time: '1 hour ago', type: 'message' },
     { id: 3, text: 'New newsletter subscriber: email@example.com', time: 'Yesterday', type: 'newsletter' },
-    { id: 4, text: 'Blog post "Eye Care Tips" has 10 new views', time: '2 days ago', type: 'blog' }
+    { id: 4, text: 'Blog post "Eye Care Tips" has 10 new views', time: '2 days ago', type: 'blog' },
+    { id: 5, text: 'Email campaign "Monthly Newsletter" delivered to 150 subscribers', time: '3 days ago', type: 'email' }
   ];
 
   return (
@@ -206,10 +226,13 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                           setBlogSubmenu(!blogSubmenu);
                         } else if (item.name === 'Doctor Management') {
                           setDoctorSubmenu(!doctorSubmenu);
+                        } else if (item.name === 'Email Marketing') {
+                          setEmailSubmenu(!emailSubmenu);
                         }
                       }}
                       className={`flex items-center justify-between w-full px-4 py-3 text-sm rounded-md ${(item.name === 'Blog Management' && isBlogSectionActive()) ||
-                        (item.name === 'Doctor Management' && isDoctorSectionActive())
+                        (item.name === 'Doctor Management' && isDoctorSectionActive()) ||
+                        (item.name === 'Email Marketing' && isEmailSectionActive())
                         ? 'bg-[#16213e] text-[#FFB915]'
                         : 'hover:bg-[#16213e]'
                         }`}
@@ -222,24 +245,28 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                         blogSubmenu ? <FaAngleDown className="h-4 w-4" /> : <FaAngleRight className="h-4 w-4" />
                       ) : item.name === 'Doctor Management' ? (
                         doctorSubmenu ? <FaAngleDown className="h-4 w-4" /> : <FaAngleRight className="h-4 w-4" />
+                      ) : item.name === 'Email Marketing' ? (
+                        emailSubmenu ? <FaAngleDown className="h-4 w-4" /> : <FaAngleRight className="h-4 w-4" />
                       ) : null}
                     </button>
 
                     {/* Submenu */}
-                    {((item.name === 'Blog Management' && blogSubmenu) || (item.name === 'Doctor Management' && doctorSubmenu)) && (
-                      <div className="pl-10 mt-1 space-y-1">
-                        {item.submenuItems!.map((subItem) => (
-                          <Link
-                            key={subItem.name}
-                            to={subItem.path}
-                            className={`block px-4 py-2 text-sm rounded-md ${isActive(subItem.path) ? 'bg-[#16213e] text-[#FFB915]' : 'hover:bg-[#16213e]'
-                              }`}
-                          >
-                            {subItem.name}
-                          </Link>
-                        ))}
-                      </div>
-                    )}
+                    {((item.name === 'Blog Management' && blogSubmenu) ||
+                      (item.name === 'Doctor Management' && doctorSubmenu) ||
+                      (item.name === 'Email Marketing' && emailSubmenu)) && (
+                        <div className="pl-10 mt-1 space-y-1">
+                          {item.submenuItems!.map((subItem) => (
+                            <Link
+                              key={subItem.name}
+                              to={subItem.path}
+                              className={`block px-4 py-2 text-sm rounded-md ${isActive(subItem.path) ? 'bg-[#16213e] text-[#FFB915]' : 'hover:bg-[#16213e]'
+                                }`}
+                            >
+                              {subItem.name}
+                            </Link>
+                          ))}
+                        </div>
+                      )}
                   </div>
                 ) : (
                   <Link
