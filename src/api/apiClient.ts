@@ -1,5 +1,5 @@
-// api/apiClient.ts - Complete API client with all methods
-import axios from 'axios';
+// api/apiClient.ts - Complete API client with all methods (corrected)
+import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
 
 // Define base URL based on environment
 const isProduction = window.location.hostname !== 'localhost';
@@ -7,38 +7,254 @@ const baseURL = isProduction
   ? 'https://omec-backend.onrender.com/api'  // Production API
   : 'http://localhost:5003/api';            // Development API
 
+// Create the main API client
 const apiClient = axios.create({
   baseURL,
   headers: {
     'Content-Type': 'application/json',
   },
-  timeout: 30000, // Increased timeout for email operations
+  timeout: 45000, // Increased timeout for better reliability
 });
 
-// Add a request interceptor to include the auth token in requests
+// Connection status tracking
+const connectionStatus = {
+  isOnline: navigator.onLine,
+  dbConnected: true,
+  lastHealthCheck: Date.now(),
+  consecutiveFailures: 0
+};
+
+// Enhanced retry configuration
+const retryConfig = {
+  maxRetries: 3,
+  retryDelay: 1000, // Base delay in milliseconds
+  retryableStatusCodes: [408, 429, 500, 502, 503, 504],
+  networkErrorCodes: ['ECONNABORTED', 'ENOTFOUND', 'ECONNREFUSED', 'ENETUNREACH']
+};
+
+// Sleep function for delays
+const sleep = (ms: number): Promise<void> => 
+  new Promise(resolve => setTimeout(resolve, ms));
+
+// Check if error is retryable
+const isRetryableError = (error: AxiosError): boolean => {
+  // Network errors
+  if (!error.response) {
+    return retryConfig.networkErrorCodes.includes(error.code || '');
+  }
+
+  // HTTP status codes that should be retried
+  const status = error.response.status;
+  return retryConfig.retryableStatusCodes.includes(status);
+};
+
+// Enhanced error handler
+const handleApiError = (error: AxiosError, url?: string) => {
+  const errorInfo = {
+    url,
+    status: error.response?.status,
+    message: error.message,
+    code: error.code,
+    timestamp: new Date().toISOString()
+  };
+
+  console.error('API Error:', errorInfo);
+
+  // Track consecutive failures
+  connectionStatus.consecutiveFailures++;
+
+  // Handle specific error types
+  if (error.response?.status === 503) {
+    connectionStatus.dbConnected = false;
+    throw new Error('Service temporarily unavailable. The database may be reconnecting. Please try again in a moment.');
+  }
+
+  if (error.response?.status === 502 || error.response?.status === 504) {
+    throw new Error('Server is temporarily unavailable. Please try again in a few moments.');
+  }
+
+  if (!error.response && error.code === 'ECONNABORTED') {
+    throw new Error('Request timed out. Please check your connection and try again.');
+  }
+
+  if (!error.response) {
+    connectionStatus.isOnline = false;
+    throw new Error('Network error. Please check your internet connection and try again.');
+  }
+
+  // Reset consecutive failures on successful response (even if error)
+  if (error.response) {
+    connectionStatus.consecutiveFailures = Math.max(0, connectionStatus.consecutiveFailures - 1);
+  }
+
+  return error;
+};
+
+// Retry function with exponential backoff
+const retryRequest = async (
+  config: AxiosRequestConfig,
+  attemptNumber: number = 1
+): Promise<AxiosResponse> => {
+  try {
+    const response = await axios(config);
+    
+    // Reset failure count on success
+    connectionStatus.consecutiveFailures = 0;
+    connectionStatus.isOnline = true;
+    
+    return response;
+  } catch (error) {
+    const axiosError = error as AxiosError;
+    
+    console.log(`Request attempt ${attemptNumber} failed:`, axiosError.message);
+
+    // If we haven't exceeded max retries and error is retryable
+    if (attemptNumber < retryConfig.maxRetries && isRetryableError(axiosError)) {
+      const delay = retryConfig.retryDelay * Math.pow(2, attemptNumber - 1); // Exponential backoff
+      console.log(`Retrying request in ${delay}ms...`);
+      
+      await sleep(delay);
+      return retryRequest(config, attemptNumber + 1);
+    }
+
+    // Handle and throw the error
+    throw handleApiError(axiosError, config.url);
+  }
+};
+
+// Health check functions
+const checkSystemHealth = async (): Promise<{
+  system: boolean;
+  database: boolean;
+  timestamp: number;
+}> => {
+  try {
+    const response = await axios.get(`${baseURL}/health`, { timeout: 10000 });
+    const healthData = response.data;
+    
+    connectionStatus.dbConnected = healthData.database?.connected || false;
+    connectionStatus.lastHealthCheck = Date.now();
+    
+    return {
+      system: true,
+      database: connectionStatus.dbConnected,
+      timestamp: connectionStatus.lastHealthCheck
+    };
+  } catch (error) {
+    console.error('Health check failed:', error);
+    connectionStatus.lastHealthCheck = Date.now();
+    
+    return {
+      system: false,
+      database: false,
+      timestamp: connectionStatus.lastHealthCheck
+    };
+  }
+};
+
+const checkDatabaseHealth = async (): Promise<{
+  connected: boolean;
+  readyState?: number;
+  error?: string;
+}> => {
+  try {
+    const response = await axios.get(`${baseURL}/db-health`, { timeout: 10000 });
+    const dbHealth = response.data;
+    
+    connectionStatus.dbConnected = dbHealth.isConnected;
+    
+    return {
+      connected: dbHealth.isConnected,
+      readyState: dbHealth.readyState,
+    };
+  } catch (error) {
+    console.error('Database health check failed:', error);
+    connectionStatus.dbConnected = false;
+    
+    return {
+      connected: false,
+      error: error instanceof Error ? error.message : 'Unknown error'
+    };
+  }
+};
+
+const forceReconnectDatabase = async (): Promise<{
+  success: boolean;
+  message: string;
+}> => {
+  try {
+    const response = await axios.post(`${baseURL}/db-reconnect`, {}, { timeout: 30000 });
+    const result = response.data;
+    
+    if (result.success) {
+      connectionStatus.dbConnected = true;
+      connectionStatus.consecutiveFailures = 0;
+    }
+    
+    return result;
+  } catch (error) {
+    console.error('Force reconnect failed:', error);
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : 'Reconnection failed'
+    };
+  }
+};
+
+// Request interceptor with retry logic
 apiClient.interceptors.request.use(
-  (config) => {
+  async (config: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any
+    // Add auth token
     const token = localStorage.getItem('token');
     if (token) {
+      config.headers = config.headers || {};
       config.headers['Authorization'] = `Bearer ${token}`;
     }
+
+    // Add request timestamp for debugging
+    config.metadata = { startTime: Date.now() };
+
+    // Check connection status before making request
+    if (connectionStatus.consecutiveFailures > 5) {
+      console.warn('Multiple consecutive failures detected. Checking health...');
+      try {
+        await checkSystemHealth();
+      } catch (healthError) {
+        console.error('Health check failed:', healthError);
+      }
+    }
+
     return config;
   },
   (error) => Promise.reject(error)
 );
 
-// Add a response interceptor to handle errors
+// Response interceptor with enhanced error handling
 apiClient.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    console.error('API Error:', error);
+  (response: AxiosResponse) => {
+    // Log response time for monitoring
+    const startTime = (response.config as any).metadata?.startTime; // eslint-disable-line @typescript-eslint/no-explicit-any
+    if (startTime) {
+      const duration = Date.now() - startTime;
+      if (duration > 10000) { // Log slow requests (>10s)
+        console.warn(`Slow request detected: ${response.config.url} took ${duration}ms`);
+      }
+    }
+
+    // Reset failure count on successful response
+    connectionStatus.consecutiveFailures = 0;
+    connectionStatus.isOnline = true;
     
-    // Handle 401 Unauthorized errors by redirecting to login
-    if (error.response && error.response.status === 401) {
+    return response;
+  },
+  async (error: AxiosError) => {
+    console.error('API Response Error:', error);
+    
+    // Handle 401 Unauthorized errors
+    if (error.response?.status === 401) {
       localStorage.removeItem('token');
       localStorage.removeItem('userRole');
       
-      // Get the current path
       const currentPath = window.location.pathname;
       
       // Redirect to appropriate login page
@@ -51,14 +267,160 @@ apiClient.interceptors.response.use(
           window.location.href = '/login';
         }
       }
+      return Promise.reject(error);
     }
-    
+
+    // If the original request can be retried, use retry logic
+    if (error.config && isRetryableError(error)) {
+      try {
+        return await retryRequest(error.config);
+      } catch (retryError) {
+        return Promise.reject(retryError);
+      }
+    }
+
+    // Handle non-retryable errors
+    handleApiError(error, error.config?.url);
     return Promise.reject(error);
   }
 );
 
+// Enhanced API with health monitoring
+const enhancedApiClient = {
+  ...apiClient,
+  
+  // Health monitoring methods
+  health: {
+    checkSystem: checkSystemHealth,
+    checkDatabase: checkDatabaseHealth,
+    forceReconnect: forceReconnectDatabase,
+    getConnectionStatus: () => ({ ...connectionStatus })
+  },
+
+  // Enhanced request methods with automatic health checks
+  async get(url: string, config?: AxiosRequestConfig) {
+    try {
+      return await apiClient.get(url, config);
+    } catch (error) {
+      // If database error, try to reconnect once
+      if (error instanceof Error && error.message.includes('Database connection')) {
+        console.log('Database connection issue detected, attempting reconnection...');
+        const reconnectResult = await forceReconnectDatabase();
+        
+        if (reconnectResult.success) {
+          console.log('Reconnection successful, retrying request...');
+          return await apiClient.get(url, config);
+        }
+      }
+      throw error;
+    }
+  },
+
+  async post(url: string, data?: any, config?: AxiosRequestConfig) { // eslint-disable-line @typescript-eslint/no-explicit-any
+    try {
+      return await apiClient.post(url, data, config);
+    } catch (error) {
+      if (error instanceof Error && error.message.includes('Database connection')) {
+        console.log('Database connection issue detected, attempting reconnection...');
+        const reconnectResult = await forceReconnectDatabase();
+        
+        if (reconnectResult.success) {
+          console.log('Reconnection successful, retrying request...');
+          return await apiClient.post(url, data, config);
+        }
+      }
+      throw error;
+    }
+  },
+
+  async put(url: string, data?: any, config?: AxiosRequestConfig) { // eslint-disable-line @typescript-eslint/no-explicit-any
+    try {
+      return await apiClient.put(url, data, config);
+    } catch (error) {
+      if (error instanceof Error && error.message.includes('Database connection')) {
+        console.log('Database connection issue detected, attempting reconnection...');
+        const reconnectResult = await forceReconnectDatabase();
+        
+        if (reconnectResult.success) {
+          console.log('Reconnection successful, retrying request...');
+          return await apiClient.put(url, data, config);
+        }
+      }
+      throw error;
+    }
+  },
+
+  async delete(url: string, config?: AxiosRequestConfig) {
+    try {
+      return await apiClient.delete(url, config);
+    } catch (error) {
+      if (error instanceof Error && error.message.includes('Database connection')) {
+        console.log('Database connection issue detected, attempting reconnection...');
+        const reconnectResult = await forceReconnectDatabase();
+        
+        if (reconnectResult.success) {
+          console.log('Reconnection successful, retrying request...');
+          return await apiClient.delete(url, config);
+        }
+      }
+      throw error;
+    }
+  }
+};
+
+// Periodic health checks (every 2 minutes when active)
+let healthCheckInterval: NodeJS.Timeout | null = null;
+
+const startHealthMonitoring = () => {
+  if (healthCheckInterval) return;
+  
+  healthCheckInterval = setInterval(async () => {
+    // Only check if we've had recent failures or it's been a while
+    const timeSinceLastCheck = Date.now() - connectionStatus.lastHealthCheck;
+    
+    if (connectionStatus.consecutiveFailures > 0 || timeSinceLastCheck > 300000) { // 5 minutes
+      try {
+        await checkSystemHealth();
+      } catch (error) {
+        console.error('Background health check failed:', error);
+      }
+    }
+  }, 120000); // 2 minutes
+};
+
+const stopHealthMonitoring = () => {
+  if (healthCheckInterval) {
+    clearInterval(healthCheckInterval);
+    healthCheckInterval = null;
+  }
+};
+
+// Monitor page visibility to pause/resume health checks
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) {
+    stopHealthMonitoring();
+  } else {
+    startHealthMonitoring();
+    // Check health immediately when page becomes visible
+    checkSystemHealth().catch(console.error);
+  }
+});
+
+// Monitor online/offline status
+window.addEventListener('online', () => {
+  connectionStatus.isOnline = true;
+  checkSystemHealth().catch(console.error);
+});
+
+window.addEventListener('offline', () => {
+  connectionStatus.isOnline = false;
+});
+
+// Start monitoring
+startHealthMonitoring();
+
 //======================================================================
-// EMAIL SYSTEM INTERFACES
+// INTERFACES AND TYPES
 //======================================================================
 
 export interface EmailTemplate {
@@ -143,522 +505,6 @@ export interface EmailAnalytics {
   avgClickRate: number;
 }
 
-//======================================================================
-// UPDATED EMAIL SYSTEM API METHODS
-//======================================================================
-
-const emailApi = {
-  // Email campaigns - Admin routes
-  getAllEmails: async (params: {
-    page?: number;
-    limit?: number;
-    status?: string;
-    template?: string;
-    startDate?: string;
-    endDate?: string;
-    sender?: string; // Admin can filter by sender
-  } = {}) => {
-    const response = await apiClient.get('/mailer/admin/emails', { params });
-    return response.data;
-  },
-
-  getEmailById: async (id: string) => {
-    const response = await apiClient.get(`/mailer/admin/emails/${id}`);
-    return response.data;
-  },
-
-  sendEmail: async (emailData: {
-    recipients: string | Array<{email: string; name?: string}>;
-    subject: string;
-    content: string;
-    htmlContent?: string;
-    template?: string;
-    priority?: 'low' | 'normal' | 'high';
-    scheduledFor?: string;
-    attachments?: File[];
-  }) => {
-    const formData = new FormData();
-    
-    // Handle recipients
-    const recipientsData = typeof emailData.recipients === 'string' 
-      ? emailData.recipients 
-      : JSON.stringify(emailData.recipients);
-    formData.append('recipients', recipientsData);
-    
-    // Add other fields
-    formData.append('subject', emailData.subject);
-    formData.append('content', emailData.content);
-    
-    if (emailData.htmlContent) {
-      formData.append('htmlContent', emailData.htmlContent);
-    }
-    
-    if (emailData.template) {
-      formData.append('template', emailData.template);
-    }
-    
-    if (emailData.priority) {
-      formData.append('priority', emailData.priority);
-    }
-    
-    if (emailData.scheduledFor) {
-      formData.append('scheduledFor', emailData.scheduledFor);
-    }
-    
-    // Add attachments
-    if (emailData.attachments && emailData.attachments.length > 0) {
-      emailData.attachments.forEach(file => {
-        formData.append('attachments', file);
-      });
-    }
-
-    const response = await apiClient.post('/mailer/admin/emails', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
-    return response.data;
-  },
-
-  resendEmail: async (id: string) => {
-    const response = await apiClient.post(`/mailer/admin/emails/${id}/resend`);
-    return response.data;
-  },
-
-  getEmailAnalytics: async (params: {
-    startDate?: string;
-    endDate?: string;
-  } = {}) => {
-    const response = await apiClient.get('/mailer/admin/analytics', { params });
-    return response.data;
-  },
-
-  testEmailConfig: async () => {
-    const response = await apiClient.post('/mailer/test');
-    return response.data;
-  },
-
-  // Email templates - Admin routes
-  getAllTemplates: async (params: {
-    page?: number;
-    limit?: number;
-    category?: string;
-    search?: string;
-    isActive?: boolean; // Admin can see inactive templates
-  } = {}) => {
-    const response = await apiClient.get('/mailer/admin/templates', { params });
-    return response.data;
-  },
-
-  getTemplateById: async (id: string) => {
-    const response = await apiClient.get(`/mailer/admin/templates/${id}`);
-    return response.data;
-  },
-
-  createTemplate: async (templateData: {
-    name: string;
-    description: string;
-    category: string;
-    subject: string;
-    htmlContent: string;
-    textContent: string;
-    variables?: EmailVariable[];
-    thumbnail?: File;
-  }) => {
-    const formData = new FormData();
-    
-    // Add template data
-    Object.keys(templateData).forEach(key => {
-      if (key === 'variables') {
-        formData.append(key, JSON.stringify(templateData[key] || []));
-      } else if (key === 'thumbnail' && templateData[key]) {
-        formData.append(key, templateData[key] as File);
-      } else if (key !== 'thumbnail') {
-        formData.append(key, templateData[key as keyof typeof templateData] as string);
-      }
-    });
-
-    const response = await apiClient.post('/mailer/admin/templates', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
-    return response.data;
-  },
-
-  updateTemplate: async (id: string, templateData: Partial<{
-    name: string;
-    description: string;
-    category: string;
-    subject: string;
-    htmlContent: string;
-    textContent: string;
-    variables: EmailVariable[];
-    thumbnail: File;
-    isActive: boolean; // Admin can activate/deactivate templates
-  }>) => {
-    const formData = new FormData();
-    
-    // Add template data
-    Object.keys(templateData).forEach(key => {
-      if (key === 'variables') {
-        formData.append(key, JSON.stringify(templateData[key] || []));
-      } else if (key === 'thumbnail' && templateData[key]) {
-        formData.append(key, templateData[key] as File);
-      } else if (key === 'isActive') {
-        formData.append(key, String(templateData[key]));
-      } else if (key !== 'thumbnail' && templateData[key as keyof typeof templateData] !== undefined) {
-        formData.append(key, templateData[key as keyof typeof templateData] as string);
-      }
-    });
-
-    const response = await apiClient.put(`/mailer/admin/templates/${id}`, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
-    return response.data;
-  },
-
-  deleteTemplate: async (id: string) => {
-    const response = await apiClient.delete(`/mailer/admin/templates/${id}`);
-    return response.data;
-  },
-
-  sendTemplateEmail: async (templateId: string, data: {
-    recipients: Array<{email: string; name?: string}>;
-    variables?: Record<string, string>;
-    scheduledFor?: string;
-  }) => {
-    const response = await apiClient.post(`/mailer/admin/emails/template/${templateId}`, data);
-    return response.data;
-  },
-
-  // Quick recipient loading (unchanged)
-  loadSubscribers: async () => {
-    const response = await apiClient.get('/newsletter/subscribers');
-    return response.data;
-  },
-
-  loadPatients: async () => {
-    const response = await apiClient.get('/appointments/patients');
-    return response.data;
-  },
-
-  // User-specific email methods (for regular users, not admin)
-  user: {
-    getAllEmails: async (params: {
-      page?: number;
-      limit?: number;
-      status?: string;
-      template?: string;
-      startDate?: string;
-      endDate?: string;
-    } = {}) => {
-      const response = await apiClient.get('/mailer/emails', { params });
-      return response.data;
-    },
-
-    getEmailAnalytics: async (params: {
-      startDate?: string;
-      endDate?: string;
-    } = {}) => {
-      const response = await apiClient.get('/mailer/analytics', { params });
-      return response.data;
-    },
-
-    getAllTemplates: async (params: {
-      page?: number;
-      limit?: number;
-      category?: string;
-      search?: string;
-    } = {}) => {
-      const response = await apiClient.get('/mailer/templates', { params });
-      return response.data;
-    },
-
-    getTemplateById: async (id: string) => {
-      const response = await apiClient.get(`/mailer/templates/${id}`);
-      return response.data;
-    }
-  }
-};
-
-//======================================================================
-// APPOINTMENT API METHODS
-//======================================================================
-
-// Doctor appointments API
-const doctorAppointmentApi = {
-  // Get doctor's appointments (with filtering)
-  getAppointments: async (status?: string, date?: string) => {
-    let url = '/appointments/doctor';
-    const params = new URLSearchParams();
-    
-    if (status && status !== 'all') params.append('status', status);
-    if (date) params.append('date', date);
-    
-    if (params.toString()) {
-      url += `?${params.toString()}`;
-    }
-    
-    const response = await apiClient.get(url);
-    return response.data;
-  },
-  
-  // Get appointment details
-  getAppointment: async (id: string) => {
-    const response = await apiClient.get(`/appointments/doctor/${id}`);
-    return response.data;
-  },
-  
-  // Update appointment status
-  updateAppointmentStatus: async (id: string, status: 'confirmed' | 'cancelled') => {
-    const response = await apiClient.put(`/appointments/doctor/${id}`, { status });
-    return response.data;
-  },
-  
-  // Get today's appointments
-  getTodayAppointments: async () => {
-    const response = await apiClient.get('/appointments/doctor/today');
-    return response.data;
-  },
-  
-  // Get appointment stats
-  getAppointmentStats: async () => {
-    const response = await apiClient.get('/appointments/doctor/stats');
-    return response.data;
-  }
-};
-
-// Admin appointment API
-const adminAppointmentApi = {
-  // Get all appointments (with filtering)
-  getAllAppointments: async (page = 1, limit = 10, filters: any = {}) => { // eslint-disable-line @typescript-eslint/no-explicit-any
-    let url = `/appointments/admin?page=${page}&limit=${limit}`;
-    
-    // Add filters to URL if provided
-    if (filters.status) url += `&status=${filters.status}`;
-    if (filters.date) url += `&date=${filters.date}`;
-    if (filters.physician) url += `&physician=${encodeURIComponent(filters.physician)}`;
-    
-    const response = await apiClient.get(url);
-    return response.data;
-  },
-  
-  // Get a specific appointment
-  getAppointment: async (id: string) => {
-    const response = await apiClient.get(`/appointments/admin/${id}`);
-    return response.data;
-  },
-  
-  // Update appointment status
-  updateAppointmentStatus: async (id: string, status: 'confirmed' | 'cancelled') => {
-    const response = await apiClient.put(`/appointments/admin/${id}`, { status });
-    return response.data;
-  },
-  
-  // Send custom email to patient
-  sendEmailToPatient: async (id: string, subject: string, message: string) => {
-    const response = await apiClient.post(`/appointments/admin/${id}/send-email`, { subject, message });
-    return response.data;
-  }
-};
-
-// Patient appointment API
-interface AppointmentInputData {
-  fullName: string;
-  phoneNumber: string;
-  email: string;
-  isHmoRegistered: string; // 'yes' or 'no'
-  hmoName?: string;
-  hmoNumber?: string;
-  hasPreviousVisit: string; // 'yes' or 'no'
-  medicalRecordNumber?: string;
-  briefHistory?: string;
-  appointmentDate: string;
-  appointmentTime: string;
-  doctorId: string;
-}
-
-const patientAppointmentApi = {
-  // Book a new appointment
-  bookAppointment: async (appointmentData: AppointmentInputData) => {
-    const response = await apiClient.post('/appointments', appointmentData);
-    return response.data;
-  },
-  
-  // Get patient's appointments by email
-  getAppointmentsByEmail: async (email: string) => {
-    const response = await apiClient.get(`/appointments/patient?email=${encodeURIComponent(email)}`);
-    return response.data;
-  }
-};
-
-//======================================================================
-// DOCTOR API METHODS
-//======================================================================
-
-// Doctor profile interface
-interface DoctorProfileData {
-  name?: string;
-  speciality?: string;
-  phoneNumber?: string;
-  bio?: string;
-}
-
-// Doctor API methods
-const doctorApi = {
-  // Doctor login
-  login: (email: string, password: string) => {
-    return apiClient.post('/doctors/login', { email, password });
-  },
-
-  // Get doctor profile
-  getProfile: () => {
-    return apiClient.get('/doctors/profile');
-  },
-
-  // Update doctor profile
-  updateProfile: (profileData: DoctorProfileData) => {
-    return apiClient.put('/doctors/profile', profileData);
-  },
-
-  // Change doctor password
-  changePassword: (currentPassword: string, newPassword: string) => {
-    return apiClient.put('/doctors/profile/password', { currentPassword, newPassword });
-  },
-
-  // Get doctor availability
-  getAvailability: () => {
-    return apiClient.get('/doctors/availability');
-  },
-
-  // Update doctor availability
-  updateAvailability: (date: string, slots: Array<{ time: string; isAvailable: boolean }>) => {
-    return apiClient.post('/doctors/availability', { date, slots });
-  },
-
-  getVapidPublicKey: async () => {
-    try {
-      const response = await apiClient.get('/doctors/vapid-public-key');
-      return response.data;
-    } catch (error) {
-      console.error('Error getting VAPID public key:', error);
-      return {
-        success: false,
-        message: 'Failed to get VAPID public key',
-        publicKey: null
-      };
-    }
-  },
-
-  savePushSubscription: async (subscription: PushSubscriptionJSON) => {
-    try {
-      const response = await apiClient.post('/doctors/push-subscription', { subscription });
-      return response.data;
-    } catch (error) {
-      console.error('Error saving push subscription:', error);
-      return {
-        success: false,
-        message: error instanceof Error ? error.message : 'Failed to save push subscription'
-      };
-    }
-  },
-
-  deletePushSubscription: async () => {
-    try {
-      const response = await apiClient.delete('/doctors/push-subscription');
-      return response.data;
-    } catch (error) {
-      console.error('Error deleting push subscription:', error);
-      return {
-        success: false,
-        message: error instanceof Error ? error.message : 'Failed to delete push subscription'
-      };
-    }
-  },
-
-  // Appointments - Using the dedicated appointment API
-  appointments: doctorAppointmentApi
-};
-
-// Admin doctor management API
-const adminDoctorApi = {
-  // Get all doctors
-  getAllDoctors: () => {
-    return apiClient.get('/doctors/admin');
-  },
-
-  // Get single doctor
-  getDoctor: (id: string) => {
-    return apiClient.get(`/doctors/admin/${id}`);
-  },
-
-  // Create new doctor
-  createDoctor: (doctorData: {
-    name: string;
-    email: string;
-    password: string;
-    speciality: string;
-    phoneNumber?: string;
-    bio?: string;
-    isActive?: boolean;
-  }) => {
-    return apiClient.post('/doctors/admin', doctorData);
-  },
-
-  // Update doctor
-  updateDoctor: (id: string, doctorData: {
-    name?: string;
-    email?: string;
-    password?: string;
-    speciality?: string;
-    phoneNumber?: string;
-    bio?: string;
-    isActive?: boolean;
-  }) => {
-    return apiClient.put(`/doctors/admin/${id}`, doctorData);
-  },
-
-  // Update doctor status (active/inactive)
-  updateDoctorStatus: (id: string, isActive: boolean) => {
-    return apiClient.put(`/doctors/admin/${id}/status`, { isActive });
-  },
-
-  // Delete doctor
-  deleteDoctor: (id: string) => {
-    return apiClient.delete(`/doctors/admin/${id}`);
-  }
-};
-
-// Public doctor API
-const publicDoctorApi = {
-  // Get all active doctors
-  getAllDoctors: () => {
-    return apiClient.get('/doctors/public');
-  },
-  
-  // Get a single doctor
-  getDoctor: (id: string) => {
-    return apiClient.get(`/doctors/public/${id}`);
-  },
-  
-  // Get doctor's available dates
-  getDoctorAvailableDates: (id: string) => {
-    return apiClient.get(`/doctors/${id}/availability`);
-  },
-  
-  // Get doctor's available time slots for a specific date
-  getDoctorAvailableTimeSlots: (id: string, date: string) => {
-    return apiClient.get(`/doctors/${id}/availability/${date}`);
-  }
-};
-
-//======================================================================
-// BLOG API METHODS
-//======================================================================
-
 export interface Comment {
   user: { _id: string; fullName: string; };
   _id: string;
@@ -699,185 +545,6 @@ export interface BlogItem {
   featuredImage?: string;
 }
 
-interface CreateBlogData {
-  title: string;
-  content: string;
-  description: string;
-  readDuration: string;
-  tags?: string[];
-  featuredImage?: string;
-  author?: string;
-}
-
-interface CommentData {
-  text: string;
-}
-
-interface PaginatedResponse<T> {
-  data: T[];
-  total: number;
-  page: number;
-  totalPages: number;
-  map: (callback: (value: T, index: number, array: T[]) => T) => T[];
-}
-
-interface BlogApi {
-  subscribeToNewsletter(email: string): unknown;
-  getAllBlogs: (page?: number, limit?: number, search?: string, tag?: string) => Promise<PaginatedResponse<BlogItem>>;
-  getBlog: (id: string) => Promise<BlogItem>;
-  getAdminBlogs: (page?: number, limit?: number) => Promise<unknown>;
-  getAdminBlog: (id: string) => Promise<unknown>;
-  createBlog: (blogData: CreateBlogData) => Promise<unknown>;
-  updateBlog: (id: string, blogData: Partial<CreateBlogData>) => Promise<unknown>;
-  deleteBlog: (id: string) => Promise<unknown>;
-  uploadImage: (file: File) => Promise<{ url: string }>;
-  likeBlog: (id: string) => Promise<unknown>;
-  addComment: (id: string, commentData: CommentData) => Promise<unknown>;
-  addReply: (blogId: string, commentId: string, text: string) => Promise<unknown>;
-}
-
-const blogApi: BlogApi = {
-  // Subscribe to newsletter
-  subscribeToNewsletter: (email: string) => {
-    return apiClient.post('/newsletter', { email });
-  },
-
-  // Get all blogs (public)
-  getAllBlogs: async (page = 1, limit = 10, search = '', tag = '') => {
-    const queryParams = new URLSearchParams();
-    queryParams.append('page', page.toString());
-    queryParams.append('limit', limit.toString());
-    
-    if (search) queryParams.append('search', search);
-    if (tag) queryParams.append('tag', tag);
-    
-    try {
-      const response = await apiClient.get(`/blogs?${queryParams.toString()}`);
-      
-      // Check response structure and return data in a consistent format
-      if (response.data && Array.isArray(response.data)) {
-        return {
-          data: response.data,
-          total: response.data.length,
-          page,
-          totalPages: Math.ceil(response.data.length / limit),
-          map: Array.prototype.map.bind(response.data)
-        };
-      } 
-      else if (response.data && response.data.data && Array.isArray(response.data.data)) {
-        return {
-          data: response.data.data,
-          total: response.data.total || response.data.data.length,
-          page: response.data.page || page,
-          totalPages: response.data.totalPages || response.data.pages || Math.ceil(response.data.data.length / limit),
-          map: Array.prototype.map.bind(response.data.data)
-        };
-      }
-      else {
-        console.warn("Unexpected API response format:", response.data);
-        return {
-          data: [],
-          total: 0,
-          page: 1,
-          totalPages: 1,
-          map: Array.prototype.map.bind([])
-        };
-      }
-    } catch (error) {
-      console.error("Error in getAllBlogs:", error);
-      throw error;
-    }
-  },
-  
-  // Get single blog (public)
-  getBlog: async (id: string): Promise<BlogItem> => {
-    if (!id) {
-      console.error("Blog ID is required");
-      return Promise.reject(new Error('Blog ID is required'));
-    }
-    
-    try {
-      const response = await apiClient.get(`/blogs/${id}`);
-      
-      // Check the response structure
-      if (response.data) {
-        if (response.data.data && typeof response.data.data === 'object') {
-          return response.data.data;
-        } else if (response.data._id) {
-          return response.data;
-        } else {
-          console.error("Unexpected response structure:", response.data);
-          return Promise.reject(new Error('Invalid blog data structure'));
-        }
-      } else {
-        console.error("No data in response");
-        return Promise.reject(new Error('No data in response'));
-      }
-    } catch (error) {
-      console.error("Error in getBlog:", error);
-      return Promise.reject(error);
-    }
-  },
-  
-  // Admin: Get all blogs
-  getAdminBlogs: (page = 1, limit = 10) => {
-    return apiClient.get(`/admin/blogs?page=${page}&limit=${limit}`);
-  },
-  
-  // Admin: Get single blog
-  getAdminBlog: (id: string) => {
-    if (!id) {
-      return Promise.reject(new Error('Blog ID is required'));
-    }
-    return apiClient.get(`/admin/blogs/${id}`);
-  },
-  
-  // Create new blog
-  createBlog: (blogData: CreateBlogData) => {
-    return apiClient.post('/blogs', blogData);
-  },
-  
-  // Update existing blog
-  updateBlog: (id: string, blogData: Partial<CreateBlogData>) => {
-    return apiClient.put(`/blogs/${id}`, blogData);
-  },
-  
-  // Delete blog
-  deleteBlog: (id: string) => {
-    return apiClient.delete(`/blogs/${id}`);
-  },
-  
-  // Upload featured image
-  uploadImage: (file: File) => {
-    const formData = new FormData();
-    formData.append('featuredImage', file);
-    return apiClient.post('/upload/image', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
-  },
-  
-  // Like/Unlike a blog
-  likeBlog: (id: string) => {
-    return apiClient.post(`/blogs/${id}/like`);
-  },
-  
-  // Comment on a blog
-  addComment: (id: string, commentData: CommentData) => {
-    return apiClient.post(`/blogs/${id}/comments`, commentData);
-  },
-  
-  // Reply to a comment
-  addReply: (blogId: string, commentId: string, text: string) => {
-    return apiClient.post(`/blogs/${blogId}/comments/${commentId}/replies`, { text });
-  }
-};
-
-//======================================================================
-// TESTIMONIAL API METHODS
-//======================================================================
-
 export interface Testimonial {
   _id: string;
   rating: number;
@@ -896,106 +563,6 @@ export interface TestimonialFormData {
   position: string;
   image?: File | null;
 }
-
-const testimonialApi = {
-  // Get all approved testimonials
-  getAllTestimonials: async () => {
-    const response = await apiClient.get('/testimonials');
-    return response.data;
-  },
-  
-  // Get recent testimonials (10)
-  getRecentTestimonials: async () => {
-    const response = await apiClient.get('/testimonials/recent');
-    return response.data;
-  },
-  
-  // Submit a new testimonial
-  submitTestimonial: async (data: TestimonialFormData) => {
-    const formData = new FormData();
-    formData.append('rating', data.rating.toString());
-    formData.append('review', data.review);
-    formData.append('name', data.name);
-    formData.append('position', data.position);
-    
-    if (data.image) {
-      formData.append('image', data.image);
-    }
-    
-    const response = await apiClient.post('/testimonials', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      }
-    });
-    return response.data;
-  },
-  
-  // Admin: Get all testimonials including unapproved
-  getAllAdminTestimonials: async () => {
-    const response = await apiClient.get('/testimonials/admin');
-    return response.data;
-  },
-  
-  // Admin: Get pending testimonials
-  getPendingTestimonials: async () => {
-    const response = await apiClient.get('/testimonials/admin/pending');
-    return response.data;
-  },
-  
-  // Admin: Approve a testimonial
-  approveTestimonial: async (id: string) => {
-    const response = await apiClient.put(`/testimonials/admin/${id}/approve`);
-    return response.data;
-  },
-  
-  // Admin: Reject a testimonial
-  rejectTestimonial: async (id: string) => {
-    const response = await apiClient.put(`/testimonials/admin/${id}/reject`);
-    return response.data;
-  },
-  
-  // Admin: Delete a testimonial
-  deleteTestimonial: async (id: string) => {
-    const response = await apiClient.delete(`/testimonials/admin/${id}`);
-    return response.data;
-  },
-  
-  // Admin: Update a testimonial
-  updateTestimonial: async (id: string, data: Partial<TestimonialFormData>) => {
-    const formData = new FormData();
-    
-    if (data.rating !== undefined) {
-      formData.append('rating', data.rating.toString());
-    }
-    
-    if (data.review !== undefined) {
-      formData.append('review', data.review);
-    }
-    
-    if (data.name !== undefined) {
-      formData.append('name', data.name);
-    }
-    
-    if (data.position !== undefined) {
-      formData.append('position', data.position);
-    }
-    
-    if (data.image) {
-      formData.append('image', data.image);
-    }
-    
-    const response = await apiClient.put(`/testimonials/admin/${id}`, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      }
-    });
-    return response.data;
-  }
-};
-
-//======================================================================
-// EVENT API METHODS
-//======================================================================
 
 export interface EventFormData {
   title: string;
@@ -1041,8 +608,756 @@ export interface Event {
   updatedAt: string;
 }
 
+interface CreateBlogData {
+  title: string;
+  content: string;
+  description: string;
+  readDuration: string;
+  tags?: string[];
+  featuredImage?: string;
+  author?: string;
+}
+
+interface CommentData {
+  text: string;
+}
+
+interface PaginatedResponse<T> {
+  data: T[];
+  total: number;
+  page: number;
+  totalPages: number;
+  map: (callback: (value: T, index: number, array: T[]) => T) => T[];
+}
+
+interface AppointmentInputData {
+  fullName: string;
+  phoneNumber: string;
+  email: string;
+  isHmoRegistered: string; // 'yes' or 'no'
+  hmoName?: string;
+  hmoNumber?: string;
+  hasPreviousVisit: string; // 'yes' or 'no'
+  medicalRecordNumber?: string;
+  briefHistory?: string;
+  appointmentDate: string;
+  appointmentTime: string;
+  doctorId: string;
+}
+
+interface DoctorProfileData {
+  name?: string;
+  speciality?: string;
+  phoneNumber?: string;
+  bio?: string;
+}
+
+interface ContactFormData {
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+}
+
+//======================================================================
+// EMAIL SYSTEM API METHODS
+//======================================================================
+
+const emailApi = {
+  // Email campaigns - Admin routes
+  getAllEmails: async (params: {
+    page?: number;
+    limit?: number;
+    status?: string;
+    template?: string;
+    startDate?: string;
+    endDate?: string;
+    sender?: string;
+  } = {}) => {
+    const response = await enhancedApiClient.get('/mailer/admin/emails', { params });
+    return response.data;
+  },
+
+  getEmailById: async (id: string) => {
+    const response = await enhancedApiClient.get(`/mailer/admin/emails/${id}`);
+    return response.data;
+  },
+
+  sendEmail: async (emailData: {
+    recipients: string | Array<{email: string; name?: string}>;
+    subject: string;
+    content: string;
+    htmlContent?: string;
+    template?: string;
+    priority?: 'low' | 'normal' | 'high';
+    scheduledFor?: string;
+    attachments?: File[];
+  }) => {
+    const formData = new FormData();
+    
+    const recipientsData = typeof emailData.recipients === 'string' 
+      ? emailData.recipients 
+      : JSON.stringify(emailData.recipients);
+    formData.append('recipients', recipientsData);
+    
+    formData.append('subject', emailData.subject);
+    formData.append('content', emailData.content);
+    
+    if (emailData.htmlContent) {
+      formData.append('htmlContent', emailData.htmlContent);
+    }
+    
+    if (emailData.template) {
+      formData.append('template', emailData.template);
+    }
+    
+    if (emailData.priority) {
+      formData.append('priority', emailData.priority);
+    }
+    
+    if (emailData.scheduledFor) {
+      formData.append('scheduledFor', emailData.scheduledFor);
+    }
+    
+    if (emailData.attachments && emailData.attachments.length > 0) {
+      emailData.attachments.forEach(file => {
+        formData.append('attachments', file);
+      });
+    }
+
+    const response = await enhancedApiClient.post('/mailer/admin/emails', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  },
+
+  resendEmail: async (id: string) => {
+    const response = await enhancedApiClient.post(`/mailer/admin/emails/${id}/resend`);
+    return response.data;
+  },
+
+  getEmailAnalytics: async (params: {
+    startDate?: string;
+    endDate?: string;
+  } = {}) => {
+    const response = await enhancedApiClient.get('/mailer/admin/analytics', { params });
+    return response.data;
+  },
+
+  testEmailConfig: async () => {
+    const response = await enhancedApiClient.post('/mailer/test');
+    return response.data;
+  },
+
+  // Email templates
+  getAllTemplates: async (params: {
+    page?: number;
+    limit?: number;
+    category?: string;
+    search?: string;
+    isActive?: boolean;
+  } = {}) => {
+    const response = await enhancedApiClient.get('/mailer/admin/templates', { params });
+    return response.data;
+  },
+
+  getTemplateById: async (id: string) => {
+    const response = await enhancedApiClient.get(`/mailer/admin/templates/${id}`);
+    return response.data;
+  },
+
+  createTemplate: async (templateData: {
+    name: string;
+    description: string;
+    category: string;
+    subject: string;
+    htmlContent: string;
+    textContent: string;
+    variables?: EmailVariable[];
+    thumbnail?: File;
+  }) => {
+    const formData = new FormData();
+    
+    Object.keys(templateData).forEach(key => {
+      if (key === 'variables') {
+        formData.append(key, JSON.stringify(templateData[key] || []));
+      } else if (key === 'thumbnail' && templateData[key]) {
+        formData.append(key, templateData[key] as File);
+      } else if (key !== 'thumbnail') {
+        formData.append(key, templateData[key as keyof typeof templateData] as string);
+      }
+    });
+
+    const response = await enhancedApiClient.post('/mailer/admin/templates', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  },
+
+  updateTemplate: async (id: string, templateData: Partial<{
+    name: string;
+    description: string;
+    category: string;
+    subject: string;
+    htmlContent: string;
+    textContent: string;
+    variables: EmailVariable[];
+    thumbnail: File;
+    isActive: boolean;
+  }>) => {
+    const formData = new FormData();
+    
+    Object.keys(templateData).forEach(key => {
+      if (key === 'variables') {
+        formData.append(key, JSON.stringify(templateData[key] || []));
+      } else if (key === 'thumbnail' && templateData[key]) {
+        formData.append(key, templateData[key] as File);
+      } else if (key === 'isActive') {
+        formData.append(key, String(templateData[key]));
+      } else if (key !== 'thumbnail' && templateData[key as keyof typeof templateData] !== undefined) {
+        formData.append(key, templateData[key as keyof typeof templateData] as string);
+      }
+    });
+
+    const response = await enhancedApiClient.put(`/mailer/admin/templates/${id}`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  },
+
+  deleteTemplate: async (id: string) => {
+    const response = await enhancedApiClient.delete(`/mailer/admin/templates/${id}`);
+    return response.data;
+  },
+
+  sendTemplateEmail: async (templateId: string, data: {
+    recipients: Array<{email: string; name?: string}>;
+    variables?: Record<string, string>;
+    scheduledFor?: string;
+  }) => {
+    const response = await enhancedApiClient.post(`/mailer/admin/emails/template/${templateId}`, data);
+    return response.data;
+  },
+
+  loadSubscribers: async () => {
+    const response = await enhancedApiClient.get('/newsletter/subscribers');
+    return response.data;
+  },
+
+  loadPatients: async () => {
+    const response = await enhancedApiClient.get('/appointments/patients');
+    return response.data;
+  },
+
+  // User-specific email methods
+  user: {
+    getAllEmails: async (params: {
+      page?: number;
+      limit?: number;
+      status?: string;
+      template?: string;
+      startDate?: string;
+      endDate?: string;
+    } = {}) => {
+      const response = await enhancedApiClient.get('/mailer/emails', { params });
+      return response.data;
+    },
+
+    getEmailAnalytics: async (params: {
+      startDate?: string;
+      endDate?: string;
+    } = {}) => {
+      const response = await enhancedApiClient.get('/mailer/analytics', { params });
+      return response.data;
+    },
+
+    getAllTemplates: async (params: {
+      page?: number;
+      limit?: number;
+      category?: string;
+      search?: string;
+    } = {}) => {
+      const response = await enhancedApiClient.get('/mailer/templates', { params });
+      return response.data;
+    },
+
+    getTemplateById: async (id: string) => {
+      const response = await enhancedApiClient.get(`/mailer/templates/${id}`);
+      return response.data;
+    }
+  }
+};
+
+//======================================================================
+// APPOINTMENT API METHODS
+//======================================================================
+
+const doctorAppointmentApi = {
+  getAppointments: async (status?: string, date?: string) => {
+    let url = '/appointments/doctor';
+    const params = new URLSearchParams();
+    
+    if (status && status !== 'all') params.append('status', status);
+    if (date) params.append('date', date);
+    
+    if (params.toString()) {
+      url += `?${params.toString()}`;
+    }
+    
+    const response = await enhancedApiClient.get(url);
+    return response.data;
+  },
+  
+  getAppointment: async (id: string) => {
+    const response = await enhancedApiClient.get(`/appointments/doctor/${id}`);
+    return response.data;
+  },
+  
+  updateAppointmentStatus: async (id: string, status: 'confirmed' | 'cancelled') => {
+    const response = await enhancedApiClient.put(`/appointments/doctor/${id}`, { status });
+    return response.data;
+  },
+  
+  getTodayAppointments: async () => {
+    const response = await enhancedApiClient.get('/appointments/doctor/today');
+    return response.data;
+  },
+  
+  getAppointmentStats: async () => {
+    const response = await enhancedApiClient.get('/appointments/doctor/stats');
+    return response.data;
+  }
+};
+
+const adminAppointmentApi = {
+  getAllAppointments: async (page = 1, limit = 10, filters: any = {}) => { // eslint-disable-line @typescript-eslint/no-explicit-any
+    let url = `/appointments/admin?page=${page}&limit=${limit}`;
+    
+    if (filters.status) url += `&status=${filters.status}`;
+    if (filters.date) url += `&date=${filters.date}`;
+    if (filters.physician) url += `&physician=${encodeURIComponent(filters.physician)}`;
+    
+    const response = await enhancedApiClient.get(url);
+    return response.data;
+  },
+  
+  getAppointment: async (id: string) => {
+    const response = await enhancedApiClient.get(`/appointments/admin/${id}`);
+    return response.data;
+  },
+  
+  updateAppointmentStatus: async (id: string, status: 'confirmed' | 'cancelled') => {
+    const response = await enhancedApiClient.put(`/appointments/admin/${id}`, { status });
+    return response.data;
+  },
+  
+  sendEmailToPatient: async (id: string, subject: string, message: string) => {
+    const response = await enhancedApiClient.post(`/appointments/admin/${id}/send-email`, { subject, message });
+    return response.data;
+  }
+};
+
+const patientAppointmentApi = {
+  bookAppointment: async (appointmentData: AppointmentInputData) => {
+    const response = await enhancedApiClient.post('/appointments', appointmentData);
+    return response.data;
+  },
+  
+  getAppointmentsByEmail: async (email: string) => {
+    const response = await enhancedApiClient.get(`/appointments/patient?email=${encodeURIComponent(email)}`);
+    return response.data;
+  }
+};
+
+// api/apiClient.ts - Part 2 (continued from part 1)
+
+//======================================================================
+// DOCTOR API METHODS (continued)
+//======================================================================
+
+const doctorApi = {
+  login: (email: string, password: string) => {
+    return enhancedApiClient.post('/doctors/login', { email, password });
+  },
+
+  getProfile: () => {
+    return enhancedApiClient.get('/doctors/profile');
+  },
+
+  updateProfile: (profileData: DoctorProfileData) => {
+    return enhancedApiClient.put('/doctors/profile', profileData);
+  },
+
+  changePassword: (currentPassword: string, newPassword: string) => {
+    return enhancedApiClient.put('/doctors/profile/password', { currentPassword, newPassword });
+  },
+
+  getAvailability: () => {
+    return enhancedApiClient.get('/doctors/availability');
+  },
+
+  updateAvailability: (date: string, slots: Array<{ time: string; isAvailable: boolean }>) => {
+    return enhancedApiClient.post('/doctors/availability', { date, slots });
+  },
+
+  getVapidPublicKey: async () => {
+    try {
+      const response = await enhancedApiClient.get('/doctors/vapid-public-key');
+      return response.data;
+    } catch (error) {
+      console.error('Error getting VAPID public key:', error);
+      return {
+        success: false,
+        message: 'Failed to get VAPID public key',
+        publicKey: null
+      };
+    }
+  },
+
+  savePushSubscription: async (subscription: PushSubscriptionJSON) => {
+    try {
+      const response = await enhancedApiClient.post('/doctors/push-subscription', { subscription });
+      return response.data;
+    } catch (error) {
+      console.error('Error saving push subscription:', error);
+      return {
+        success: false,
+        message: error instanceof Error ? error.message : 'Failed to save push subscription'
+      };
+    }
+  },
+
+  deletePushSubscription: async () => {
+    try {
+      const response = await enhancedApiClient.delete('/doctors/push-subscription');
+      return response.data;
+    } catch (error) {
+      console.error('Error deleting push subscription:', error);
+      return {
+        success: false,
+        message: error instanceof Error ? error.message : 'Failed to delete push subscription'
+      };
+    }
+  },
+
+  appointments: doctorAppointmentApi
+};
+
+const adminDoctorApi = {
+  getAllDoctors: () => {
+    return enhancedApiClient.get('/doctors/admin');
+  },
+
+  getDoctor: (id: string) => {
+    return enhancedApiClient.get(`/doctors/admin/${id}`);
+  },
+
+  createDoctor: (doctorData: {
+    name: string;
+    email: string;
+    password: string;
+    speciality: string;
+    phoneNumber?: string;
+    bio?: string;
+    isActive?: boolean;
+  }) => {
+    return enhancedApiClient.post('/doctors/admin', doctorData);
+  },
+
+  updateDoctor: (id: string, doctorData: {
+    name?: string;
+    email?: string;
+    password?: string;
+    speciality?: string;
+    phoneNumber?: string;
+    bio?: string;
+    isActive?: boolean;
+  }) => {
+    return enhancedApiClient.put(`/doctors/admin/${id}`, doctorData);
+  },
+
+  updateDoctorStatus: (id: string, isActive: boolean) => {
+    return enhancedApiClient.put(`/doctors/admin/${id}/status`, { isActive });
+  },
+
+  deleteDoctor: (id: string) => {
+    return enhancedApiClient.delete(`/doctors/admin/${id}`);
+  }
+};
+
+const publicDoctorApi = {
+  getAllDoctors: () => {
+    return enhancedApiClient.get('/doctors/public');
+  },
+  
+  getDoctor: (id: string) => {
+    return enhancedApiClient.get(`/doctors/public/${id}`);
+  },
+  
+  getDoctorAvailableDates: (id: string) => {
+    return enhancedApiClient.get(`/doctors/${id}/availability`);
+  },
+  
+  getDoctorAvailableTimeSlots: (id: string, date: string) => {
+    return enhancedApiClient.get(`/doctors/${id}/availability/${date}`);
+  }
+};
+
+//======================================================================
+// BLOG API METHODS
+//======================================================================
+
+interface BlogApi {
+  subscribeToNewsletter(email: string): Promise<any>; // eslint-disable-line @typescript-eslint/no-explicit-any
+  getAllBlogs: (page?: number, limit?: number, search?: string, tag?: string) => Promise<PaginatedResponse<BlogItem>>;
+  getBlog: (id: string) => Promise<BlogItem>;
+  getAdminBlogs: (page?: number, limit?: number) => Promise<any>; // eslint-disable-line @typescript-eslint/no-explicit-any
+  getAdminBlog: (id: string) => Promise<any>; // eslint-disable-line @typescript-eslint/no-explicit-any
+  createBlog: (blogData: CreateBlogData) => Promise<any>; // eslint-disable-line @typescript-eslint/no-explicit-any
+  updateBlog: (id: string, blogData: Partial<CreateBlogData>) => Promise<any>; // eslint-disable-line @typescript-eslint/no-explicit-any
+  deleteBlog: (id: string) => Promise<any>; // eslint-disable-line @typescript-eslint/no-explicit-any
+  uploadImage: (file: File) => Promise<{ url: string }>;
+  likeBlog: (id: string) => Promise<any>; // eslint-disable-line @typescript-eslint/no-explicit-any
+  addComment: (id: string, commentData: CommentData) => Promise<any>; // eslint-disable-line @typescript-eslint/no-explicit-any
+  addReply: (blogId: string, commentId: string, text: string) => Promise<any>; // eslint-disable-line @typescript-eslint/no-explicit-any
+}
+
+const blogApi: BlogApi = {
+  subscribeToNewsletter: async (email: string) => {
+    const response = await enhancedApiClient.post('/newsletter', { email });
+    return response.data;
+  },
+
+  getAllBlogs: async (page = 1, limit = 10, search = '', tag = '') => {
+    const queryParams = new URLSearchParams();
+    queryParams.append('page', page.toString());
+    queryParams.append('limit', limit.toString());
+    
+    if (search) queryParams.append('search', search);
+    if (tag) queryParams.append('tag', tag);
+    
+    try {
+      const response = await enhancedApiClient.get(`/blogs?${queryParams.toString()}`);
+      
+      if (response.data && Array.isArray(response.data)) {
+        return {
+          data: response.data,
+          total: response.data.length,
+          page,
+          totalPages: Math.ceil(response.data.length / limit),
+          map: Array.prototype.map.bind(response.data)
+        };
+      } 
+      else if (response.data && response.data.data && Array.isArray(response.data.data)) {
+        return {
+          data: response.data.data,
+          total: response.data.total || response.data.data.length,
+          page: response.data.page || page,
+          totalPages: response.data.totalPages || response.data.pages || Math.ceil(response.data.data.length / limit),
+          map: Array.prototype.map.bind(response.data.data)
+        };
+      }
+      else {
+        console.warn("Unexpected API response format:", response.data);
+        return {
+          data: [],
+          total: 0,
+          page: 1,
+          totalPages: 1,
+          map: Array.prototype.map.bind([])
+        };
+      }
+    } catch (error) {
+      console.error("Error in getAllBlogs:", error);
+      throw error;
+    }
+  },
+  
+  getBlog: async (id: string): Promise<BlogItem> => {
+    if (!id) {
+      console.error("Blog ID is required");
+      return Promise.reject(new Error('Blog ID is required'));
+    }
+    
+    try {
+      const response = await enhancedApiClient.get(`/blogs/${id}`);
+      
+      if (response.data) {
+        if (response.data.data && typeof response.data.data === 'object') {
+          return response.data.data;
+        } else if (response.data._id) {
+          return response.data;
+        } else {
+          console.error("Unexpected response structure:", response.data);
+          return Promise.reject(new Error('Invalid blog data structure'));
+        }
+      } else {
+        console.error("No data in response");
+        return Promise.reject(new Error('No data in response'));
+      }
+    } catch (error) {
+      console.error("Error in getBlog:", error);
+      return Promise.reject(error);
+    }
+  },
+  
+  getAdminBlogs: async (page = 1, limit = 10) => {
+    const response = await enhancedApiClient.get(`/admin/blogs?page=${page}&limit=${limit}`);
+    return response.data;
+  },
+  
+  getAdminBlog: async (id: string) => {
+    if (!id) {
+      return Promise.reject(new Error('Blog ID is required'));
+    }
+    const response = await enhancedApiClient.get(`/admin/blogs/${id}`);
+    return response.data;
+  },
+  
+  createBlog: async (blogData: CreateBlogData) => {
+    const response = await enhancedApiClient.post('/blogs', blogData);
+    return response.data;
+  },
+  
+  updateBlog: async (id: string, blogData: Partial<CreateBlogData>) => {
+    const response = await enhancedApiClient.put(`/blogs/${id}`, blogData);
+    return response.data;
+  },
+  
+  deleteBlog: async (id: string) => {
+    const response = await enhancedApiClient.delete(`/blogs/${id}`);
+    return response.data;
+  },
+  
+  uploadImage: async (file: File) => {
+    const formData = new FormData();
+    formData.append('featuredImage', file);
+    const response = await enhancedApiClient.post('/upload/image', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  },
+  
+  likeBlog: async (id: string) => {
+    const response = await enhancedApiClient.post(`/blogs/${id}/like`);
+    return response.data;
+  },
+  
+  addComment: async (id: string, commentData: CommentData) => {
+    const response = await enhancedApiClient.post(`/blogs/${id}/comments`, commentData);
+    return response.data;
+  },
+  
+  addReply: async (blogId: string, commentId: string, text: string) => {
+    const response = await enhancedApiClient.post(`/blogs/${blogId}/comments/${commentId}/replies`, { text });
+    return response.data;
+  }
+};
+
+//======================================================================
+// TESTIMONIAL API METHODS
+//======================================================================
+
+const testimonialApi = {
+  getAllTestimonials: async () => {
+    const response = await enhancedApiClient.get('/testimonials');
+    return response.data;
+  },
+  
+  getRecentTestimonials: async () => {
+    const response = await enhancedApiClient.get('/testimonials/recent');
+    return response.data;
+  },
+  
+  submitTestimonial: async (data: TestimonialFormData) => {
+    const formData = new FormData();
+    formData.append('rating', data.rating.toString());
+    formData.append('review', data.review);
+    formData.append('name', data.name);
+    formData.append('position', data.position);
+    
+    if (data.image) {
+      formData.append('image', data.image);
+    }
+    
+    const response = await enhancedApiClient.post('/testimonials', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      }
+    });
+    return response.data;
+  },
+  
+  getAllAdminTestimonials: async () => {
+    const response = await enhancedApiClient.get('/testimonials/admin');
+    return response.data;
+  },
+  
+  getPendingTestimonials: async () => {
+    const response = await enhancedApiClient.get('/testimonials/admin/pending');
+    return response.data;
+  },
+  
+  approveTestimonial: async (id: string) => {
+    const response = await enhancedApiClient.put(`/testimonials/admin/${id}/approve`);
+    return response.data;
+  },
+  
+  rejectTestimonial: async (id: string) => {
+    const response = await enhancedApiClient.put(`/testimonials/admin/${id}/reject`);
+    return response.data;
+  },
+  
+  deleteTestimonial: async (id: string) => {
+    const response = await enhancedApiClient.delete(`/testimonials/admin/${id}`);
+    return response.data;
+  },
+  
+  updateTestimonial: async (id: string, data: Partial<TestimonialFormData>) => {
+    const formData = new FormData();
+    
+    if (data.rating !== undefined) {
+      formData.append('rating', data.rating.toString());
+    }
+    
+    if (data.review !== undefined) {
+      formData.append('review', data.review);
+    }
+    
+    if (data.name !== undefined) {
+      formData.append('name', data.name);
+    }
+    
+    if (data.position !== undefined) {
+      formData.append('position', data.position);
+    }
+    
+    if (data.image) {
+      formData.append('image', data.image);
+    }
+    
+    const response = await enhancedApiClient.put(`/testimonials/admin/${id}`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      }
+    });
+    return response.data;
+  }
+};
+
+//======================================================================
+// EVENT API METHODS
+//======================================================================
+
 const eventApi = {
-  // Get all events or filtered by status
   getAllEvents: async (status?: string, featured?: boolean) => {
     let url = '/events';
     const params = new URLSearchParams();
@@ -1054,47 +1369,39 @@ const eventApi = {
       url += `?${params.toString()}`;
     }
     
-    const response = await apiClient.get(url);
+    const response = await enhancedApiClient.get(url);
     return response.data;
   },
   
-  // Get upcoming events
   getUpcomingEvents: async () => {
-    const response = await apiClient.get('/events?status=upcoming');
+    const response = await enhancedApiClient.get('/events?status=upcoming');
     return response.data;
   },
   
-  // Get past events
   getPastEvents: async () => {
-    const response = await apiClient.get('/events?status=past');
+    const response = await enhancedApiClient.get('/events?status=past');
     return response.data;
   },
   
-  // Get featured events
   getFeaturedEvents: async () => {
-    const response = await apiClient.get('/events?featured=true');
+    const response = await enhancedApiClient.get('/events?featured=true');
     return response.data;
   },
   
-  // Get single event
   getEvent: async (id: string) => {
-    const response = await apiClient.get(`/events/${id}`);
+    const response = await enhancedApiClient.get(`/events/${id}`);
     return response.data;
   },
   
-  // Admin API calls
   admin: {
-    // Get all events (admin)
     getAllEvents: async () => {
-      const response = await apiClient.get('/events/admin');
+      const response = await enhancedApiClient.get('/events/admin');
       return response.data;
     },
     
-    // Create event
     createEvent: async (eventData: EventFormData) => {
       const formData = new FormData();
       
-      // Add all fields except files
       Object.entries(eventData).forEach(([key, value]) => {
         if (key !== 'coverImage' && key !== 'galleryImages' && value !== undefined) {
           if (typeof value === 'boolean') {
@@ -1105,19 +1412,17 @@ const eventApi = {
         }
       });
       
-      // Add cover image if provided
       if (eventData.coverImage) {
         formData.append('coverImage', eventData.coverImage);
       }
       
-      // Add gallery images if provided
       if (eventData.galleryImages && eventData.galleryImages.length > 0) {
         eventData.galleryImages.forEach(image => {
           formData.append('images', image);
         });
       }
       
-      const response = await apiClient.post('/events/admin', formData, {
+      const response = await enhancedApiClient.post('/events/admin', formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
@@ -1126,11 +1431,9 @@ const eventApi = {
       return response.data;
     },
     
-    // Update event
     updateEvent: async (id: string, eventData: Partial<EventFormData>) => {
       const formData = new FormData();
       
-      // Add all fields
       Object.entries(eventData).forEach(([key, value]) => {
         if (key !== 'coverImage' && value !== undefined) {
           if (typeof value === 'boolean') {
@@ -1141,17 +1444,15 @@ const eventApi = {
         }
       });
       
-      // Add cover image if provided
       if (eventData.coverImage) {
         formData.append('coverImage', eventData.coverImage);
       }
       
-      // Add removeCoverImage flag if needed
       if (eventData.removeCoverImage) {
         formData.append('removeCoverImage', 'true');
       }
       
-      const response = await apiClient.put(`/events/admin/${id}`, formData, {
+      const response = await enhancedApiClient.put(`/events/admin/${id}`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
@@ -1160,19 +1461,16 @@ const eventApi = {
       return response.data;
     },
     
-    // Delete event
     deleteEvent: async (id: string) => {
-      const response = await apiClient.delete(`/events/admin/${id}`);
+      const response = await enhancedApiClient.delete(`/events/admin/${id}`);
       return response.data;
     },
     
-    // Update event status
     updateEventStatus: async (id: string, status: 'upcoming' | 'ongoing' | 'past') => {
-      const response = await apiClient.put(`/events/admin/${id}/status`, { status });
+      const response = await enhancedApiClient.put(`/events/admin/${id}/status`, { status });
       return response.data;
     },
     
-    // Add images to gallery
     addGalleryImages: async (id: string, images: File[]) => {
       const formData = new FormData();
       
@@ -1180,7 +1478,7 @@ const eventApi = {
         formData.append('images', image);
       });
       
-      const response = await apiClient.post(`/events/admin/${id}/gallery`, formData, {
+      const response = await enhancedApiClient.post(`/events/admin/${id}/gallery`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
@@ -1189,26 +1487,23 @@ const eventApi = {
       return response.data;
     },
     
-    // Remove image from gallery
     removeGalleryImage: async (id: string, imageIndex: number) => {
-      const response = await apiClient.delete(`/events/admin/${id}/gallery/${imageIndex}`);
+      const response = await enhancedApiClient.delete(`/events/admin/${id}/gallery/${imageIndex}`);
       return response.data;
     },
 
     updateGalleryOrder: async (id: string, galleryOrder: string[]) => {
-      const response = await apiClient.put(`/events/admin/${id}/gallery/order`, { gallery: galleryOrder });
+      const response = await enhancedApiClient.put(`/events/admin/${id}/gallery/order`, { gallery: galleryOrder });
       return response.data;
     },
 
-    // Add caption to gallery image
     addGalleryCaption: async (id: string, imageIndex: number, caption: string) => {
-      const response = await apiClient.put(`/events/admin/${id}/gallery/${imageIndex}/caption`, { caption });
+      const response = await enhancedApiClient.put(`/events/admin/${id}/gallery/${imageIndex}/caption`, { caption });
       return response.data;
     },
 
-    // Get gallery images with captions
     getGalleryWithCaptions: async (id: string) => {
-      const response = await apiClient.get(`/events/admin/${id}/gallery`);
+      const response = await enhancedApiClient.get(`/events/admin/${id}/gallery`);
       return response.data;
     }
   }
@@ -1224,22 +1519,22 @@ const subscriberApi = {
     limit?: number;
     isActive?: boolean;
   } = {}) => {
-    const response = await apiClient.get('/newsletter/subscribers', { params });
+    const response = await enhancedApiClient.get('/newsletter/subscribers', { params });
     return response.data;
   },
 
   updateSubscriberStatus: async (id: string, isActive: boolean) => {
-    const response = await apiClient.put(`/newsletter/subscribers/${id}`, { isActive });
+    const response = await enhancedApiClient.put(`/newsletter/subscribers/${id}`, { isActive });
     return response.data;
   },
 
   subscribe: async (email: string) => {
-    const response = await apiClient.post('/newsletter', { email });
+    const response = await enhancedApiClient.post('/newsletter', { email });
     return response.data;
   },
 
   unsubscribe: async (email: string) => {
-    const response = await apiClient.post('/newsletter/unsubscribe', { email });
+    const response = await enhancedApiClient.post('/newsletter/unsubscribe', { email });
     return response.data;
   }
 };
@@ -1248,17 +1543,8 @@ const subscriberApi = {
 // HELPER METHODS
 //======================================================================
 
-// Contact form interface
-interface ContactFormData {
-  name: string;
-  email: string;
-  subject: string;
-  message: string;
-}
-
-// Contact form
 const sendContactMessage = (contactData: ContactFormData) => {
-  return apiClient.post('/contact', contactData);
+  return enhancedApiClient.post('/contact', contactData);
 };
 
 //======================================================================
@@ -1267,17 +1553,17 @@ const sendContactMessage = (contactData: ContactFormData) => {
 
 const systemApi = {
   getHealthStatus: async () => {
-    const response = await apiClient.get('/health');
+    const response = await enhancedApiClient.get('/health');
     return response.data;
   },
 
   getEmailHealthStatus: async () => {
-    const response = await apiClient.get('/email-health');
+    const response = await enhancedApiClient.get('/email-health');
     return response.data;
   },
 
   getDbHealthStatus: async () => {
-    const response = await apiClient.get('/db-health');
+    const response = await enhancedApiClient.get('/db-health');
     return response.data;
   }
 };
@@ -1286,12 +1572,8 @@ const systemApi = {
 // ADMIN API CONSOLIDATION
 //======================================================================
 
-// Create an admin API object for convenience
 const adminApi = {
-  // Email system
   email: emailApi,
-  
-  // Existing systems
   doctors: adminDoctorApi,
   appointments: adminAppointmentApi,
   subscribers: subscriberApi,
@@ -1304,8 +1586,6 @@ const adminApi = {
     delete: testimonialApi.deleteTestimonial,
     update: testimonialApi.updateTestimonial
   },
-  
-  // System health
   system: systemApi,
 };
 
@@ -1314,6 +1594,9 @@ const adminApi = {
 //======================================================================
 
 export { 
+  // Enhanced API client (main export)
+  enhancedApiClient,
+  
   // Email system APIs
   emailApi,
   subscriberApi,
@@ -1334,8 +1617,7 @@ export {
   
   // Helper methods
   sendContactMessage,
-  
-  // Types are already exported from Part 1
 };
 
+// Export the enhanced client as default
 export default apiClient;
